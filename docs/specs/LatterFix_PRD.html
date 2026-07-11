@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LatterFix - Product Requirements Document (PRD)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+    
+    @page {
+      size: A4;
+      margin: 20mm 20mm 20mm 20mm;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #1e293b;
+      line-height: 1.6;
+      font-size: 11pt;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Cover Page */
+    .cover {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      page-break-after: always;
+      padding-top: 40mm;
+    }
+    
+    .cover-title {
+      font-size: 36pt;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.1;
+      margin-bottom: 5mm;
+      letter-spacing: -1px;
+    }
+    
+    .cover-subtitle {
+      font-size: 16pt;
+      font-weight: 500;
+      color: #64748b;
+      margin-bottom: 25mm;
+    }
+    
+    .cover-meta {
+      margin-top: auto;
+      border-top: 2px solid #e2e8f0;
+      padding-top: 10mm;
+      font-size: 10pt;
+      color: #475569;
+    }
+    
+    .cover-meta-item {
+      margin-bottom: 2mm;
+    }
+    
+    .cover-meta-label {
+      font-weight: 600;
+      color: #0f172a;
+      display: inline-block;
+      width: 40mm;
+    }
+    
+    /* Headings */
+    h1, h2, h3, h4 {
+      color: #0f172a;
+      font-weight: 700;
+      page-break-after: avoid;
+    }
+    
+    h1 {
+      font-size: 20pt;
+      margin-top: 15mm;
+      margin-bottom: 6mm;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 2mm;
+    }
+    
+    h2 {
+      font-size: 14pt;
+      margin-top: 10mm;
+      margin-bottom: 4mm;
+    }
+    
+    h3 {
+      font-size: 12pt;
+      margin-top: 8mm;
+      margin-bottom: 3mm;
+    }
+    
+    p {
+      margin-top: 0;
+      margin-bottom: 4mm;
+      text-align: justify;
+    }
+    
+    /* Code block */
+    pre, code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9pt;
+      background-color: #f8fafc;
+    }
+    
+    pre {
+      padding: 4mm;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin-bottom: 4mm;
+    }
+    
+    code {
+      padding: 0.5mm 1mm;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    
+    /* Lists */
+    ul, ol {
+      margin-top: 0;
+      margin-bottom: 4mm;
+      padding-left: 6mm;
+    }
+    
+    li {
+      margin-bottom: 1.5mm;
+    }
+    
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 6mm;
+      font-size: 10pt;
+    }
+    
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 2.5mm 3.5mm;
+      text-align: left;
+    }
+    
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    
+    /* Document elements */
+    .badge {
+      display: inline-block;
+      padding: 1px 6px;
+      font-size: 8pt;
+      font-weight: 600;
+      border-radius: 4px;
+      background-color: #e2e8f0;
+      color: #334155;
+    }
+    
+    .badge-accent {
+      background-color: #ecfdf5;
+      color: #065f46;
+    }
+    
+    .page-break {
+      page-break-after: always;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cover Page -->
+  <div class="cover">
+    <div class="cover-title">LatterFix</div>
+    <div class="cover-subtitle">Decentralized Payroll & Task Escrow System</div>
+    
+    <div style="font-size: 13pt; color: #475569; margin-bottom: 15mm; font-weight: 500;">
+      Product Requirements Document (PRD)
+    </div>
+    
+    <div class="cover-meta">
+      <div class="cover-meta-item"><span class="cover-meta-label">Document ID</span>LF-PRD-001</div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Version</span>1.1.0</div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Release Date</span>July 11, 2026</div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Author</span>LatterFix Core Product Team</div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Status</span><span class="badge badge-accent">Approved / Production-Ready</span></div>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <h1>1. Executive Summary</h1>
+  <p>
+    LatterFix is a modern decentralized Web3 application designed to solve trust, settlement delay, and high fee issues inherent in traditional payroll systems and freelance work networks. By utilizing the <strong>Stellar Soroban smart contract framework</strong>, LatterFix replaces third-party intermediates with self-executing escrows. This ensures absolute trust, sub-second finality, and transaction fees of less than $0.00001 per transaction.
+  </p>
+  <p>
+    This document outlines the core platform features, architectural requirements, actor-role workflows, smart contract parameters, and the on-chain registry structure supporting multi-tenant enterprise environments.
+  </p>
+
+  <!-- Section 2 -->
+  <h1>2. Target Audience & Problem Statement</h1>
+  <p>
+    The traditional freelance network model relies heavily on centralized platforms that impose 10%–20% service fees, introduce payment delays of up to 14 business days, and leave contributors vulnerable to arbitrary chargebacks and payment disputes.
+  </p>
+  <h2>2.1 Key Customer Pain Points</h2>
+  <ul>
+    <li><strong>Payment Insecurity:</strong> Contributors often execute project deliverables without verified funding locks, resulting in payment default or renegotiation.</li>
+    <li><strong>High Processing Overhead:</strong> Cross-border wire transfers and traditional processors consume significant time and cost (averaging 5%–15% in fees).</li>
+    <li><strong>Siloed Platforms:</strong> Contribution histories and reputation rankings are locked inside centralized platform ecosystems, precluding portable worker profiles.</li>
+  </ul>
+  <h2>2.2 Target Market</h2>
+  <ul>
+    <li><strong>Decentralized Autonomous Organizations (DAOs)</strong> needing atomic contributor payouts.</li>
+    <li><strong>Global Tech Enterprises</strong> seeking frictionless cross-border payments.</li>
+    <li><strong>Freelance Developers & Contractors</strong> looking for trustless milestones.</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <!-- Section 3 -->
+  <h1>3. Actor Roles & Permissions</h1>
+  <p>
+    The platform models three primary user personas, each interacting with the underlying Soroban contracts and the UI database schema with distinct access rights:
+  </p>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>User Role</th>
+        <th>System Permissions</th>
+        <th>Key Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Creator (Org Admin)</strong></td>
+        <td>Write access to project creation, escrow financing, and delivery validation.</td>
+        <td>Bootstraps contracts, creates tasks, funds escrows, verifies deliverables, releases payouts.</td>
+      </tr>
+      <tr>
+        <td><strong>Contributor</strong></td>
+        <td>Write access to registrations, applications, and task completions.</td>
+        <td>Claims funded tasks, registers professional profile, submits project completion URLs.</td>
+      </tr>
+      <tr>
+        <td><strong>Admin (Arbitrator)</strong></td>
+        <td>Write access to platform governance parameters and dispute overrides.</td>
+        <td>Sets protocol fees, resolves payment disputes, splits escrowed funds, pauses contract.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 4 -->
+  <h1>4. Functional Specifications</h1>
+  
+  <h2>4.1 On-Chain Escrow & Payout System</h2>
+  <p>
+    All financial transactions are governed directly by a Soroban smart contract. The contract guarantees that once a Creator allocates funds to a task, they cannot claw back the funds arbitrarily.
+  </p>
+  <ul>
+    <li><strong>Fund Lock:</strong> Escrow deposits lock native XLM, USDC, or EURC assets directly into the contract storage.</li>
+    <li><strong>Platform Fee:</strong> The contract dynamically deducts a customizable basis point fee (default: 2.5%) during payout execution.</li>
+    <li><strong>Instant Payout:</strong> Payout commands release net funds to the contributor's public key address instantly.</li>
+  </ul>
+
+  <h2>4.2 Interactive Contract Method Explorer</h2>
+  <p>
+    To assist audit compliance and technical users, the landing page includes an interactive Contract Explorer. The explorer lists the 12 primary Soroban functions, accepts test parameters, and simulates transaction envelopes using live workspace Zustand states or web3 wallet injection.
+  </p>
+
+  <h2>4.3 Multi-Tenant Workspace Isolation</h2>
+  <p>
+    The platform supports isolation for multiple enterprise clients. PostgreSQL Row-Level Security (RLS) is applied to keep tenant data separate. Users belonging to Tenant A cannot view employee databases, ledger sheets, or custom keys belonging to Tenant B.
+  </p>
+
+  <div class="page-break"></div>
+
+  <!-- Section 5 -->
+  <h1>5. Soroban Smart Contract Architecture</h1>
+  <p>
+    The contract exposes 12 public entrypoints. All mutations require authorization signature checks via <code>address.require_auth()</code>.
+  </p>
+
+  <h2>5.1 Method Index & Specifications</h2>
+  
+  <pre>
+1. bootstrap(admin: Address, fee_bps: u32, token: Address, fee_recipient: Address)
+   - Parameters: Admin identity, platform commission, token address, commission receiver.
+   - Restrict: Callable only once during initial deployment.
+
+2. deposit_reward(task_id: Symbol, reward: u64)
+   - Parameters: Unique task ID, token amount to transfer.
+   - Restrict: Requires token transfer allowance from caller.
+
+3. claim(task_id: Symbol, contributor: Address)
+   - Parameters: Task ID, contributor address.
+   - Restrict: Task must be funded, caller must be assigned assignee.
+
+4. submit(task_id: Symbol, delivery_url: String)
+   - Parameters: Task ID, URL of deliverables.
+   - Restrict: Caller must be the assigned contributor.
+
+5. verify(task_id: Symbol)
+   - Parameters: Task ID.
+   - Restrict: Releases net payout to assignee, sends fee_bps to fee_recipient.
+
+6. cancel(task_id: Symbol)
+   - Parameters: Task ID.
+   - Restrict: Refunds lock reward to creator. Valid only prior to assignee claiming.
+
+7. dispute(task_id: Symbol, reason: String)
+   - Parameters: Task ID, text explanation.
+   - Restrict: Freezes escrow; locks release actions until admin resolves.
+
+8. admin_split(task_id: Symbol, creator_share: u32, assignee_share: u32)
+   - Parameters: Task ID, creator share BPS, assignee share BPS.
+   - Restrict: Authorized only for adminAddress. Sum of shares must equal 10000 BPS.
+
+9. register_developer(username: String, bio: String)
+   - Parameters: Developer username handle, professional bio details.
+   - Restrict: Registers on-chain profile for sender key.
+
+10. increment_reputation(developer: Address, amount: u32)
+    - Parameters: Developer key address, reputation value to add.
+    - Restrict: Accessible only upon verify() execution.
+
+11. fetch_task(task_id: Symbol) -> TaskStruct
+    - Parameters: Task ID.
+    - Return: Struct containing status, creator, assignee, escrow, reward token.
+
+12. retrieve_profile(developer: Address) -> DeveloperProfile
+    - Parameters: Developer address.
+    - Return: Username, rating score, active contracts list.
+  </pre>
+
+  <!-- Section 6 -->
+  <h1>6. Non-Functional & Security Requirements</h1>
+  <ul>
+    <li><strong>Sub-second UI Responsiveness:</strong> Local caching via Zustand and React Query ensures that state mutations are rendered immediately, regardless of network latency.</li>
+    <li><strong>Strict Authorization:</strong> Secure wallet message signing (Freighter/xBull) is mandatory for executing any mutable state functions on the Stellar Testnet.</li>
+    <li><strong>Portable Reputation:</strong> Rep points accumulated on-chain must be stored in the contract's instance storage, allowing integration with external Web3 job boards.</li>
+  </ul>
+
+</body>
+</html>

@@ -17,7 +17,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://reactjs.org/)
 
-[Live Demo](#) · [Documentation](#documentation) · [Report Bug](https://github.com/LatterFix/task-manager-pro/issues) · [Request Feature](https://github.com/LatterFix/task-manager-pro/issues)
+[Live Demo](https://latterfix-frontend.vercel.app/) · [PRD (Markdown)](./docs/specs/LatterFix_PRD.md) · [Download PRD (PDF)](./docs/specs/LatterFix_PRD.pdf) · [Report Bug](https://github.com/LatterFixxx/LatterFix-frontend/issues)
 
 </div>
 
@@ -278,58 +278,24 @@ VITE_STELLAR_NETWORK=testnet
 
 ---
 
-## 📸 Screenshots
+## 📸 Application Showcase
 
-> **Note:** Replace placeholder images below with actual screenshots from your application.
-
-### Dashboard Overview
-
+### Brand Identity & Design System
 <p align="center">
-  <img src="./docs/images/dashboard-overview.png" alt="LatterFix Dashboard showing employee count, payroll summary, and recent transactions" width="800">
+  <img src="./docs/images/logo.png" alt="LatterFix Logo" width="200" height="200">
 </p>
 
-The dashboard provides a comprehensive overview of your organization:
-- Employee statistics and active count
-- Monthly payroll disbursement totals
-- Pending and completed tasks
-- Recent transaction history with on-chain verification
-
-### Employee Management
-
+### Interactive Landing & Contract Explorer
+Our root layout showcases an interactive contract browser designed to let developers explore, query, and test Soroban functions directly from their browser:
 <p align="center">
-  <img src="./docs/images/employee-management.png" alt="Employee management interface with search, filters, and employee cards showing wallet addresses" width="800">
+  <img src="./docs/images/hero-banner.png" alt="LatterFix Hero Banner" width="800">
 </p>
 
-Manage your workforce with:
-- Full-text search across employee records
-- Department and status filters
-- Stellar wallet address integration
-- Bulk import/export capabilities
-
-### Payroll Dashboard
-
+### Enterprise Workspace & Operations
+The workspace dashboard integrates employee rosters, smart escrow trackers, and historical transaction ledgers into a single, cohesive pane:
 <p align="center">
-  <img src="./docs/images/payroll-dashboard.png" alt="Payroll dashboard showing batch payments, USDC amounts, and transaction status" width="800">
+  <img src="./docs/images/dashboard-overview.png" alt="LatterFix Dashboard Overview" width="800">
 </p>
-
-Process payroll efficiently:
-- Create and fund payroll batches
-- Multi-currency support (USDC, XLM, EURC)
-- Real-time transaction status
-- On-chain verification links
-
-### Wallet Connection
-
-<p align="center">
-  <img src="./docs/images/wallet-connection.png" alt="Stellar wallet connection modal supporting Freighter, Lobstr, xBull and other wallets" width="600">
-</p>
-
-Connect your preferred Stellar wallet:
-- Freighter (recommended)
-- Lobstr
-- xBull
-- Albedo
-- Rabet
 
 ---
 
@@ -337,21 +303,49 @@ Connect your preferred Stellar wallet:
 
 ### System Architecture Diagram
 
-<p align="center">
-  <img src="./docs/images/architecture-diagram.png" alt="LatterFix three-tier architecture showing Frontend (React), Backend (Node.js), Data Layer (PostgreSQL/Redis), and Stellar Network" width="900">
-</p>
+```mermaid
+graph TD
+    User([User Client]) -->|Web3 Wallet| WalletKit[Stellar Wallets Kit]
+    User -->|React Router| FE[React 19 Frontend]
+    FE -->|Zustand Store| Store[Zustand Local State]
+    FE -->|HTTPS / WSS| BE[Node.js Express Backend]
+    BE -->|Query / Mutate| DB[(PostgreSQL Database)]
+    BE -->|Job Queues| Queue[BullMQ + Redis]
+    WalletKit -->|Sign Tx| Stellar[Stellar Network Ledger]
+    FE -->|Query State| Stellar
+```
 
-### Payment Flow Diagram
+### Payment Escrow Flow Diagram
 
-<p align="center">
-  <img src="./docs/images/payment-flow.png" alt="Smart contract escrow flow from admin creating batch to employees receiving instant payment on Stellar" width="800">
-</p>
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Admin as Organization Admin
+    participant Platform as LatterFix Platform
+    participant Stellar as Stellar Ledger
+    actor Contributor as Assigned Contributor
 
-### Multi-Tenant Isolation
+    Admin->>Platform: Create Task & Set Reward
+    Admin->>Platform: Fund Escrow (XLM/USDC)
+    Platform->>Stellar: Lock Tokens in Soroban Escrow Contract
+    Contributor->>Platform: Apply & Accept Assignment
+    Contributor->>Platform: Complete Work & Submit Delivery URL
+    Admin->>Platform: Verify Deliverable
+    Platform->>Stellar: Trigger verify() release
+    Stellar->>Platform: Deduct Platform Fee (2.5%)
+    Stellar->>Contributor: Disburse Net Payout
+```
 
-<p align="center">
-  <img src="./docs/images/multi-tenant-rls.png" alt="Row-Level Security diagram showing how tenant data is isolated at the database level" width="700">
-</p>
+### Multi-Tenant Isolation Flow
+
+```mermaid
+graph LR
+    TenantA[Tenant A Session] -->|JWT Claims| RLS[PostgreSQL Row-Level Security]
+    TenantB[Tenant B Session] -->|JWT Claims| RLS
+    RLS -->|Scope Isolation| Table[(Organization Ledger Table)]
+    Table -->|Only Tenant A Data| TenantA
+    Table -->|Only Tenant B Data| TenantB
+```
 
 ---
 
