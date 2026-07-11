@@ -1,95 +1,88 @@
-import { Button, Icon, Layout } from "@stellar/design-system";
-import "./App.module.css";
-import ConnectAccount from "./components/ConnectAccount.tsx";
-import { Routes, Route, Outlet, NavLink } from "react-router-dom";
-// import Home from "./pages/Home";
-import Debugger from "./pages/Debugger.tsx";
-import PayrollScheduler from "./pages/PayrollScheduler";
-import EmployeeEntry from "./pages/EmployeeEntry";
-import CustomReportBuilder from "./pages/CustomReportBuilder";
-
-const AppLayout: React.FC = () => (
-  <main>
-    <Layout.Header
-      projectId="PayD"
-      projectTitle="PayD"
-      contentRight={
-        <>
-          <nav className="flex space-x-4">
-            <NavLink
-              to="/payroll"
-              className={({ isActive }: { isActive: boolean }) =>
-                `text-sm font-medium ${isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700"}`
-              }
-            >
-              Payroll
-            </NavLink>
-            <NavLink
-              to="/employee"
-              className={({ isActive }: { isActive: boolean }) =>
-                `text-sm font-medium ${isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700"}`
-              }
-            >
-              Employees
-            </NavLink>
-            <NavLink
-              to="/reports"
-              className={({ isActive }: { isActive: boolean }) =>
-                `text-sm font-medium ${isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700"}`
-              }
-            >
-              Reports
-            </NavLink>
-            <NavLink
-              to="/debug"
-              style={{
-                textDecoration: "none",
-              }}
-            >
-              {({ isActive }) => (
-                <Button
-                  variant="tertiary"
-                  size="md"
-                  onClick={() => (window.location.href = "/debug")}
-                  disabled={isActive}
-                >
-                  <Icon.Code02 size="md" />
-                  Debugger
-                </Button>
-              )}
-            </NavLink>
-          </nav>
-          <ConnectAccount />
-        </>
-      }
-    />
-    <Outlet />
-    <Layout.Footer>
-      <span>
-        © {new Date().getFullYear()} PayD. Licensed under the{" "}
-        <a
-          href="http://www.apache.org/licenses/LICENSE-2.0"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Apache License, Version 2.0
-        </a>
-        .
-      </span>
-    </Layout.Footer>
-  </main>
-);
+import { Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import Home from './pages/Home';
+import CreateTask from './pages/CreateTask';
+import TaskExplorer from './pages/TaskExplorer';
+import EscrowManager from './pages/EscrowManager';
+import PaymentLedger from './pages/PaymentLedger';
+import Settings from './pages/Settings';
+import Governance from './pages/Governance';
+import AppLayout from './components/AppLayout';
+import ErrorBoundary from './components/ErrorBoundary';
+import ErrorFallback from './components/ErrorFallback';
+import Login from './pages/Login';
+import AuthCallback from './pages/AuthCallback';
+import { contractService } from './services/contracts';
 
 function App() {
+  // Initialize contract service on app startup
+  useEffect(() => {
+    contractService.initialize().catch((error) => {
+      console.error('Failed to initialize contract service:', error);
+    });
+  }, []);
+
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        {/* <Route path="/" element={<Home />} /> */}
-        <Route path="/payroll" element={<PayrollScheduler />} />
-        <Route path="/employee" element={<EmployeeEntry />} />
-        <Route path="/reports" element={<CustomReportBuilder />} />
-        <Route path="/debug" element={<Debugger />} />
-        <Route path="/debug/:contractName" element={<Debugger />} />
+        <Route
+          path="/"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Dashboard Error" />}>
+              <Home />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/tasks"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Explorer Error" />}>
+              <TaskExplorer />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/create-task"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Create Task Error" />}>
+              <CreateTask />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/escrow"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Escrow Error" />}>
+              <EscrowManager />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/governance"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Governance Error" />}>
+              <Governance />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="History Error" />}>
+              <PaymentLedger />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Settings Error" />}>
+              <Settings />
+            </ErrorBoundary>
+          }
+        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/auth-callback" element={<AuthCallback />} />
       </Route>
     </Routes>
   );
