@@ -2,9 +2,15 @@
 
 # LatterFix
 
+<img src="./docs/images/logo.png" alt="LatterFix Logo" width="120" height="120">
+
 ### Decentralized Payroll & Task Management Platform
 
 **Powered by Stellar Soroban Smart Contracts**
+
+<p align="center">
+  <img src="./docs/images/hero-banner.png" alt="LatterFix - Decentralized Payroll Platform on Stellar" width="700">
+</p>
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Stellar](https://img.shields.io/badge/Stellar-Soroban-orange.svg)](https://stellar.org)
@@ -274,81 +280,78 @@ VITE_STELLAR_NETWORK=testnet
 
 ## 📸 Screenshots
 
+> **Note:** Replace placeholder images below with actual screenshots from your application.
+
 ### Dashboard Overview
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│  LATTERFIX DASHBOARD                                          [Wallet] │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐               │
-│  │   Employees   │  │   Payroll     │  │   Tasks       │               │
-│  │     📊 127    │  │   💰 $45,230  │  │    📋 23      │               │
-│  │   Active      │  │   This Month  │  │   Pending     │               │
-│  └───────────────┘  └───────────────┘  └───────────────┘               │
-│                                                                          │
-│  ┌───────────────────────────────────────────────────────────────────┐  │
-│  │                    Recent Payroll Transactions                     │  │
-│  │  ─────────────────────────────────────────────────────────────────│  │
-│  │  👤 John Doe      │ 💵 $2,500 USDC │ ✅ Completed │ Jul 10, 2026  │  │
-│  │  👤 Jane Smith    │ 💵 $3,200 USDC │ ✅ Completed │ Jul 10, 2026  │  │
-│  │  👤 Mike Johnson  │ 💵 $2,800 USDC │ ⏳ Pending  │ Jul 11, 2026  │  │
-│  └───────────────────────────────────────────────────────────────────┘  │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+
+<p align="center">
+  <img src="./docs/images/dashboard-overview.png" alt="LatterFix Dashboard showing employee count, payroll summary, and recent transactions" width="800">
+</p>
+
+The dashboard provides a comprehensive overview of your organization:
+- Employee statistics and active count
+- Monthly payroll disbursement totals
+- Pending and completed tasks
+- Recent transaction history with on-chain verification
 
 ### Employee Management
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│  EMPLOYEES                                          [+ Add Employee]   │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  🔍 Search employees...          [Status ▼]  [Department ▼]  [Export]  │
-│                                                                          │
-│  ┌───────────────────────────────────────────────────────────────────┐  │
-│  │ 👤 John Doe                                                        │  │
-│  │    Software Engineer • Engineering • Active                        │  │
-│  │    Wallet: GABC...XYZ123                                          │  │
-│  │    Salary: $5,000 USDC/month                           [Edit] [Pay]│  │
-│  ├───────────────────────────────────────────────────────────────────┤  │
-│  │ 👤 Jane Smith                                                      │  │
-│  │    Product Manager • Product • Active                              │  │
-│  │    Wallet: GDEF...XYZ456                                          │  │
-│  │    Salary: $6,500 USDC/month                           [Edit] [Pay]│  │
-│  └───────────────────────────────────────────────────────────────────┘  │
-│                                                                          │
-│  Showing 1-10 of 127 employees                          [1] [2] [3] >   │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+
+<p align="center">
+  <img src="./docs/images/employee-management.png" alt="Employee management interface with search, filters, and employee cards showing wallet addresses" width="800">
+</p>
+
+Manage your workforce with:
+- Full-text search across employee records
+- Department and status filters
+- Stellar wallet address integration
+- Bulk import/export capabilities
+
+### Payroll Dashboard
+
+<p align="center">
+  <img src="./docs/images/payroll-dashboard.png" alt="Payroll dashboard showing batch payments, USDC amounts, and transaction status" width="800">
+</p>
+
+Process payroll efficiently:
+- Create and fund payroll batches
+- Multi-currency support (USDC, XLM, EURC)
+- Real-time transaction status
+- On-chain verification links
+
+### Wallet Connection
+
+<p align="center">
+  <img src="./docs/images/wallet-connection.png" alt="Stellar wallet connection modal supporting Freighter, Lobstr, xBull and other wallets" width="600">
+</p>
+
+Connect your preferred Stellar wallet:
+- Freighter (recommended)
+- Lobstr
+- xBull
+- Albedo
+- Rabet
+
+---
+
+## 🎨 Visual Architecture
+
+### System Architecture Diagram
+
+<p align="center">
+  <img src="./docs/images/architecture-diagram.png" alt="LatterFix three-tier architecture showing Frontend (React), Backend (Node.js), Data Layer (PostgreSQL/Redis), and Stellar Network" width="900">
+</p>
 
 ### Payment Flow Diagram
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    SMART CONTRACT ESCROW FLOW                            │
-└─────────────────────────────────────────────────────────────────────────┘
 
-    ┌────────────┐        ┌────────────┐        ┌────────────────────┐
-    │   Admin    │        │  Smart     │        │    Employee        │
-    │  Creates   │───────▶│  Contract  │───────▶│   Receives         │
-    │   Batch    │        │   Escrow   │        │    Payment         │
-    └────────────┘        └────────────┘        └────────────────────┘
-                               │
-                    ┌──────────┴──────────┐
-                    │                     │
-              ┌─────▼─────┐         ┌─────▼─────┐
-              │   Funds   │         │  Payment  │
-              │  Locked   │         │  Released │
-              │  (USDC)   │         │  On Done  │
-              └───────────┘         └───────────┘
-                    │                     │
-                    └──────────┬──────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │   Stellar Network   │
-                    │  ⚡ 3-5 sec finality │
-                    │  💰 $0.000005 fee    │
-                    └─────────────────────┘
-```
+<p align="center">
+  <img src="./docs/images/payment-flow.png" alt="Smart contract escrow flow from admin creating batch to employees receiving instant payment on Stellar" width="800">
+</p>
+
+### Multi-Tenant Isolation
+
+<p align="center">
+  <img src="./docs/images/multi-tenant-rls.png" alt="Row-Level Security diagram showing how tenant data is isolated at the database level" width="700">
+</p>
 
 ---
 
