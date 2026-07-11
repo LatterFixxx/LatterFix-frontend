@@ -1,8 +1,8 @@
 {
-  "name": "payd-backend",
+  "name": "latterfix-backend",
   "version": "1.0.0",
   "type": "module",
-  "description": "PayD Backend API with SDS Integration",
+  "description": "LatterFix Backend API",
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsx watch src/index.ts",

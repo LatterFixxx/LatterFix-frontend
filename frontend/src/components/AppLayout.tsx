@@ -28,14 +28,14 @@ const AppLayout: React.FC = () => {
       >
         {/* Logo */}
         <NavLink className="flex items-center gap-2.5" to="/">
-          <div className="w-8 h-8 rounded-lg grid place-items-center font-extrabold text-black text-sm tracking-tight shadow-[0_0_20px_rgba(74,240,184,0.3)] bg-linear-to-br from-(--accent) to-(--accent2)">
-            P
+          <div className="w-8 h-8 rounded-lg grid place-items-center font-extrabold text-black text-sm tracking-tight shadow-[0_0_20px_rgba(124,111,247,0.3)] bg-linear-to-br from-(--accent2) to-(--accent)">
+            LF
           </div>
           <span className="text-lg font-extrabold tracking-tight">
-            Pay<span className="text-(--accent)">D</span>
+            Task<span className="text-(--accent)">Manager</span> Pro
           </span>
           <span className="text-[9px] font-normal font-mono text-(--muted) tracking-widest uppercase border border-(--border-hi) px-1.5 py-0.5 rounded ml-0.5">
-            BETA
+            Decentralized
           </span>
         </NavLink>
 
@@ -64,19 +64,19 @@ const AppLayout: React.FC = () => {
         style={{ borderColor: 'var(--border-hi)' }}
       >
         <span>
-          © {new Date().getFullYear()} PayD — Licensed under the{' '}
+          © {new Date().getFullYear()} LatterFix — Task Manager Pro. Licensed under the{' '}
           <a
-            href="http://www.apache.org/licenses/LICENSE-2.0"
+            href="https://mit-license.org/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-(--accent) hover:underline"
           >
-            Apache License 2.0
+            MIT License
           </a>
         </span>
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-(--accent) shadow-[0_0_6px_var(--accent)]" />
-          STELLAR NETWORK · MAINNET
+          STELLAR SOROBAN NETWORK · SOROBAN-PREVIEW-11
         </div>
       </footer>
     </div>

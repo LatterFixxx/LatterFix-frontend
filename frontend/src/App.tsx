@@ -1,28 +1,20 @@
 import { Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import Home from './pages/Home';
-import Debugger from './pages/Debugger';
-import PayrollScheduler from './pages/PayrollScheduler';
-import EmployeeEntry from './pages/EmployeeEntry';
+import CreateTask from './pages/CreateTask';
+import TaskExplorer from './pages/TaskExplorer';
+import EscrowManager from './pages/EscrowManager';
+import PaymentLedger from './pages/PaymentLedger';
+import Settings from './pages/Settings';
+import Governance from './pages/Governance';
 import AppLayout from './components/AppLayout';
-import HelpCenter from './pages/HelpCenter';
 import ErrorBoundary from './components/ErrorBoundary';
 import ErrorFallback from './components/ErrorFallback';
-import Settings from './pages/Settings';
-import CustomReportBuilder from './pages/CustomReportBuilder';
-import CrossAssetPayment from './pages/CrossAssetPayment';
-import TransactionHistory from './pages/TransactionHistory';
-import RevenueSplitDashboard from './pages/RevenueSplitDashboard';
-
-import EmployeePortal from './pages/EmployeePortal';
 import Login from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
-import { useTranslation } from 'react-i18next';
 import { contractService } from './services/contracts';
 
 function App() {
-  const { t } = useTranslation();
-
   // Initialize contract service on app startup
   useEffect(() => {
     contractService.initialize().catch((error) => {
@@ -36,138 +28,56 @@ function App() {
         <Route
           path="/"
           element={
-            <ErrorBoundary
-              fallback={
-                <ErrorFallback
-                  title={t('errorFallback.homeTitle')}
-                  description={t('errorFallback.homeDescription')}
-                />
-              }
-            >
+            <ErrorBoundary fallback={<ErrorFallback title="Dashboard Error" />}>
               <Home />
             </ErrorBoundary>
           }
         />
         <Route
-          path="/payroll"
+          path="/tasks"
           element={
-            <ErrorBoundary
-              fallback={
-                <ErrorFallback
-                  title={t('errorFallback.payrollTitle')}
-                  description={t('errorFallback.payrollDescription')}
-                />
-              }
-            >
-              <PayrollScheduler />
+            <ErrorBoundary fallback={<ErrorFallback title="Explorer Error" />}>
+              <TaskExplorer />
             </ErrorBoundary>
           }
         />
         <Route
-          path="/employee"
+          path="/create-task"
           element={
-            <ErrorBoundary
-              fallback={
-                <ErrorFallback
-                  title={t('errorFallback.employeesTitle')}
-                  description={t('errorFallback.employeesDescription')}
-                />
-              }
-            >
-              <EmployeeEntry />
+            <ErrorBoundary fallback={<ErrorFallback title="Create Task Error" />}>
+              <CreateTask />
             </ErrorBoundary>
           }
         />
         <Route
-          path="/portal"
+          path="/escrow"
           element={
-            <ErrorBoundary
-              fallback={
-                <ErrorFallback
-                  title="Employee Portal Error"
-                  description="Something went wrong loading your portal."
-                />
-              }
-            >
-              <EmployeePortal />
+            <ErrorBoundary fallback={<ErrorFallback title="Escrow Error" />}>
+              <EscrowManager />
             </ErrorBoundary>
           }
         />
         <Route
-          path="/reports"
+          path="/governance"
           element={
-            <ErrorBoundary fallback={<ErrorFallback />}>
-              <CustomReportBuilder />
+            <ErrorBoundary fallback={<ErrorFallback title="Governance Error" />}>
+              <Governance />
             </ErrorBoundary>
           }
         />
         <Route
-          path="/debug"
+          path="/history"
           element={
-            <ErrorBoundary
-              fallback={
-                <ErrorFallback
-                  title={t('errorFallback.debuggerTitle')}
-                  description={t('errorFallback.debuggerDescription')}
-                />
-              }
-            >
-              <Debugger />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/debug/:contractName"
-          element={
-            <ErrorBoundary
-              fallback={
-                <ErrorFallback
-                  title={t('errorFallback.debuggerTitle')}
-                  description={t('errorFallback.debuggerDescription')}
-                />
-              }
-            >
-              <Debugger />
+            <ErrorBoundary fallback={<ErrorFallback title="History Error" />}>
+              <PaymentLedger />
             </ErrorBoundary>
           }
         />
         <Route
           path="/settings"
           element={
-            <ErrorBoundary fallback={<ErrorFallback onReset={() => {}} />}>
+            <ErrorBoundary fallback={<ErrorFallback title="Settings Error" />}>
               <Settings />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/help"
-          element={
-            <ErrorBoundary fallback={<ErrorFallback onReset={() => {}} />}>
-              <HelpCenter />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/cross-asset-payment"
-          element={
-            <ErrorBoundary fallback={<ErrorFallback onReset={() => {}} />}>
-              <CrossAssetPayment />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/transactions"
-          element={
-            <ErrorBoundary fallback={<ErrorFallback onReset={() => {}} />}>
-              <TransactionHistory />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/revenue-split"
-          element={
-            <ErrorBoundary fallback={<ErrorFallback onReset={() => {}} />}>
-              <RevenueSplitDashboard />
             </ErrorBoundary>
           }
         />
