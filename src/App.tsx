@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
+import LandingPage from './pages/LandingPage';
 import Home from './pages/Home';
 import CreateTask from './pages/CreateTask';
 import TaskExplorer from './pages/TaskExplorer';
@@ -27,6 +28,14 @@ function App() {
       <Route element={<AppLayout />}>
         <Route
           path="/"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Landing Page Error" />}>
+              <LandingPage />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/dashboard"
           element={
             <ErrorBoundary fallback={<ErrorFallback title="Dashboard Error" />}>
               <Home />
