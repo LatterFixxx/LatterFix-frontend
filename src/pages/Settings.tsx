@@ -1,49 +1,123 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Coins,
   Award,
   CheckCircle,
-  Save
+  Save,
+  Zap,
+  ExternalLink,
+  Wifi,
+  Loader2,
+  Copy,
+  Info,
 } from 'lucide-react';
 import { useTaskStore } from '../services/taskStore';
+import { useWallet } from '../hooks/useWallet';
+import { useHorizonAccount } from '../hooks/useHorizonAccount';
+import { getExplorerUrl } from '../services/stellar';
+import { queryGetProfile, queryGetUserTier, type SorobanUserProfile } from '../services/sorobanTaskContract';
 
 export default function Settings() {
   const { currentUser, updateProfile } = useTaskStore();
-  
+  const { address, connect, disconnect, isConnecting } = useWallet();
+  const { balances, isLoading: balancesLoading, accountExists } = useHorizonAccount(address);
+
   const [username, setUsername] = useState(currentUser.username);
-  const [address, setAddress] = useState(currentUser.address);
   const [role, setRole] = useState(currentUser.role);
-  
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const [onChainProfile, setOnChainProfile] = useState<SorobanUserProfile | null>(null);
+  const [tier, setTier] = useState<string | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  // Load on-chain profile when wallet connects
+  useEffect(() => {
+    if (!address) { setOnChainProfile(null); setTier(null); return; }
+    setProfileLoading(true);
+    Promise.all([
+      queryGetProfile(address).catch(() => null),
+      queryGetUserTier(address).catch(() => null),
+    ]).then(([profile, userTier]) => {
+      setOnChainProfile(profile);
+      setTier(userTier);
+      setProfileLoading(false);
+    });
+  }, [address]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfile(username, address, role);
+    updateProfile(username, address ?? currentUser.address, role);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
+  };
+
+  const copyAddress = () => {
+    if (!address) return;
+    navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const tierColor = (t: string) => {
+    const map: Record<string, string> = {
+      Legend: 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10',
+      Master: 'text-purple-400 border-purple-500/30 bg-purple-500/10',
+      Expert: 'text-blue-400 border-blue-500/30 bg-blue-500/10',
+      Contributor: 'text-green-400 border-green-500/30 bg-green-500/10',
+      Newcomer: 'text-muted border-white/10 bg-white/5',
+    };
+    return map[t] ?? 'text-muted border-white/10 bg-white/5';
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 page-fade">
       {/* Header */}
-      <div className="border-b border-white/5 pb-6">
-        <h1 className="text-3xl font-black text-white tracking-tight">On-Chain Reputation & Profile</h1>
-        <p className="text-xs text-muted">Manage your identity and monitor your contributor credentials.</p>
+      <div className="border-b border-white/5 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-black text-white tracking-tight">Settings &amp; Profile</h1>
+          <p className="text-xs text-muted mt-1">
+            Manage your Stellar wallet, on-chain reputation tier, and platform identity.
+          </p>
+        </div>
+        {/* Wallet toggle */}
+        {address ? (
+          <button
+            onClick={disconnect}
+            className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs font-bold hover:bg-red-500/20 transition"
+          >
+            Disconnect Wallet
+          </button>
+        ) : (
+          <button
+            onClick={connect}
+            disabled={isConnecting}
+            className="flex items-center gap-2 px-4 py-2 bg-accent text-bg font-bold rounded-xl text-xs hover:scale-105 transition-transform disabled:opacity-50"
+          >
+            {isConnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Stats & Reputation */}
+        {/* Left: Stats & Wallet */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Card 1: Reputation Card */}
+          {/* Reputation card */}
           <div className="card glass noise p-6 space-y-4 text-center">
             <div className="w-16 h-16 rounded-full bg-linear-to-tr from-accent to-accent2 mx-auto flex items-center justify-center font-black text-2xl text-bg">
-              {currentUser.username.substring(0, 2).toUpperCase()}
+              {(onChainProfile?.username ?? currentUser.username).substring(0, 2).toUpperCase()}
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">{currentUser.username}</h3>
-              <span className="text-[10px] font-mono text-muted uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded border border-white/5">
-                {currentUser.role}
-              </span>
+              <h3 className="text-xl font-bold text-white">
+                {onChainProfile?.username ?? currentUser.username}
+              </h3>
+              {tier && (
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border mt-1 inline-block ${tierColor(tier)}`}>
+                  <Award className="w-3 h-3 inline mr-1" />{tier}
+                </span>
+              )}
+              {profileLoading && <Loader2 className="w-4 h-4 text-accent animate-spin mx-auto mt-2" />}
             </div>
 
             <div className="border-t border-white/5 pt-4 space-y-3">
@@ -51,26 +125,68 @@ export default function Settings() {
                 <span className="text-muted flex items-center gap-1">
                   <Award className="w-3.5 h-3.5 text-accent" /> Reputation
                 </span>
-                <span className="font-bold text-white">{currentUser.reputation} / 100</span>
+                <span className="font-bold text-white">
+                  {onChainProfile?.reputation ?? currentUser.reputation}
+                </span>
               </div>
-              {/* Progress bar */}
               <div className="w-full h-2 bg-black/35 rounded-full overflow-hidden border border-white/5">
                 <div
                   className="h-full bg-linear-to-r from-accent2 to-accent transition-all duration-500"
-                  style={{ width: `${currentUser.reputation}%` }}
+                  style={{ width: `${Math.min(onChainProfile?.reputation ?? currentUser.reputation, 100)}%` }}
                 />
               </div>
               <p className="text-[9px] text-muted leading-relaxed text-left">
-                Reputation is earned by successfully completing projects (+2 pts). Raising unjustified disputes or failing deadlines will reduce your rating (-5 pts).
+                Earned via <code>reward_contribution()</code> on-chain. Completing tasks increases your tier (Newcomer → Legend).
               </p>
             </div>
           </div>
 
-          {/* Card 2: Earnings */}
-          <div className="card glass noise p-6 flex items-center justify-between">
+          {/* Wallet balances */}
+          <div className="card glass noise p-5 space-y-3">
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                <Wifi className="w-3.5 h-3.5 text-green-400" /> Live Balances
+              </p>
+              <span className="text-[9px] text-muted">Horizon</span>
+            </div>
+            {address ? (
+              <>
+                {[
+                  { label: 'XLM', value: balances.XLM },
+                  { label: 'USDC', value: balances.USDC },
+                  { label: 'EURC', value: balances.EURC },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center justify-between text-xs">
+                    <span className="text-muted">{label}</span>
+                    <span className="font-black text-white">
+                      {balancesLoading ? '...' : parseFloat(value).toFixed(4)}
+                    </span>
+                  </div>
+                ))}
+                {!accountExists && !balancesLoading && (
+                  <a
+                    href={`https://friendbot.stellar.org?addr=${address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-[10px] text-yellow-400 hover:underline mt-1"
+                  >
+                    ⚠ Account unfunded — Fund via Friendbot ↗
+                  </a>
+                )}
+              </>
+            ) : (
+              <p className="text-xs text-muted italic">Connect wallet to see live balances.</p>
+            )}
+          </div>
+
+          {/* Earnings */}
+          <div className="card glass noise p-5 flex items-center justify-between">
             <div>
               <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">Total Earnings</p>
-              <h4 className="text-2xl font-black text-accent">{currentUser.earnings.toLocaleString()} <span className="text-xs font-normal text-muted">USDC</span></h4>
+              <h4 className="text-2xl font-black text-accent">
+                {currentUser.earnings.toLocaleString()}{' '}
+                <span className="text-xs font-normal text-muted">USDC</span>
+              </h4>
             </div>
             <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
               <Coins className="w-5 h-5" />
@@ -78,15 +194,43 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Right Column: Edit Profile */}
-        <div className="lg:col-span-2">
+        {/* Right: Edit profile */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Connected wallet panel */}
+          {address && (
+            <div className="card glass noise p-5 space-y-3">
+              <p className="text-xs font-bold text-white border-b border-white/5 pb-2">Connected Stellar Address</p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-[11px] font-mono text-accent bg-black/30 border border-white/5 rounded-lg px-3 py-2 truncate">
+                  {address}
+                </code>
+                <button
+                  onClick={copyAddress}
+                  title="Copy address"
+                  className="p-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition text-muted"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+                <a
+                  href={getExplorerUrl('account', address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-accent/10 border border-accent/20 rounded-lg hover:bg-accent/20 transition text-accent"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+              {copied && <p className="text-[10px] text-green-400">✓ Copied to clipboard</p>}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="card glass noise p-8 space-y-6">
             <h3 className="text-lg font-bold text-white border-b border-white/5 pb-3">Identity Settings</h3>
 
             {saveSuccess && (
               <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-xl flex items-center gap-2 text-xs text-green-400">
                 <CheckCircle className="w-4 h-4" />
-                <span>Profile settings saved successfully!</span>
+                <span>Profile saved. Call <code>update_profile()</code> on-chain to persist permanently.</span>
               </div>
             )}
 
@@ -103,24 +247,26 @@ export default function Settings() {
                   placeholder="Enter username..."
                   className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-accent/40"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-widest text-muted">
-                  Stellar Wallet Address (G-Key)
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="G..."
-                  className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white font-mono focus:outline-none focus:border-accent/40"
-                />
-                <p className="text-[10px] text-muted">
-                  The primary public address used for receiving escrow payouts and signing authorizations.
+                <p className="text-[10px] text-muted flex items-center gap-1">
+                  <Info className="w-3 h-3" /> Stored on-chain in <code>UserProfile.username</code> via <code>create_profile()</code>.
                 </p>
               </div>
+
+              {!address && (
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-muted">
+                    Stellar Wallet Address (manual)
+                  </label>
+                  <input
+                    type="text"
+                    value={currentUser.address}
+                    onChange={(e) => updateProfile(username, e.target.value, role)}
+                    placeholder="G..."
+                    className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white font-mono focus:outline-none focus:border-accent/40"
+                  />
+                  <p className="text-[10px] text-muted">Or connect a wallet above to auto-fill.</p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <label className="block text-xs font-bold uppercase tracking-widest text-muted">
@@ -131,22 +277,21 @@ export default function Settings() {
                   onChange={(e) => setRole(e.target.value as any)}
                   className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-accent/40"
                 >
-                  <option value="Contributor" className="bg-slate-900 text-white">Contributor (Work & Earn)</option>
-                  <option value="Creator" className="bg-slate-900 text-white">Creator (Hire & Fund)</option>
-                  <option value="Admin" className="bg-slate-900 text-white">Admin (Governance & Arbitration)</option>
+                  <option value="Contributor" className="bg-slate-900 text-white">Contributor (Work &amp; Earn)</option>
+                  <option value="Creator" className="bg-slate-900 text-white">Creator (Hire &amp; Fund)</option>
+                  <option value="Admin" className="bg-slate-900 text-white">Admin (Governance &amp; Arbitration)</option>
                 </select>
-                <p className="text-[10px] text-muted">
-                  Roles switch dashboard workflows instantly. You can also toggle roles from the navbar.
-                </p>
+                <p className="text-[10px] text-muted">Roles switch dashboard workflows instantly. Toggle also available in the navbar.</p>
               </div>
             </div>
 
-            <div className="border-t border-white/5 pt-6 flex justify-end">
+            <div className="border-t border-white/5 pt-6 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-muted">⚡ Stellar Soroban · Testnet</span>
               <button
                 type="submit"
                 className="flex items-center gap-2 px-6 py-3 bg-accent text-bg font-extrabold rounded-xl hover:scale-102 transition-transform shadow-lg shadow-accent/20"
               >
-                <Save className="w-4 h-4" /> Save Profile Details
+                <Save className="w-4 h-4" /> Save Profile
               </button>
             </div>
           </form>
