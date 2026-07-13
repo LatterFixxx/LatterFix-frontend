@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CheckCircle,
@@ -9,10 +9,13 @@ import {
   Activity,
   Lock,
   Play,
-  ChevronRight
+  ChevronRight,
+  Zap,
+  GitBranch,
 } from 'lucide-react';
 import { useTaskStore } from '../services/taskStore';
 import { useWallet } from '../hooks/useWallet';
+import { fetchNetworkFeeStats, type NetworkFeeStats } from '../services/transactionHistory';
 
 interface MethodParam {
   name: string;
@@ -36,6 +39,13 @@ export default function LandingPage() {
   const [activeMethod, setActiveMethod] = useState<string | null>(null);
   const [methodInputs, setMethodInputs] = useState<Record<string, string>>({});
   const [executionResult, setExecutionResult] = useState<{ success: boolean; output: string } | null>(null);
+  const [feeStats, setFeeStats] = useState<NetworkFeeStats | null>(null);
+
+  useEffect(() => {
+    fetchNetworkFeeStats()
+      .then(setFeeStats)
+      .catch(() => null);
+  }, []);
 
   // Filter open tasks to display as "Live Bounties"
   const openTasks = tasks.filter((t) => t.status === 'Open' || t.status === 'InEscrow');
@@ -401,24 +411,50 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── LIVE NETWORK STATS BANNER ── */}
+      {feeStats && (
+        <section className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: 'Network', value: 'Testnet', icon: <Zap className="w-3.5 h-3.5 text-accent" /> },
+              {
+                label: 'Congestion',
+                value: feeStats.congestion.toUpperCase(),
+                icon: <Activity className="w-3.5 h-3.5 text-yellow-400" />,
+              },
+              { label: 'Base Fee', value: `${feeStats.baseFee} stroops`, icon: <Zap className="w-3.5 h-3.5 text-purple-400" /> },
+              { label: 'Latest Ledger', value: `#${feeStats.lastLedger.toLocaleString()}`, icon: <GitBranch className="w-3.5 h-3.5 text-green-400" /> },
+            ].map((stat) => (
+              <div key={stat.label} className="card glass noise px-4 py-3 flex items-center gap-3 border border-white/5">
+                {stat.icon}
+                <div>
+                  <p className="text-xs font-bold text-white">{stat.value}</p>
+                  <p className="text-[9px] text-muted uppercase tracking-wider">{stat.label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ── STELLAR WALLET CONNECTION WIDGET ── */}
       <section className="max-w-4xl mx-auto card glass noise p-8 border border-white/10 rounded-3xl relative">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-muted">Stellar Account Connection</span>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-muted">Stellar Wallet — Freighter · xBull · Lobstr</span>
             <h2 className="text-2xl font-black text-white">
               {walletAddress ? (
                 <span className="flex items-center gap-2 text-accent">
-                  <CheckCircle className="w-6 h-6" /> Connected via Freighter
+                  <CheckCircle className="w-6 h-6" /> Wallet Connected
                 </span>
               ) : (
-                'Freighter Wallet Not Connected'
+                'Connect to Sign Transactions'
               )}
             </h2>
             <p className="text-xs text-muted max-w-md">
               {walletAddress
-                ? `Active wallet address: ${walletAddress}`
-                : 'Connect your Stellar Freighter wallet extension to execute smart contract operations in real-time.'}
+                ? `Signing address: ${walletAddress.slice(0, 12)}...${walletAddress.slice(-6)} — ready to create tasks and sign Soroban invocations.`
+                : 'Connect Freighter, xBull, or Lobstr to sign Soroban contract transactions and interact with the LatterFix escrow system.'}
             </p>
           </div>
 
@@ -669,20 +705,26 @@ export default function LandingPage() {
       {/* ── METRICS SECTION ── */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-6">
         <div className="card glass noise p-6 text-center border border-white/5">
-          <h3 className="text-4xl font-black text-white mb-1">12</h3>
+          <h3 className="text-4xl font-black text-white mb-1">20+</h3>
           <p className="text-[10px] font-mono uppercase tracking-widest text-muted">Contract Methods</p>
+          <p className="text-[9px] text-muted mt-1">create_task · complete · dispute · resolve</p>
         </div>
         <div className="card glass noise p-6 text-center border border-white/5">
-          <h3 className="text-4xl font-black text-accent mb-1">5 / 5</h3>
+          <h3 className="text-4xl font-black text-accent mb-1">8 / 8</h3>
           <p className="text-[10px] font-mono uppercase tracking-widest text-muted">Test Cases Passing</p>
+          <p className="text-[9px] text-muted mt-1">Soroban SDK test harness</p>
         </div>
         <div className="card glass noise p-6 text-center border border-white/5">
-          <h3 className="text-4xl font-black text-accent2 mb-1">Testnet</h3>
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted">Stellar Network</p>
+          <h3 className="text-4xl font-black text-accent2 mb-1">
+            {feeStats ? `#${(feeStats.lastLedger / 1000).toFixed(0)}k` : 'Testnet'}
+          </h3>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted">Live Ledger</p>
+          <p className="text-[9px] text-muted mt-1">Stellar Testnet (live)</p>
         </div>
         <div className="card glass noise p-6 text-center border border-white/5">
           <h3 className="text-4xl font-black text-white mb-1">v22</h3>
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted">soroban-sdk Version</p>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted">soroban-sdk</p>
+          <p className="text-[9px] text-muted mt-1">Rust · Wasm · Stellar</p>
         </div>
       </section>
 
