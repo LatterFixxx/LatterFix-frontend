@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import {
   Coins,
   CheckCircle,
@@ -7,7 +8,10 @@ import {
   TrendingUp,
   User,
   ShieldCheck,
-  Plus
+  Plus,
+  Loader2,
+  Activity,
+  Zap,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -22,10 +26,35 @@ import {
   Cell
 } from 'recharts';
 import { useTaskStore } from '../services/taskStore';
+import { useWallet } from '../hooks/useWallet';
+import { useHorizonAccount } from '../hooks/useHorizonAccount';
+import { queryGetStatistics, queryGetEscrowStats, type SorobanContractStatistics, type SorobanEscrowStats } from '../services/sorobanTaskContract';
+import { fetchNetworkFeeStats, type NetworkFeeStats } from '../services/transactionHistory';
+import { getExplorerUrl } from '../services/stellar';
 
 export default function Home() {
   const navigate = useNavigate();
   const { tasks, currentUser, payments } = useTaskStore();
+  const { address, connect } = useWallet();
+  const { balances, isLoading: balancesLoading } = useHorizonAccount(address);
+
+  const [contractStats, setContractStats] = useState<SorobanContractStatistics | null>(null);
+  const [escrowStats, setEscrowStats] = useState<SorobanEscrowStats | null>(null);
+  const [feeStats, setFeeStats] = useState<NetworkFeeStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      queryGetStatistics().catch(() => null),
+      queryGetEscrowStats().catch(() => null),
+      fetchNetworkFeeStats().catch(() => null),
+    ]).then(([stats, escrow, fees]) => {
+      setContractStats(stats);
+      setEscrowStats(escrow);
+      setFeeStats(fees);
+      setStatsLoading(false);
+    });
+  }, []);
 
   // Filter tasks based on status
   const openTasks = tasks.filter((t) => t.status === 'Open');
@@ -106,6 +135,98 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Live On-chain Stats Banner */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          {
+            label: 'On-chain Tasks Created',
+            value: contractStats ? String(contractStats.totalTasksCreated) : '—',
+            sub: 'Soroban contract',
+            icon: <Activity className="w-4 h-4 text-accent" />,
+          },
+          {
+            label: 'Total Value Settled',
+            value: contractStats
+              ? `${(Number(contractStats.totalValuePaid) / 1e7).toFixed(2)}`
+              : '—',
+            sub: 'Tokens (7 decimals)',
+            icon: <Coins className="w-4 h-4 text-green-400" />,
+          },
+          {
+            label: 'Active On-chain Escrows',
+            value: escrowStats ? String(escrowStats.activeEscrows) : '—',
+            sub: 'Locked in contract',
+            icon: <ShieldCheck className="w-4 h-4 text-yellow-400" />,
+          },
+          {
+            label: 'Network Congestion',
+            value: feeStats ? feeStats.congestion.toUpperCase() : '—',
+            sub: `Base: ${feeStats ? feeStats.baseFee : '?'} stroops`,
+            icon: <Zap className="w-4 h-4 text-purple-400" />,
+          },
+        ].map((stat) => (
+          <div key={stat.label} className="card glass noise p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              {stat.icon}
+              {statsLoading && stat.value === '—' ? (
+                <Loader2 className="w-3.5 h-3.5 text-accent animate-spin" />
+              ) : null}
+            </div>
+            <p className="text-xl font-black text-white">{stat.value}</p>
+            <div>
+              <p className="text-[10px] font-bold text-muted uppercase tracking-wider">{stat.label}</p>
+              <p className="text-[9px] text-white/30">{stat.sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Wallet Balance Panel */}
+      {address && (
+        <div className="card glass noise p-5 flex flex-wrap items-center gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+              <User className="w-4 h-4 text-green-400" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white font-mono">{address.slice(0, 8)}...{address.slice(-6)}</p>
+              <p className="text-[10px] text-muted">Connected Wallet</p>
+            </div>
+          </div>
+          {[{ token: 'XLM', balance: balances.XLM }, { token: 'USDC', balance: balances.USDC }, { token: 'EURC', balance: balances.EURC }].map(({ token, balance }) => (
+            <div key={token} className="text-center">
+              <p className="text-lg font-black text-white">
+                {balancesLoading ? '...' : parseFloat(balance).toFixed(4)}
+              </p>
+              <p className="text-[10px] text-muted">{token}</p>
+            </div>
+          ))}
+          <a
+            href={getExplorerUrl('account', address)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto text-[10px] text-accent hover:underline flex items-center gap-1"
+          >
+            Stellar Expert ↗
+          </a>
+        </div>
+      )}
+
+      {!address && (
+        <div className="card glass noise p-5 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-bold text-white">Connect Wallet to See Live Balances</p>
+            <p className="text-xs text-muted mt-0.5">Supports Freighter, xBull, and Lobstr.</p>
+          </div>
+          <button
+            onClick={connect}
+            className="flex items-center gap-2 px-4 py-2.5 bg-accent text-bg font-extrabold rounded-xl hover:scale-105 transition-transform text-xs shrink-0"
+          >
+            <Zap className="w-3.5 h-3.5" /> Connect Wallet
+          </button>
+        </div>
+      )}
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
