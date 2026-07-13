@@ -39,7 +39,9 @@
 
 ## Overview
 
-**LatterFix** is a comprehensive **decentralized payroll and task management platform** built on **Stellar Soroban smart contracts**. It enables organizations to manage employees, process payroll payments, and facilitate task-based collaboration with instant, low-cost crypto payments.
+**LatterFix** is a fully on-chain **decentralized task management and escrow platform** built on **Stellar Soroban smart contracts**. It allows task creators to fund work via smart contract escrow, and contributors to earn instant USDC/XLM/EURC payouts the moment their delivery is verified — entirely without a centralized backend.
+
+Every user action (task creation, assignment, work submission, dispute, governance vote) constructs a real Soroban transaction using `@stellar/stellar-sdk`, simulates it against the Soroban RPC, routes the XDR to the user's wallet for signing (Freighter, xBull, Lobstr), and polls for ledger confirmation before updating the UI.
 
 ### The Problem We Solve
 
@@ -74,117 +76,85 @@
 
 ## ✨ Key Features
 
-### 🏢 Multi-Tenant Organization Management
-- **Row-Level Security (RLS)** - Database-level tenant isolation
-- **Organization-specific configurations** - Customize payment settings, branding, and security
-- **Role-based access control** - Admin, manager, and employee roles
-- **Tenant-specific audit logging** - Complete activity tracking per organization
+### ⛓️ Real Soroban Contract Integration
+- **Full transaction lifecycle** — Simulate → Prepare → Sign → Submit → Poll for every action
+- **20+ contract methods** exposed via `sorobanTaskContract.ts` service
+- **Wallet support** — Freighter, xBull, Lobstr via `@creit.tech/stellar-wallets-kit`
+- **Simulation-first** — Every tx is simulated against Soroban RPC before wallet prompt
 
-### 💼 Employee Management
-- **Employee profiles** with Stellar wallet addresses
-- **Department and position tracking**
-- **Status management** (active, inactive, pending)
-- **Bulk import/export** via CSV/Excel
+### 🔒 On-Chain Escrow
+- **`create_task()`** locks reward tokens in Soroban contract storage
+- **`complete_task()`** releases net payout (reward minus 2.5% platform fee) to contributor
+- **`dispute_task()`** freezes escrow awaiting admin `resolve_dispute()` with custom split
+- **`cancel_task()`** refunds creator in full
 
-### 💸 Payroll Processing
-- **Multi-currency support** - Pay in USDC, XLM, EURC, and more
-- **Batch payment processing** - Pay hundreds of employees in one transaction
-- **Smart contract escrow** - Funds locked until conditions met
-- **Instant settlements** - 3-5 second finality on Stellar
+### 📊 Live Horizon & RPC Data
+- **Real account balances** — XLM, USDC, EURC queried from Horizon on every page
+- **Network congestion** — Live fee stats from `/fee_stats` endpoint in AppNav
+- **Transaction history** — Paginated Horizon tx list, claimable balances, Soroban `getEvents`
+- **Live ledger number** — Shown on landing page, updates on mount
 
-### 📋 Task Management
-- **Task creation with funding** - Create tasks with crypto rewards
-- **Contributor assignment** - Assign tasks to qualified workers
-- **Completion verification** - Multiple verification methods
-- **Instant payment release** - Automatic payout on completion
+### 🗳️ On-Chain Governance
+- **`create_proposal()` / `cast_vote()` / `execute_proposal()`** all wallet-signed
+- **`grant_role()` / `pause_all()` / `unpause_all()`** for admin circuit-breaking
+- Live proposals fetched from Soroban RPC on page load
 
-### 📊 Analytics & Reporting
-- **Real-time dashboards** - Transaction history, employee stats
-- **Audit reports** - Comprehensive payment tracking
-- **Export capabilities** - PDF, Excel, CSV formats
-- **Stellar Explorer integration** - On-chain transaction verification
+### 👤 On-Chain Profiles & Reputation
+- **Tiered reputation system** — Newcomer → Contributor → Expert → Master → Legend
+- **`get_profile()` / `get_user_reputation()` / `get_user_tier()`** called from Profile page
+- **`slash_reputation()` / `reward_contribution()`** for admin reputation management
+- **`total_earnings`** tracked cumulatively in on-chain profile storage
 
-### 🔐 Security & Compliance
-- **Multi-factor authentication (2FA)** - TOTP-based security
-- **OAuth integration** - Google & GitHub login
-- **Stellar wallet connection** - Connect Freighter, Lobstr, and more
-- **End-to-end encryption** - Secure data transmission
+### 🛡️ Access Control & Pausable
+- **Role-based auth** — Admin / Moderator / Verifier with `require_auth()` guards
+- **Granular pause** — Each of 7 actions can be independently paused/unpaused
+- **Emergency circuit-breaker** — `pause_all()` halts the entire contract in one call
 
 ---
 
 ## 🏗️ Architecture
 
-LatterFix follows a modern **three-tier architecture** with Stellar integration:
+LatterFix is a **backend-free dApp** — all state lives on the Stellar ledger.
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                          LATTERFIX ARCHITECTURE                          │
-└─────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────┐
-│                            FRONTEND LAYER                                │
-│                        (React + TypeScript)                              │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌────────────┐ │
-│   │   Dashboard  │  │   Employee   │  │   Payroll    │  │   Tasks    │ │
-│   │    Portal    │  │   Management │  │   Dashboard  │  │   Module   │ │
-│   └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └─────┬──────┘ │
-│          │                 │                 │                 │        │
-│   ┌──────▼─────────────────▼─────────────────▼─────────────────▼──────┐ │
-│   │                    Stellar Wallet Kit                              │ │
-│   │        (Freighter, Lobstr, xBull, Albedo, Rabet)                  │ │
-│   └───────────────────────────────────────────────────────────────────┘ │
-│                                                                          │
-│   ┌───────────────────────────────────────────────────────────────────┐ │
-│   │              State Management (Zustand + React Query)              │ │
-│   └───────────────────────────────────────────────────────────────────┘ │
-│                                                                          │
-└──────────────────────────────────┬──────────────────────────────────────┘
-                                   │
-                                   │ REST API + WebSocket
-                                   │
-┌──────────────────────────────────▼──────────────────────────────────────┐
-│                            BACKEND LAYER                                 │
-│                      (Node.js + Express + TypeScript)                    │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│   ┌────────────────┐  ┌────────────────┐  ┌────────────────────────┐   │
-│   │  REST API      │  │  WebSocket     │  │  Background Jobs       │   │
-│   │  Endpoints     │  │  (Socket.io)   │  │  (BullMQ + Redis)      │   │
-│   └───────┬────────┘  └───────┬────────┘  └───────────┬────────────┘   │
-│           │                   │                       │                 │
-│   ┌───────▼───────────────────▼───────────────────────▼────────────┐   │
-│   │                    Business Logic Layer                         │   │
-│   │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐              │   │
-│   │  │   Payroll   │ │   Search    │ │   Tenant    │              │   │
-│   │  │   Service   │ │   Service   │ │   Service   │              │   │
-│   │  └─────────────┘ └─────────────┘ └─────────────┘              │   │
-│   └─────────────────────────────────────────────────────────────────┘   │
-│                                                                          │
-│   ┌───────────────────────────────────────────────────────────────────┐ │
-│   │              Stellar Data Service (SDS) Integration               │ │
-│   │         High-performance on-chain data querying (86% faster)      │ │
-│   └───────────────────────────────────────────────────────────────────┘ │
-│                                                                          │
-└──────────────────────────────────┬──────────────────────────────────────┘
-                                   │
-                                   │ PostgreSQL + Redis
-                                   │
-┌──────────────────────────────────▼──────────────────────────────────────┐
-│                           DATA LAYER                                     │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│   ┌────────────────────────────┐  ┌────────────────────────────────┐   │
-│   │     PostgreSQL Database     │  │         Redis Cache            │   │
-│   │  ┌──────────────────────┐  │  │  ┌──────────────────────────┐  │   │
-│   │  │ Row-Level Security   │  │  │  │   Session Storage        │  │   │
-│   │  │ Tenant Isolation     │  │  │  │   Job Queues            │  │   │
-│   │  │ Full-Text Search     │  │  │  │   API Caching           │  │   │
-│   │  └──────────────────────┘  │  │  └──────────────────────────┘  │   │
-│   └────────────────────────────┘  └────────────────────────────────┘   │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                      LATTERFIX ARCHITECTURE                       │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  React 19 + TypeScript (Vite)                                     │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐  │
+│  │Dashboard │ │Explorer  │ │Escrow Mgr│ │Governance│ │Profile │  │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └───┬────┘  │
+│       │             │            │             │            │       │
+│  ┌────▼─────────────▼────────────▼─────────────▼────────────▼────┐ │
+│  │         useContractTask / useHorizonAccount hooks              │ │
+│  │         sorobanTaskContract.ts service layer                   │ │
+│  └─────────────────────────────┬──────────────────────────────────┘ │
+│                                 │                                    │
+│  ┌──────────────────────────────▼──────────────────────────────┐   │
+│  │           Stellar Wallets Kit (Freighter / xBull / Lobstr)   │   │
+│  │         simulate → prepare XDR → sign → submit → poll       │   │
+│  └──────────────────────────────┬──────────────────────────────┘   │
+│                                 │                                    │
+└─────────────────────────────────┼────────────────────────────────────┘
+                                  │
+               ┌──────────────────┴──────────────────┐
+               │                                     │
+   ┌───────────▼───────────┐           ┌─────────────▼────────────┐
+   │   Soroban RPC          │           │   Stellar Horizon API     │
+   │  simulateTransaction   │           │  account balances        │
+   │  sendTransaction       │           │  tx history              │
+   │  getEvents (contract)  │           │  fee_stats (live)        │
+   │  getTransaction        │           │  claimable balances      │
+   └───────────┬────────────┘           └─────────────┬────────────┘
+               │                                       │
+               └──────────────────┬────────────────────┘
+                                  │
+                    ┌─────────────▼──────────────┐
+                    │  Stellar Testnet Ledger      │
+                    │  LatterFix TaskManager       │
+                    │  Soroban Contract (Rust/Wasm) │
+                    └──────────────────────────────┘
 ```
 
 ### Data Flow: Payroll Payment
@@ -352,35 +322,38 @@ graph LR
 ## 🔧 Technology Stack
 
 ### Frontend
-| Technology | Purpose |
-|------------|---------|
-| **React 19** | UI framework |
-| **TypeScript 5.9** | Type safety |
-| **Vite 7** | Build tool |
-| **Tailwind CSS 4** | Styling |
-| **Zustand** | State management |
-| **React Query** | Server state |
-| **Stellar Wallets Kit** | Wallet connection |
-| **Framer Motion** | Animations |
+| Technology | Version | Purpose |
+|------------|---------|--------|
+| **React** | 19 | UI framework |
+| **TypeScript** | 5.9 | Type safety |
+| **Vite** | 7 | Build tool |
+| **Zustand** | latest | Client state management |
+| **@stellar/stellar-sdk** | latest | Transaction building, XDR, Horizon |
+| **@creit.tech/stellar-wallets-kit** | latest | Freighter / xBull / Lobstr |
+| **Vanilla CSS** | — | Styling (no Tailwind) |
+| **lucide-react** | latest | Icons |
 
-### Backend
-| Technology | Purpose |
-|------------|---------|
-| **Node.js 18+** | Runtime |
-| **Express 5** | API framework |
-| **TypeScript 5.9** | Type safety |
-| **PostgreSQL** | Primary database |
-| **Redis** | Cache & queues |
-| **Socket.io** | Real-time updates |
-| **BullMQ** | Job processing |
-| **Stellar SDK** | Blockchain interaction |
+### Stellar Integration Layer
+| Module | What it does |
+|--------|--------------|
+| `sorobanTaskContract.ts` | 20+ contract methods, simulate → sign → poll |
+| `stellar.ts` | Horizon account ops, path payments, claimable balances, trustlines |
+| `transactionHistory.ts` | Paginated Horizon txs, `getEvents` RPC, fee stats |
+| `useContractTask.ts` | React hook wiring contract actions to wallet |
+| `useHorizonAccount.ts` | Live XLM/USDC/EURC balances from Horizon |
 
-### Infrastructure
-| Service | Purpose |
-|---------|---------|
-| **Stellar Network** | Blockchain layer |
-| **Soroban** | Smart contracts |
-| **Stellar Data Service** | High-performance queries |
+### Smart Contract (Rust / Soroban)
+| Module | Responsibility |
+|--------|----------------|
+| `lib.rs` | Public contract entrypoint (20+ methods) |
+| `escrow.rs` | Task state machine & token locking |
+| `governance.rs` | Proposals, voting, execution |
+| `reputation.rs` | Tiered points system & leaderboard |
+| `access_control.rs` | Role-based auth with `require_auth()` |
+| `pausable.rs` | Granular + global circuit-breaker |
+| `user_profile.rs` | On-chain profiles, earnings, avatar |
+| `storage.rs` | TTL management, statistics, categories |
+| `events.rs` | 22 timestamped event emitters |
 
 ---
 
