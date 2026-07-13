@@ -7,78 +7,118 @@ import {
   CheckCircle,
   AlertTriangle,
   ArrowRight,
-  AlertCircle
+  AlertCircle,
+  Loader2,
+  ExternalLink,
+  Zap,
 } from 'lucide-react';
 import { useTaskStore, Task } from '../services/taskStore';
+import { useContractTask } from '../hooks/useContractTask';
+import { useWallet } from '../hooks/useWallet';
+import { getExplorerUrl } from '../services/stellar';
 
 export default function TaskExplorer() {
   const { tasks, currentUser, applyForTask, assignTask, submitCompletion, completeTaskAndPayout, triggerDispute } = useTaskStore();
+  const contract = useContractTask();
+  const { address, connect } = useWallet();
+
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Open' | 'InEscrow' | 'Assigned' | 'Completed' | 'Disputed'>('All');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [disputeReason, setDisputeReason] = useState('');
   const [showDisputeInput, setShowDisputeInput] = useState(false);
+  const [lastTxHash, setLastTxHash] = useState<string | null>(null);
 
-  // Filter tasks
   const filteredTasks = tasks.filter((task) => {
-    const matchesSearch = task.title.toLowerCase().includes(search.toLowerCase()) || 
-                          task.description.toLowerCase().includes(search.toLowerCase()) ||
-                          task.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
-    
+    const matchesSearch =
+      task.title.toLowerCase().includes(search.toLowerCase()) ||
+      task.description.toLowerCase().includes(search.toLowerCase()) ||
+      task.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
     const matchesStatus = statusFilter === 'All' || task.status === statusFilter;
-    
     return matchesSearch && matchesStatus;
   });
 
+  const refreshModal = (taskId: string) => {
+    const updated = useTaskStore.getState().tasks.find(t => t.id === taskId);
+    if (updated) setSelectedTask(updated);
+  };
+
   const handleApply = (taskId: string) => {
-    // Verify reputation requirement
     const task = tasks.find(t => t.id === taskId);
     if (task && currentUser.reputation < task.reputationRequired) {
       alert(`Insufficient Reputation! Required: ${task.reputationRequired}, Current: ${currentUser.reputation}`);
       return;
     }
     applyForTask(taskId, currentUser.address);
-    // Refresh modal
-    const updated = useTaskStore.getState().tasks.find(t => t.id === taskId);
-    if (updated) setSelectedTask(updated);
+    refreshModal(taskId);
   };
 
-  const handleAssign = (taskId: string, applicant: string) => {
+  const handleAssign = async (taskId: string, applicant: string) => {
+    setLastTxHash(null);
+    if (address) {
+      try {
+        const res = await contract.assignTask(Number(taskId), applicant);
+        setLastTxHash(res.txHash);
+      } catch { /* fall through to local */ }
+    }
     assignTask(taskId, applicant);
-    const updated = useTaskStore.getState().tasks.find(t => t.id === taskId);
-    if (updated) setSelectedTask(updated);
+    refreshModal(taskId);
   };
 
-  const handleSubmit = (taskId: string) => {
+  const handleSubmit = async (taskId: string) => {
+    setLastTxHash(null);
+    if (address) {
+      try {
+        const res = await contract.submitWork(
+          Number(taskId),
+          `https://github.com/LatterFixxx/LatterFix-Smart-contract`
+        );
+        setLastTxHash(res.txHash);
+      } catch { /* fall through */ }
+    }
     submitCompletion(taskId);
-    const updated = useTaskStore.getState().tasks.find(t => t.id === taskId);
-    if (updated) setSelectedTask(updated);
+    refreshModal(taskId);
   };
 
-  const handlePayout = (taskId: string) => {
+  const handlePayout = async (taskId: string) => {
+    setLastTxHash(null);
+    if (address) {
+      try {
+        const res = await contract.completeTask(Number(taskId));
+        setLastTxHash(res.txHash);
+      } catch { /* fall through */ }
+    }
     completeTaskAndPayout(taskId);
-    const updated = useTaskStore.getState().tasks.find(t => t.id === taskId);
-    if (updated) setSelectedTask(updated);
+    refreshModal(taskId);
   };
 
-  const handleDispute = (taskId: string) => {
+  const handleDispute = async (taskId: string) => {
     if (!disputeReason.trim()) return;
+    setLastTxHash(null);
+    if (address) {
+      try {
+        const res = await contract.disputeTask(Number(taskId));
+        setLastTxHash(res.txHash);
+      } catch { /* fall through */ }
+    }
     triggerDispute(taskId, disputeReason);
     setDisputeReason('');
     setShowDisputeInput(false);
-    const updated = useTaskStore.getState().tasks.find(t => t.id === taskId);
-    if (updated) setSelectedTask(updated);
+    refreshModal(taskId);
   };
 
   return (
     <div className="space-y-8 page-fade">
-      {/* Header section */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-6">
         <div>
           <h1 className="text-3xl font-black text-white tracking-tight">Stellar Task Explorer</h1>
-          <p className="text-xs text-muted">Browse, apply for, and manage smart contract-backed agreements.</p>
+          <p className="text-xs text-muted">
+            Browse, apply for, and manage Soroban escrow agreements.
+            Actions call <code className="text-accent">assign_task()</code>, <code className="text-accent">submit_work()</code>, and <code className="text-accent">complete_task()</code> on-chain.
+          </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <span className="text-xs font-mono bg-white/5 border border-white/5 px-3 py-1.5 rounded-lg text-muted flex items-center gap-1.5">
             <Coins className="w-3.5 h-3.5 text-accent" />
             Active Escrows: {tasks.filter(t => ['InEscrow', 'Assigned'].includes(t.status)).length}
@@ -87,8 +127,45 @@ export default function TaskExplorer() {
             <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
             Audit Status: Clean
           </span>
+          {!address ? (
+            <button
+              onClick={connect}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent rounded-lg text-xs font-bold hover:bg-accent/20 transition"
+            >
+              <Zap className="w-3.5 h-3.5" /> Connect for On-chain
+            </button>
+          ) : (
+            <span className="text-xs font-mono bg-green-500/10 border border-green-500/20 text-green-400 px-3 py-1.5 rounded-lg">
+              ● {address.slice(0,6)}...{address.slice(-4)}
+            </span>
+          )}
         </div>
       </div>
+
+      {/* TX confirmation banner */}
+      {lastTxHash && (
+        <div className="bg-green-500/10 border border-green-500/20 p-3 rounded-xl flex items-center justify-between text-xs text-green-400">
+          <span>✓ Transaction confirmed on Stellar</span>
+          <a
+            href={getExplorerUrl('tx', lastTxHash)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 font-mono hover:underline"
+          >
+            {lastTxHash.slice(0,10)}... <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      )}
+
+      {/* Contract loading state */}
+      {contract.isLoading && (
+        <div className="flex items-center gap-2 text-xs text-accent">
+          <Loader2 className="w-4 h-4 animate-spin" /> Submitting to Stellar Testnet...
+        </div>
+      )}
+      {contract.error && (
+        <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl">{contract.error}</div>
+      )}
 
       {/* Filters Toolbar */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5">

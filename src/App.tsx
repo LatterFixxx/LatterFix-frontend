@@ -8,6 +8,7 @@ import EscrowManager from './pages/EscrowManager';
 import PaymentLedger from './pages/PaymentLedger';
 import Settings from './pages/Settings';
 import Governance from './pages/Governance';
+import Profile from './pages/Profile';
 import AppLayout from './components/AppLayout';
 import ErrorBoundary from './components/ErrorBoundary';
 import ErrorFallback from './components/ErrorFallback';
@@ -92,6 +93,14 @@ function App() {
         />
         <Route path="/login" element={<Login />} />
         <Route path="/auth-callback" element={<AuthCallback />} />
+        <Route
+          path="/profile"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Profile Error" />}>
+              <Profile />
+            </ErrorBoundary>
+          }
+        />
       </Route>
     </Routes>
   );
