@@ -11,7 +11,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   loadAccount,
-  getAssetBalance,
   hasTrustline,
   StellarAccountInfo,
   StellarAccountBalance,
@@ -42,6 +41,7 @@ export interface UseHorizonAccountReturn {
   refresh: () => Promise<void>;
   getBalance: (token: SupportedToken) => string;
   checkTrustline: (assetCode: string, issuer: string) => Promise<boolean>;
+  accountExists: boolean;
 }
 
 const EMPTY_BALANCES: AccountBalances = {
@@ -131,5 +131,6 @@ export function useHorizonAccount(address: string | null): UseHorizonAccountRetu
     refresh,
     getBalance,
     checkTrustline,
+    accountExists: !!accountInfo,
   };
 }

@@ -154,7 +154,7 @@ function toScAddress(address: string): xdr.ScVal {
   return nativeToScVal(Address.fromString(address), { type: 'address' });
 }
 
-function toScString(env_ignored: null, value: string): xdr.ScVal {
+function toScString(_env_ignored: null, value: string): xdr.ScVal {
   return xdr.ScVal.scvString(Buffer.from(value));
 }
 
@@ -166,11 +166,11 @@ function toScI128(value: bigint): xdr.ScVal {
   return nativeToScVal(value, { type: 'i128' });
 }
 
-function toScU64(value: bigint): xdr.ScVal {
+export function toScU64(value: bigint): xdr.ScVal {
   return nativeToScVal(value, { type: 'u64' });
 }
 
-function toScBool(value: boolean): xdr.ScVal {
+export function toScBool(value: boolean): xdr.ScVal {
   return xdr.ScVal.scvBool(value);
 }
 

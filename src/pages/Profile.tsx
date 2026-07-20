@@ -114,7 +114,7 @@ export default function Profile() {
               },
               {
                 label: 'Tasks Completed',
-                value: loading ? '...' : onChainProfile?.completed_tasks !== undefined ? String(onChainProfile.completed_tasks) : '0',
+                value: loading ? '...' : onChainProfile?.completedTasks !== undefined ? String(onChainProfile.completedTasks) : '0',
                 sub: 'Soroban contract',
                 color: 'text-green-400',
                 icon: <CheckCircle className="w-4 h-4 text-green-400" />,

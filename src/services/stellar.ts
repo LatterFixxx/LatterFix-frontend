@@ -119,8 +119,8 @@ export async function loadAccount(publicKey: string): Promise<StellarAccountInfo
         isNative: true,
       };
     }
-    const issuer = (b as Horizon.HorizonApi.BalanceLine).asset_issuer ?? '';
-    const code = (b as Horizon.HorizonApi.BalanceLine).asset_code ?? 'UNKNOWN';
+    const issuer = (b as any).asset_issuer ?? '';
+    const code = (b as any).asset_code ?? 'UNKNOWN';
     return {
       asset: `${code}:${issuer}`,
       assetCode: code,
@@ -256,7 +256,7 @@ export async function buildClaimBalanceTx(
     fee: BASE_FEE,
     networkPassphrase: getNetworkPassphrase(),
   })
-    .addOperation(Operation.claimClaimableBalance({ balanceID: balanceId }))
+    .addOperation(Operation.claimClaimableBalance({ balanceId }))
     .addMemo(Memo.text('LatterFix Claim'))
     .setTimeout(120)
     .build();

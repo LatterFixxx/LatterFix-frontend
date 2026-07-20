@@ -12,7 +12,7 @@
  * No backend required — all data comes from Horizon / Soroban RPC directly.
  */
 
-import { Horizon, rpc, Networks, BASE_FEE, TransactionBuilder, Contract } from '@stellar/stellar-sdk';
+import { Horizon, Networks } from '@stellar/stellar-sdk';
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -82,7 +82,7 @@ export interface ClaimableBalanceRecord {
   id: string;
   asset: string;
   amount: string;
-  sponsor: string;
+  sponsor?: string;
   claimants: { destination: string; predicate: object }[];
   lastModifiedLedger: number;
 }
@@ -132,9 +132,9 @@ export async function fetchAccountTransactions(
       id: tx.id,
       hash: tx.hash,
       createdAt: tx.created_at,
-      ledger: tx.ledger,
+      ledger: (tx as any).ledger_attr ?? 0,
       memo: tx.memo_type !== 'none' ? String(tx.memo ?? '') : undefined,
-      feeCharged: tx.fee_charged,
+      feeCharged: String(tx.fee_charged),
       successful: tx.successful,
       sourceAccount: tx.source_account,
       operationCount: tx.operation_count,
@@ -153,7 +153,7 @@ export async function fetchAccountTransactions(
   return { transactions, nextCursor };
 }
 
-function inferTxKind(tx: Horizon.HorizonApi.TransactionRecord): TxKind {
+function inferTxKind(tx: any): TxKind {
   // Heuristic: Soroban txs have nonzero soroban fee
   if ('fee_account' in tx && tx.operation_count === 1) {
     // Could check tx.fee_bump_transaction presence or other signals
@@ -196,7 +196,7 @@ export async function fetchTransactionOperations(
     const base = { id: op.id, type: op.type, sourceAccount: op.source_account };
 
     if (op.type === 'payment') {
-      const p = op as Horizon.HorizonApi.PaymentOperationRecord;
+      const p = op as any;
       return {
         ...base,
         amount: p.amount,
@@ -206,7 +206,7 @@ export async function fetchTransactionOperations(
     }
 
     if (op.type === 'path_payment_strict_send' || op.type === 'path_payment_strict_receive') {
-      const pp = op as Horizon.HorizonApi.PathPaymentOperationRecord;
+      const pp = op as any;
       return {
         ...base,
         amount: pp.amount,

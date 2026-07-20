@@ -418,7 +418,7 @@ export default function PaymentHistory() {
                       <td className="p-4 font-mono text-muted">{cb.id.slice(0, 20)}...</td>
                       <td className="p-4 font-bold text-accent">{cb.asset}</td>
                       <td className="p-4 font-black text-white">{parseFloat(cb.amount).toFixed(4)}</td>
-                      <td className="p-4 font-mono text-muted">{cb.sponsor.slice(0, 8)}...</td>
+                      <td className="p-4 font-mono text-muted">{cb.sponsor ? `${cb.sponsor.slice(0, 8)}...` : 'None'}</td>
                       <td className="p-4 text-muted">{cb.claimants.length} claimant(s)</td>
                     </tr>
                   ))}

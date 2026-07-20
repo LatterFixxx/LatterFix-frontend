@@ -152,12 +152,13 @@ export function useContractTask() {
   );
 
   const assignTask = useCallback(
-    async (taskId: number): Promise<SubmitResult> => {
+    async (taskId: number, assignee?: string): Promise<SubmitResult> => {
       const caller = await requireWallet();
       if (!caller) throw new Error('Wallet not connected');
 
-      const prepared = await buildAssignTaskTx(caller, taskId);
-      return signAndSubmit(prepared, `You are now assigned to task #${taskId}`);
+      const targetAssignee = assignee || caller;
+      const prepared = await buildAssignTaskTx(targetAssignee, taskId);
+      return signAndSubmit(prepared, `Task #${taskId} assigned successfully`);
     },
     [requireWallet, signAndSubmit]
   );
