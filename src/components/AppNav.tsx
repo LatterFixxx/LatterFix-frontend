@@ -37,7 +37,7 @@ const AppNav: React.FC = () => {
         .then(setFeeStats)
         .catch(() => null);
     void load();
-    const interval = setInterval(load, 60_000);
+    const interval = setInterval(() => { void load(); }, 60_000);
     return () => clearInterval(interval);
   }, []);
 
@@ -253,7 +253,7 @@ const AppNav: React.FC = () => {
           </div>
         ) : (
           <button
-            onClick={connect}
+            onClick={() => void connect()}
             disabled={isConnecting}
             className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent rounded-xl text-[11px] font-bold hover:bg-accent/20 transition disabled:opacity-50"
           >
@@ -303,7 +303,7 @@ const AppNav: React.FC = () => {
         {/* Mobile wallet quick-connect */}
         {!address && (
           <button
-            onClick={connect}
+            onClick={() => void connect()}
             disabled={isConnecting}
             className="md:hidden p-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition disabled:opacity-50"
             title="Connect wallet"

@@ -51,12 +51,14 @@ export default function CrossAssetPayment() {
 
   useEffect(() => {
     if (!amount || amount <= 0 || !fromAsset || !toAsset) {
-      setPaths([]);
-      setSelectedPathId(null);
+      queueMicrotask(() => {
+        setPaths([]);
+        setSelectedPathId(null);
+      });
       return;
     }
     const timer = setTimeout(() => {
-      performPathfinding({ fromAsset, toAsset, amount });
+      void performPathfinding({ fromAsset, toAsset, amount });
     }, 500); // debounce 500ms
 
     return () => clearTimeout(timer);
@@ -100,9 +102,9 @@ export default function CrossAssetPayment() {
       // Subscribe to real-time status updates via socket
       subscribeToTransaction(result.txHash);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      notifyError('Transaction failed', err.message || 'Unknown error');
+      notifyError('Transaction failed', err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setIsSubmitting(false);
     }
@@ -125,7 +127,7 @@ export default function CrossAssetPayment() {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Payment Form */}
         <div className="card glass noise p-6 space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
             
             <div className="space-y-2">
               <label className="text-xs font-bold text-muted uppercase tracking-wider">Receiver Address</label>
@@ -243,7 +245,8 @@ export default function CrossAssetPayment() {
                       </div>
                       <div className="text-[10px] text-muted font-mono flex items-center gap-1.5 flex-wrap">
                         {path.hops.map((hop, idx) => (
-                          <React.Fragment key={idx}>
+                          // eslint-disable-next-line react-x/no-array-index-key
+                          <React.Fragment key={`${hop}-${idx}`}>
                             <span>{hop}</span>
                             {idx < path.hops.length - 1 && <span>→</span>}
                           </React.Fragment>
