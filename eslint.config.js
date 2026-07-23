@@ -15,6 +15,8 @@ export default tseslint.config(
     'target/packages',
     'src/contracts/*',
     '!src/contracts/util.ts',
+    'src_backup/**',
+    'upstream_*.tsx',
   ]),
   {
     extends: [
