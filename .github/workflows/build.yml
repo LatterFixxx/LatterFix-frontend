@@ -27,7 +27,9 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      # Add the wasm32-unknown-unknown target for building contracts
+      # Update Rust and add the wasm32-unknown-unknown target for building contracts
+      - name: Update Rust Toolchain
+        run: rustup update stable && rustup default stable
       - run: rustup target add wasm32-unknown-unknown
       - run: sudo apt-get update && sudo apt-get install -y libudev-dev libdbus-1-dev pkg-config
       # Install binstall to quickly install stellar-scaffold-cli
