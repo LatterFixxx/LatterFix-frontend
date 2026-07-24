@@ -92,25 +92,14 @@ jobs:
             echo "Check the \"Build with Scaffold\" step logs."
             exit 1
           fi
-      - name: Move packages to frontend
-        run: |
-          mkdir -p frontend/packages
-          # Copy generated packages if they exist in root packages/
-          if [ -d "packages" ]; then
-            cp -r packages/* frontend/packages/
-          fi
+
       - name: Install Frontend Dependencies
-        working-directory: ./frontend
         run: npm ci --legacy-peer-deps
       - name: Lint Frontend
-        working-directory: ./frontend
         run: npm run lint
       - name: Check Formatting
-        working-directory: ./frontend
         run: npx prettier . --check
       - name: Build Frontend
-        working-directory: ./frontend
         run: npm run build
       - name: Run Tests
-        working-directory: ./frontend
         run: npm test --if-present
