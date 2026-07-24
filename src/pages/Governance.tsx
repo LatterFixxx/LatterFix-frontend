@@ -44,7 +44,9 @@ export default function Governance() {
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [grantRoleAddress, setGrantRoleAddress] = useState('');
-  const [grantRoleType, setGrantRoleType] = useState<'Admin' | 'Moderator' | 'Verifier'>('Moderator');
+  const [grantRoleType, setGrantRoleType] = useState<'Admin' | 'Moderator' | 'Verifier'>(
+    'Moderator'
+  );
 
   // Load active proposals and contract stats from Soroban RPC
   useEffect(() => {
@@ -77,7 +79,10 @@ export default function Governance() {
       return;
     }
 
-    if (!address) { await connect(); return; }
+    if (!address) {
+      await connect();
+      return;
+    }
 
     try {
       let result;
@@ -88,7 +93,9 @@ export default function Governance() {
       }
       setTxFeedback({
         hash: result.txHash,
-        label: governance.paused ? 'Contract resumed on-chain' : 'Contract emergency paused on-chain',
+        label: governance.paused
+          ? 'Contract resumed on-chain'
+          : 'Contract emergency paused on-chain',
       });
     } catch {
       // fall through to local state toggle
@@ -100,7 +107,10 @@ export default function Governance() {
   const handleCreateProposal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newDescription.trim()) return;
-    if (!address) { await connect(); return; }
+    if (!address) {
+      await connect();
+      return;
+    }
 
     try {
       const result = await contract.createProposal(newTitle, newDescription);
@@ -117,7 +127,10 @@ export default function Governance() {
 
   // ── On-chain Vote ────────────────────────────────────────────────────────
   const handleVote = async (proposalId: number, voteType: 'For' | 'Against' | 'Abstain') => {
-    if (!address) { await connect(); return; }
+    if (!address) {
+      await connect();
+      return;
+    }
     try {
       const result = await contract.castVote(proposalId, voteType);
       setTxFeedback({ hash: result.txHash, label: `Voted ${voteType} on proposal #${proposalId}` });
@@ -132,7 +145,10 @@ export default function Governance() {
   const handleGrantRole = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!grantRoleAddress.trim()) return;
-    if (!address) { await connect(); return; }
+    if (!address) {
+      await connect();
+      return;
+    }
     try {
       const result = await contract.grantRole(grantRoleAddress, grantRoleType);
       setTxFeedback({ hash: result.txHash, label: `${grantRoleType} role granted on-chain` });
@@ -195,7 +211,9 @@ export default function Governance() {
           >
             View <ExternalLink className="w-3 h-3" />
           </a>
-          <button onClick={() => setTxFeedback(null)} className="text-muted hover:text-white">✕</button>
+          <button onClick={() => setTxFeedback(null)} className="text-muted hover:text-white">
+            ✕
+          </button>
         </div>
       )}
 
@@ -205,7 +223,8 @@ export default function Governance() {
           <div>
             <p className="font-bold">Administrator Privileges Required</p>
             <p className="mt-1">
-              You are a <strong>{currentUser.role}</strong>. On-chain admin operations (pause, grant role, execute proposals) require the Admin role.
+              You are a <strong>{currentUser.role}</strong>. On-chain admin operations (pause, grant
+              role, execute proposals) require the Admin role.
             </p>
           </div>
         </div>
@@ -214,8 +233,14 @@ export default function Governance() {
       {/* On-chain Contract Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Tasks Created', value: contractStats ? String(contractStats.totalTasksCreated) : '—' },
-          { label: 'Tasks Completed', value: contractStats ? String(contractStats.totalTasksCompleted) : '—' },
+          {
+            label: 'Tasks Created',
+            value: contractStats ? String(contractStats.totalTasksCreated) : '—',
+          },
+          {
+            label: 'Tasks Completed',
+            value: contractStats ? String(contractStats.totalTasksCompleted) : '—',
+          },
           {
             label: 'Total Value Paid',
             value: contractStats
@@ -235,7 +260,9 @@ export default function Governance() {
             ) : (
               <p className="text-xl font-black text-white">{stat.value}</p>
             )}
-            <p className="text-[10px] font-bold text-muted uppercase tracking-wider">{stat.label}</p>
+            <p className="text-[10px] font-bold text-muted uppercase tracking-wider">
+              {stat.label}
+            </p>
           </div>
         ))}
       </div>
@@ -251,7 +278,8 @@ export default function Governance() {
             </span>
           </h3>
           <p className="text-xs text-muted">
-            Platform Fee: {governance.platformFeeBps / 100}% | Emergency Paused: {governance.paused ? 'YES' : 'NO'} | Network: Testnet
+            Platform Fee: {governance.platformFeeBps / 100}% | Emergency Paused:{' '}
+            {governance.paused ? 'YES' : 'NO'} | Network: Testnet
           </p>
         </div>
         <div className="flex gap-2">
@@ -267,9 +295,13 @@ export default function Governance() {
             {contract.isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : governance.paused ? (
-              <><Play className="w-4 h-4" /> Unpause (On-chain)</>
+              <>
+                <Play className="w-4 h-4" /> Unpause (On-chain)
+              </>
             ) : (
-              <><Pause className="w-4 h-4" /> Emergency Pause (On-chain)</>
+              <>
+                <Pause className="w-4 h-4" /> Emergency Pause (On-chain)
+              </>
             )}
           </button>
         </div>
@@ -311,11 +343,14 @@ export default function Governance() {
                         v === 'For'
                           ? 'bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20'
                           : v === 'Against'
-                          ? 'bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20'
-                          : 'bg-white/5 border border-white/10 text-muted hover:bg-white/10'
+                            ? 'bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20'
+                            : 'bg-white/5 border border-white/10 text-muted hover:bg-white/10'
                       }`}
                     >
-                      {contract.isLoading ? <Loader2 className="w-3 h-3 animate-spin inline" /> : null} {v}
+                      {contract.isLoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin inline" />
+                      ) : null}{' '}
+                      {v}
                     </button>
                   ))}
                 </div>
@@ -324,7 +359,9 @@ export default function Governance() {
           </div>
         ) : (
           <p className="text-muted text-xs text-center py-4">
-            {proposalsLoading ? 'Loading from Soroban RPC...' : 'No active proposals on-chain. Create one below.'}
+            {proposalsLoading
+              ? 'Loading from Soroban RPC...'
+              : 'No active proposals on-chain. Create one below.'}
           </p>
         )}
       </div>
@@ -356,7 +393,11 @@ export default function Governance() {
           disabled={contract.isLoading || !newTitle.trim()}
           className="flex items-center gap-2 px-5 py-2.5 bg-purple-500 text-white font-extrabold rounded-xl hover:scale-102 transition-transform shadow-lg shadow-purple-500/20 disabled:opacity-50 text-xs"
         >
-          {contract.isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Vote className="w-4 h-4" />}
+          {contract.isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Vote className="w-4 h-4" />
+          )}
           Submit Proposal {address ? '(On-chain)' : '— Connect Wallet First'}
         </button>
       </form>
@@ -378,7 +419,9 @@ export default function Governance() {
             />
             <select
               value={grantRoleType}
-              onChange={(e) => setGrantRoleType(e.target.value as 'Admin' | 'Moderator' | 'Verifier')}
+              onChange={(e) =>
+                setGrantRoleType(e.target.value as 'Admin' | 'Moderator' | 'Verifier')
+              }
               className="bg-black/20 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none"
             >
               <option value="Moderator">Moderator</option>
@@ -391,7 +434,11 @@ export default function Governance() {
             disabled={contract.isLoading || !grantRoleAddress.trim()}
             className="flex items-center gap-2 px-5 py-2.5 bg-accent text-bg font-extrabold rounded-xl hover:scale-102 transition-transform text-xs disabled:opacity-50"
           >
-            {contract.isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
+            {contract.isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Shield className="w-4 h-4" />
+            )}
             Grant {grantRoleType} Role (On-chain)
           </button>
         </form>
@@ -399,12 +446,17 @@ export default function Governance() {
 
       {/* Main Settings Form */}
       <form onSubmit={handleSave} className="card glass noise p-8 space-y-6">
-        <h3 className="text-lg font-bold text-white border-b border-white/5 pb-3">Smart Contract Parameters</h3>
+        <h3 className="text-lg font-bold text-white border-b border-white/5 pb-3">
+          Smart Contract Parameters
+        </h3>
 
         {saveSuccess && (
           <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-xl flex items-center gap-2 text-xs text-green-400">
             <Shield className="w-4 h-4" />
-            <span>Settings saved! To persist on-chain, call <code>set_platform_fee()</code> via admin wallet.</span>
+            <span>
+              Settings saved! To persist on-chain, call <code>set_platform_fee()</code> via admin
+              wallet.
+            </span>
           </div>
         )}
 
@@ -421,7 +473,8 @@ export default function Governance() {
               className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-accent/40 disabled:opacity-50"
             />
             <p className="text-[10px] text-muted">
-              100 bps = 1%. Current: {(feeBps / 100).toFixed(2)}%. Max: 1000 bps (10%). Validated by smart contract.
+              100 bps = 1%. Current: {(feeBps / 100).toFixed(2)}%. Max: 1000 bps (10%). Validated by
+              smart contract.
             </p>
           </div>
 
@@ -450,7 +503,10 @@ export default function Governance() {
             {['USDC', 'XLM', 'EURC'].map((token) => {
               const isChecked = tokens.includes(token as 'USDC' | 'XLM' | 'EURC');
               return (
-                <label key={token} className="flex items-center gap-2 text-sm text-white cursor-pointer select-none">
+                <label
+                  key={token}
+                  className="flex items-center gap-2 text-sm text-white cursor-pointer select-none"
+                >
                   <input
                     type="checkbox"
                     checked={isChecked}

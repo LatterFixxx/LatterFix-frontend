@@ -49,7 +49,7 @@ export default tseslint.config(
       '@typescript-eslint/no-base-to-string': 'warn',
       '@typescript-eslint/no-unsafe-enum-comparison': 'warn',
       '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'warn'
+      '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
     },
   }
 );

@@ -97,19 +97,19 @@ Expected response:
 ### Frontend Integration Test
 
 ```typescript
-import { contractService } from "./services/contracts";
+import { contractService } from './services/contracts';
 
 // Initialize the service
 await contractService.initialize();
 
 // Get a contract ID
-const bulkPaymentId = contractService.getContractId("bulk_payment", "testnet");
-console.log("Bulk Payment Contract:", bulkPaymentId);
+const bulkPaymentId = contractService.getContractId('bulk_payment', 'testnet');
+console.log('Bulk Payment Contract:', bulkPaymentId);
 // Expected: CABC123456789012345678901234567890123456789012345678901234
 
 // Get all contracts
 const registry = contractService.getAllContracts();
-console.log("Total contracts:", registry?.count);
+console.log('Total contracts:', registry?.count);
 // Expected: 8
 ```
 
@@ -137,7 +137,7 @@ Update the frontend to use the contract service at startup:
 
 ```typescript
 // In main.tsx or App.tsx
-import { contractService } from "./services/contracts";
+import { contractService } from './services/contracts';
 
 // Initialize before rendering
 await contractService.initialize();
@@ -160,11 +160,11 @@ Then update the TypeScript type:
 ```typescript
 // frontend/src/services/contracts.types.ts
 export type ContractType =
-  | "bulk_payment"
-  | "vesting_escrow"
-  | "revenue_split"
-  | "cross_asset_payment"
-  | "my_new_contract"; // Add here
+  | 'bulk_payment'
+  | 'vesting_escrow'
+  | 'revenue_split'
+  | 'cross_asset_payment'
+  | 'my_new_contract'; // Add here
 ```
 
 No other code changes needed!

@@ -31,23 +31,26 @@ export default function CrossAssetPayment() {
 
   const amount = parseFloat(amountStr);
 
-  const performPathfinding = useCallback(async (req: PathfindRequest) => {
-    setIsPathfinding(true);
-    try {
-      const availablePaths = await fetchConversionPaths(req);
-      setPaths(availablePaths);
-      if (availablePaths.length > 0) {
-        setSelectedPathId(availablePaths[0].id);
-      } else {
-        setSelectedPathId(null);
+  const performPathfinding = useCallback(
+    async (req: PathfindRequest) => {
+      setIsPathfinding(true);
+      try {
+        const availablePaths = await fetchConversionPaths(req);
+        setPaths(availablePaths);
+        if (availablePaths.length > 0) {
+          setSelectedPathId(availablePaths[0].id);
+        } else {
+          setSelectedPathId(null);
+        }
+      } catch (err) {
+        console.error(err);
+        notifyError('Failed to fetch conversion paths.');
+      } finally {
+        setIsPathfinding(false);
       }
-    } catch (err) {
-      console.error(err);
-      notifyError('Failed to fetch conversion paths.');
-    } finally {
-      setIsPathfinding(false);
-    }
-  }, [notifyError]);
+    },
+    [notifyError]
+  );
 
   useEffect(() => {
     if (!amount || amount <= 0 || !fromAsset || !toAsset) {
@@ -98,10 +101,9 @@ export default function CrossAssetPayment() {
 
       notifySuccess('Transaction submitted successfully!', `Hash: ${result.txHash.slice(0, 8)}...`);
       setTxStatus({ id: result.txHash, status: 'Submitted. Waiting for network...' });
-      
+
       // Subscribe to real-time status updates via socket
       subscribeToTransaction(result.txHash);
-
     } catch (err: unknown) {
       console.error(err);
       notifyError('Transaction failed', err instanceof Error ? err.message : 'Unknown error');
@@ -120,7 +122,8 @@ export default function CrossAssetPayment() {
           Cross-Asset Payment
         </h1>
         <p className="text-sm text-muted mt-2">
-          Send a payment in one asset and settle in another. Path-finding evaluates the Stellar DEX for optimal conversion rates.
+          Send a payment in one asset and settle in another. Path-finding evaluates the Stellar DEX
+          for optimal conversion rates.
         </p>
       </div>
 
@@ -128,9 +131,10 @@ export default function CrossAssetPayment() {
         {/* Payment Form */}
         <div className="card glass noise p-6 space-y-6">
           <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
-            
             <div className="space-y-2">
-              <label className="text-xs font-bold text-muted uppercase tracking-wider">Receiver Address</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">
+                Receiver Address
+              </label>
               <input
                 type="text"
                 placeholder="G..."
@@ -143,7 +147,9 @@ export default function CrossAssetPayment() {
 
             <div className="flex items-center gap-4">
               <div className="flex-1 space-y-2">
-                <label className="text-xs font-bold text-muted uppercase tracking-wider">Send Asset</label>
+                <label className="text-xs font-bold text-muted uppercase tracking-wider">
+                  Send Asset
+                </label>
                 <select
                   className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-accent transition-colors"
                   value={fromAsset}
@@ -166,7 +172,9 @@ export default function CrossAssetPayment() {
               </button>
 
               <div className="flex-1 space-y-2">
-                <label className="text-xs font-bold text-muted uppercase tracking-wider">Receive Asset</label>
+                <label className="text-xs font-bold text-muted uppercase tracking-wider">
+                  Receive Asset
+                </label>
                 <select
                   className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-accent transition-colors"
                   value={toAsset}
@@ -182,7 +190,9 @@ export default function CrossAssetPayment() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-muted uppercase tracking-wider">Amount to Send</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">
+                Amount to Send
+              </label>
               <div className="relative">
                 <input
                   type="number"
@@ -205,7 +215,11 @@ export default function CrossAssetPayment() {
               disabled={isSubmitting || !selectedPathId}
               className="w-full py-3.5 bg-accent text-bg rounded-xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-accent/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
             >
-              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+              {isSubmitting ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Zap className="w-5 h-5" />
+              )}
               {isSubmitting ? 'Simulating & Submitting...' : 'Submit Payment'}
             </button>
           </form>
@@ -227,7 +241,9 @@ export default function CrossAssetPayment() {
             ) : paths.length > 0 ? (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-muted uppercase tracking-wider">Available Paths</label>
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-wider">
+                    Available Paths
+                  </label>
                   {paths.map((path) => (
                     <button
                       key={path.id}
@@ -241,7 +257,9 @@ export default function CrossAssetPayment() {
                     >
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-xs font-bold text-white">Rate: {path.rate}</span>
-                        <span className="text-[10px] font-mono text-accent">~{path.estimatedDestinationAmount} {toAsset}</span>
+                        <span className="text-[10px] font-mono text-accent">
+                          ~{path.estimatedDestinationAmount} {toAsset}
+                        </span>
                       </div>
                       <div className="text-[10px] text-muted font-mono flex items-center gap-1.5 flex-wrap">
                         {path.hops.map((hop, idx) => (
@@ -266,7 +284,9 @@ export default function CrossAssetPayment() {
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-muted">Network Fee</span>
-                      <span className="font-mono text-white/80">{selectedPath.fee} {fromAsset}</span>
+                      <span className="font-mono text-white/80">
+                        {selectedPath.fee} {fromAsset}
+                      </span>
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-muted">Slippage Tolerance</span>
@@ -292,7 +312,9 @@ export default function CrossAssetPayment() {
             <div className="card glass noise p-4 bg-accent/5 border-accent/20 flex flex-col gap-2 animate-in slide-in-from-bottom-2">
               <div className="flex justify-between items-center text-xs font-bold">
                 <span className="text-accent uppercase tracking-wider">Live Status</span>
-                <span className="text-[10px] font-mono text-muted">{txStatus.id.slice(0, 8)}...</span>
+                <span className="text-[10px] font-mono text-muted">
+                  {txStatus.id.slice(0, 8)}...
+                </span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Loader2 className="w-4 h-4 text-accent animate-spin" />

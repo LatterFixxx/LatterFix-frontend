@@ -67,14 +67,19 @@ export default function CreateTask() {
   const addMilestone = () =>
     setMilestones([...milestones, { title: `Milestone ${milestones.length + 1}`, amount: 10 }]);
 
-  const removeMilestone = (i: number) =>
-    setMilestones(milestones.filter((_, idx) => idx !== i));
+  const removeMilestone = (i: number) => setMilestones(milestones.filter((_, idx) => idx !== i));
 
   // Check if wallet has trustline for selected non-XLM token
   const checkTokenTrustline = async () => {
-    if (!address || token === 'XLM') { setTrustlineWarning(null); return; }
+    if (!address || token === 'XLM') {
+      setTrustlineWarning(null);
+      return;
+    }
     const issuer = KNOWN_ISSUERS[token as 'USDC' | 'EURC'];
-    if (!issuer) { setTrustlineWarning(null); return; }
+    if (!issuer) {
+      setTrustlineWarning(null);
+      return;
+    }
     const has = await checkTrustline(token, issuer);
     if (!has) {
       setTrustlineWarning(
@@ -131,7 +136,15 @@ export default function CreateTask() {
         setTxHash(result.txHash);
 
         // Also update local store for UI
-        localCreateTask(title, description, effectiveReward, token, deadline, tags, reputationRequired);
+        localCreateTask(
+          title,
+          description,
+          effectiveReward,
+          token,
+          deadline,
+          tags,
+          reputationRequired
+        );
 
         setTitle('');
         setDescription('');
@@ -152,7 +165,8 @@ export default function CreateTask() {
     setTagsInput('');
   };
 
-  const walletBalance = token === 'XLM' ? balances.XLM : token === 'USDC' ? balances.USDC : balances.EURC;
+  const walletBalance =
+    token === 'XLM' ? balances.XLM : token === 'USDC' ? balances.USDC : balances.EURC;
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 page-fade">
@@ -161,7 +175,9 @@ export default function CreateTask() {
         <div>
           <h1 className="text-3xl font-black text-white tracking-tight">Create &amp; Fund Task</h1>
           <p className="text-xs text-muted">
-            Calls <code className="text-accent">create_task()</code> or <code className="text-accent">create_task_with_milestones()</code> on the Soroban contract — locking reward tokens in escrow.
+            Calls <code className="text-accent">create_task()</code> or{' '}
+            <code className="text-accent">create_task_with_milestones()</code> on the Soroban
+            contract — locking reward tokens in escrow.
           </p>
         </div>
         {!address ? (
@@ -173,9 +189,12 @@ export default function CreateTask() {
           </button>
         ) : (
           <div className="text-xs space-y-1 text-right">
-            <p className="font-mono text-green-400">{address.slice(0, 8)}...{address.slice(-4)}</p>
+            <p className="font-mono text-green-400">
+              {address.slice(0, 8)}...{address.slice(-4)}
+            </p>
             <p className="text-muted">
-              Balance: {balancesLoading ? '...' : `${parseFloat(walletBalance).toFixed(4)} ${token}`}
+              Balance:{' '}
+              {balancesLoading ? '...' : `${parseFloat(walletBalance).toFixed(4)} ${token}`}
             </p>
           </div>
         )}
@@ -188,7 +207,8 @@ export default function CreateTask() {
           <div>
             <p className="font-bold">Creator Role Required</p>
             <p className="mt-1">
-              You are a <strong>{currentUser.role}</strong>. Only <strong>Creators</strong> can publish tasks. Switch roles in the navbar.
+              You are a <strong>{currentUser.role}</strong>. Only <strong>Creators</strong> can
+              publish tasks. Switch roles in the navbar.
             </p>
           </div>
         </div>
@@ -253,7 +273,9 @@ export default function CreateTask() {
             key={t}
             onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-              tab === t ? 'bg-accent text-bg' : 'bg-white/5 text-muted hover:text-white hover:bg-white/10'
+              tab === t
+                ? 'bg-accent text-bg'
+                : 'bg-white/5 text-muted hover:text-white hover:bg-white/10'
             }`}
           >
             {t === 'milestones' && <GitBranch className="w-3.5 h-3.5" />}
@@ -287,7 +309,9 @@ export default function CreateTask() {
             placeholder="e.g. Audit Soroban Escrow Contract"
             className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-accent/40 disabled:opacity-55"
           />
-          <p className="text-[10px] text-muted">5–100 characters. Stored on-chain as a Soroban <code>String</code>.</p>
+          <p className="text-[10px] text-muted">
+            5–100 characters. Stored on-chain as a Soroban <code>String</code>.
+          </p>
         </div>
 
         <div className="space-y-2">
@@ -338,7 +362,9 @@ export default function CreateTask() {
                 </select>
               </div>
               <p className="text-[10px] text-muted">
-                = <span className="text-accent font-mono">{toStroops(reward).toString()}</span> stroops (i128 on-chain). Wallet balance: {balancesLoading ? '...' : `${parseFloat(walletBalance).toFixed(4)} ${token}`}
+                = <span className="text-accent font-mono">{toStroops(reward).toString()}</span>{' '}
+                stroops (i128 on-chain). Wallet balance:{' '}
+                {balancesLoading ? '...' : `${parseFloat(walletBalance).toFixed(4)} ${token}`}
               </p>
             </div>
 
@@ -360,7 +386,9 @@ export default function CreateTask() {
                   {reputationRequired}+
                 </span>
               </div>
-              <p className="text-[10px] text-muted">Matches on-chain <code>get_user_reputation()</code> check.</p>
+              <p className="text-[10px] text-muted">
+                Matches on-chain <code>get_user_reputation()</code> check.
+              </p>
             </div>
           </div>
         )}
@@ -373,7 +401,8 @@ export default function CreateTask() {
                 Milestone Breakdown
               </label>
               <span className="text-xs font-mono text-accent">
-                Total: {totalMilestoneReward} {token} = {toStroops(totalMilestoneReward).toString()} stroops
+                Total: {totalMilestoneReward} {token} = {toStroops(totalMilestoneReward).toString()}{' '}
+                stroops
               </span>
             </div>
             {milestones.map((m, i) => (
@@ -410,7 +439,9 @@ export default function CreateTask() {
             </button>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-widest text-muted">Token</label>
+                <label className="block text-xs font-bold uppercase tracking-widest text-muted">
+                  Token
+                </label>
                 <select
                   value={token}
                   onChange={(e) => setToken(e.target.value as 'USDC' | 'XLM' | 'EURC')}
@@ -422,15 +453,21 @@ export default function CreateTask() {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-widest text-muted">Minimum Reputation</label>
+                <label className="block text-xs font-bold uppercase tracking-widest text-muted">
+                  Minimum Reputation
+                </label>
                 <div className="flex items-center gap-3">
                   <input
-                    type="range" min="0" max="100"
+                    type="range"
+                    min="0"
+                    max="100"
                     value={reputationRequired}
                     onChange={(e) => setReputationRequired(Number(e.target.value))}
                     className="flex-1 accent-accent"
                   />
-                  <span className="font-mono font-bold text-sm text-white bg-white/5 border border-white/10 px-2 py-1.5 rounded-lg">{reputationRequired}+</span>
+                  <span className="font-mono font-bold text-sm text-white bg-white/5 border border-white/10 px-2 py-1.5 rounded-lg">
+                    {reputationRequired}+
+                  </span>
                 </div>
               </div>
             </div>
@@ -464,7 +501,9 @@ export default function CreateTask() {
               placeholder="e.g. Rust, Smart Contract, Audit"
               className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-accent/40 disabled:opacity-55"
             />
-            <p className="text-[10px] text-muted">Stored as a <code>Vec&lt;String&gt;</code> on-chain.</p>
+            <p className="text-[10px] text-muted">
+              Stored as a <code>Vec&lt;String&gt;</code> on-chain.
+            </p>
           </div>
         </div>
 
@@ -472,13 +511,9 @@ export default function CreateTask() {
           <div className="text-[10px] font-mono text-muted space-y-0.5">
             <p>⚡ Powered by Stellar Soroban (Testnet)</p>
             {address && (
-              <p className="text-accent">
-                Wallet connected — will call contract on submit
-              </p>
+              <p className="text-accent">Wallet connected — will call contract on submit</p>
             )}
-            {!address && (
-              <p className="text-yellow-400">Connect wallet for on-chain submission</p>
-            )}
+            {!address && <p className="text-yellow-400">Connect wallet for on-chain submission</p>}
           </div>
           <button
             type="submit"
@@ -493,8 +528,8 @@ export default function CreateTask() {
             {contract.isLoading
               ? 'Submitting to Stellar...'
               : address
-              ? 'Create Task (On-chain)'
-              : 'Create Task'}
+                ? 'Create Task (On-chain)'
+                : 'Create Task'}
           </button>
         </div>
       </form>

@@ -16,20 +16,14 @@ const assetCodeSchema = z
   .regex(/^[A-Z0-9]+$/, 'assetCode must be uppercase alphanumeric');
 
 const batchPaymentEntrySchema = z.object({
-  destination: z
-    .string()
-    .length(56, 'destination must be a 56-character Stellar public key'),
+  destination: z.string().length(56, 'destination must be a 56-character Stellar public key'),
   amount: z.string().min(1, 'amount is required'),
 });
 
 const submitBatchSchema = z.object({
   assetCode: assetCodeSchema,
-  assetIssuer: z
-    .string()
-    .length(56, 'assetIssuer must be a 56-character Stellar public key'),
-  payments: z
-    .array(batchPaymentEntrySchema)
-    .min(1, 'payments must contain at least one entry'),
+  assetIssuer: z.string().length(56, 'assetIssuer must be a 56-character Stellar public key'),
+  payments: z.array(batchPaymentEntrySchema).min(1, 'payments must contain at least one entry'),
 });
 
 // ---------------------------------------------------------------------------

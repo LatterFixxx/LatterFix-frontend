@@ -15,7 +15,11 @@ import { useTaskStore } from '../services/taskStore';
 import { useWallet } from '../hooks/useWallet';
 import { useHorizonAccount } from '../hooks/useHorizonAccount';
 import { getExplorerUrl } from '../services/stellar';
-import { queryGetProfile, queryGetUserTier, type SorobanUserProfile } from '../services/sorobanTaskContract';
+import {
+  queryGetProfile,
+  queryGetUserTier,
+  type SorobanUserProfile,
+} from '../services/sorobanTaskContract';
 
 export default function Settings() {
   const { currentUser, updateProfile } = useTaskStore();
@@ -33,7 +37,11 @@ export default function Settings() {
 
   // Load on-chain profile when wallet connects
   useEffect(() => {
-    if (!address) { setOnChainProfile(null); setTier(null); return; }
+    if (!address) {
+      setOnChainProfile(null);
+      setTier(null);
+      return;
+    }
     setProfileLoading(true);
     Promise.all([
       queryGetProfile(address).catch(() => null),
@@ -94,7 +102,11 @@ export default function Settings() {
             disabled={isConnecting}
             className="flex items-center gap-2 px-4 py-2 bg-accent text-bg font-bold rounded-xl text-xs hover:scale-105 transition-transform disabled:opacity-50"
           >
-            {isConnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+            {isConnecting ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Zap className="w-3.5 h-3.5" />
+            )}
             {isConnecting ? 'Connecting...' : 'Connect Wallet'}
           </button>
         )}
@@ -113,11 +125,16 @@ export default function Settings() {
                 {onChainProfile?.username ?? currentUser.username}
               </h3>
               {tier && (
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border mt-1 inline-block ${tierColor(tier)}`}>
-                  <Award className="w-3 h-3 inline mr-1" />{tier}
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border mt-1 inline-block ${tierColor(tier)}`}
+                >
+                  <Award className="w-3 h-3 inline mr-1" />
+                  {tier}
                 </span>
               )}
-              {profileLoading && <Loader2 className="w-4 h-4 text-accent animate-spin mx-auto mt-2" />}
+              {profileLoading && (
+                <Loader2 className="w-4 h-4 text-accent animate-spin mx-auto mt-2" />
+              )}
             </div>
 
             <div className="border-t border-white/5 pt-4 space-y-3">
@@ -132,11 +149,14 @@ export default function Settings() {
               <div className="w-full h-2 bg-black/35 rounded-full overflow-hidden border border-white/5">
                 <div
                   className="h-full bg-linear-to-r from-accent2 to-accent transition-all duration-500"
-                  style={{ width: `${Math.min(onChainProfile?.reputation ?? currentUser.reputation, 100)}%` }}
+                  style={{
+                    width: `${Math.min(onChainProfile?.reputation ?? currentUser.reputation, 100)}%`,
+                  }}
                 />
               </div>
               <p className="text-[9px] text-muted leading-relaxed text-left">
-                Earned via <code>reward_contribution()</code> on-chain. Completing tasks increases your tier (Newcomer → Legend).
+                Earned via <code>reward_contribution()</code> on-chain. Completing tasks increases
+                your tier (Newcomer → Legend).
               </p>
             </div>
           </div>
@@ -182,7 +202,9 @@ export default function Settings() {
           {/* Earnings */}
           <div className="card glass noise p-5 flex items-center justify-between">
             <div>
-              <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">Total Earnings</p>
+              <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">
+                Total Earnings
+              </p>
               <h4 className="text-2xl font-black text-accent">
                 {currentUser.earnings.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-muted">USDC</span>
@@ -199,7 +221,9 @@ export default function Settings() {
           {/* Connected wallet panel */}
           {address && (
             <div className="card glass noise p-5 space-y-3">
-              <p className="text-xs font-bold text-white border-b border-white/5 pb-2">Connected Stellar Address</p>
+              <p className="text-xs font-bold text-white border-b border-white/5 pb-2">
+                Connected Stellar Address
+              </p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 text-[11px] font-mono text-accent bg-black/30 border border-white/5 rounded-lg px-3 py-2 truncate">
                   {address}
@@ -225,12 +249,16 @@ export default function Settings() {
           )}
 
           <form onSubmit={handleSubmit} className="card glass noise p-8 space-y-6">
-            <h3 className="text-lg font-bold text-white border-b border-white/5 pb-3">Identity Settings</h3>
+            <h3 className="text-lg font-bold text-white border-b border-white/5 pb-3">
+              Identity Settings
+            </h3>
 
             {saveSuccess && (
               <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-xl flex items-center gap-2 text-xs text-green-400">
                 <CheckCircle className="w-4 h-4" />
-                <span>Profile saved. Call <code>update_profile()</code> on-chain to persist permanently.</span>
+                <span>
+                  Profile saved. Call <code>update_profile()</code> on-chain to persist permanently.
+                </span>
               </div>
             )}
 
@@ -248,7 +276,8 @@ export default function Settings() {
                   className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-accent/40"
                 />
                 <p className="text-[10px] text-muted flex items-center gap-1">
-                  <Info className="w-3 h-3" /> Stored on-chain in <code>UserProfile.username</code> via <code>create_profile()</code>.
+                  <Info className="w-3 h-3" /> Stored on-chain in <code>UserProfile.username</code>{' '}
+                  via <code>create_profile()</code>.
                 </p>
               </div>
 
@@ -277,11 +306,19 @@ export default function Settings() {
                   onChange={(e) => setRole(e.target.value as any)}
                   className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-accent/40"
                 >
-                  <option value="Contributor" className="bg-slate-900 text-white">Contributor (Work &amp; Earn)</option>
-                  <option value="Creator" className="bg-slate-900 text-white">Creator (Hire &amp; Fund)</option>
-                  <option value="Admin" className="bg-slate-900 text-white">Admin (Governance &amp; Arbitration)</option>
+                  <option value="Contributor" className="bg-slate-900 text-white">
+                    Contributor (Work &amp; Earn)
+                  </option>
+                  <option value="Creator" className="bg-slate-900 text-white">
+                    Creator (Hire &amp; Fund)
+                  </option>
+                  <option value="Admin" className="bg-slate-900 text-white">
+                    Admin (Governance &amp; Arbitration)
+                  </option>
                 </select>
-                <p className="text-[10px] text-muted">Roles switch dashboard workflows instantly. Toggle also available in the navbar.</p>
+                <p className="text-[10px] text-muted">
+                  Roles switch dashboard workflows instantly. Toggle also available in the navbar.
+                </p>
               </div>
             </div>
 
