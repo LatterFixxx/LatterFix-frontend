@@ -8,6 +8,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased] — 2026-07-13
 
 ### Added
+
 - **`AppNav`** — Live Stellar network congestion indicator that auto-refreshes from Horizon `/fee_stats` every 60 seconds (green/yellow/red dot with base fee and ledger number). Wallet connect/disconnect flow now shows live XLM balance queried from Horizon, a Stellar Expert deep-link on the address, and an "on-chain" status badge. Mobile nav includes full wallet flow and network status.
 - **`LandingPage`** — Live network stats bar (Network / Congestion / Base Fee / Latest Ledger) fetched on mount from Horizon. Metrics section now shows live ledger number instead of static "Testnet" label. Wallet widget copy updated to mention Freighter, xBull, and Lobstr. Contract method count updated to 20+; test count updated to 8/8.
 - **`sorobanTaskContract.ts`** — Full Soroban service covering all 20+ contract methods with simulate → prepare → sign → poll lifecycle.
@@ -16,6 +17,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **`transactionHistory.ts`** — Rewrote to use Horizon REST API: paginated tx history, claimable balances, Soroban RPC `getEvents`, live fee stats.
 
 ### Changed
+
 - **`stellar.ts`** — Full rewrite using real `@stellar/stellar-sdk` primitives (claimable balances, path payments, trustlines, direct payments, submission).
 - **`CreateTask.tsx`** — Calls `create_task()` / `create_task_with_milestones()` on-chain; shows wallet balance from Horizon; checks trustlines; milestone tab mode.
 - **`EscrowManager.tsx`** — `complete_task` / `dispute_task` / `resolve_dispute` via wallet signing; live escrow TVL from Soroban RPC.
@@ -29,6 +31,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.1.0] — 2026-07-11
 
 ### Added
+
 - Initial release: full UI scaffolding with Zustand task store, EscrowManager, Governance, CreateTask, TaskExplorer, PaymentLedger, and LandingPage.
 - WalletProvider with Freighter/xBull/Lobstr support via `@creit.tech/stellar-wallets-kit`.
 - `transactionSimulation.ts` — Soroban RPC simulate endpoint integration.

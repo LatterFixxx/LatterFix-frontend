@@ -146,9 +146,9 @@ curl http://localhost:3000/api/contracts
 2. Use in components:
 
 ```typescript
-import { contractService } from "./services/contracts";
+import { contractService } from './services/contracts';
 
-const contractId = contractService.getContractId("bulk_payment", "testnet");
+const contractId = contractService.getContractId('bulk_payment', 'testnet');
 ```
 
 3. See `frontend/src/services/contracts.example.tsx` for more examples

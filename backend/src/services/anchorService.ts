@@ -74,7 +74,6 @@ export class AnchorService {
       this.anchorCache[domain].token = token;
     }
     return token;
-
   }
 
   /**

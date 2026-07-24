@@ -29,7 +29,9 @@ export class PaymentController {
     if (!domain || !paymentData || !secretKey || !senderPublicKey) {
       return res
         .status(400)
-        .json({ error: 'Missing required fields: domain, paymentData, secretKey, senderPublicKey' });
+        .json({
+          error: 'Missing required fields: domain, paymentData, secretKey, senderPublicKey',
+        });
     }
 
     try {
@@ -66,11 +68,9 @@ export class PaymentController {
     const { fromAsset, toAsset, amount } = req.body as PathfindRequest;
 
     if (!fromAsset || !toAsset || !amount || amount <= 0) {
-      return res
-        .status(400)
-        .json({
-          error: 'Invalid pathfind request: fromAsset, toAsset, and positive amount required',
-        });
+      return res.status(400).json({
+        error: 'Invalid pathfind request: fromAsset, toAsset, and positive amount required',
+      });
     }
 
     try {
@@ -100,7 +100,11 @@ export class PaymentController {
       const token = await AnchorService.authenticate(domain as string, clientKeypair);
 
       const status = await AnchorService.getTransaction(domain as string, token, id as string);
-      await Sep31TrackingService.updateFromPoll(domain as string, id as string, status as Record<string, unknown>);
+      await Sep31TrackingService.updateFromPoll(
+        domain as string,
+        id as string,
+        status as Record<string, unknown>
+      );
       res.json(status);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

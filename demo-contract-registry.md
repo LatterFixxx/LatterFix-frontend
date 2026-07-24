@@ -54,20 +54,14 @@ You should see a JSON response with 8 contracts (4 testnet + 4 mainnet):
 ### 3. Frontend Usage Example
 
 ```typescript
-import { contractService } from "./services/contracts";
+import { contractService } from './services/contracts';
 
 // Initialize at app startup
 await contractService.initialize();
 
 // Get contract IDs anywhere in your app
-const bulkPaymentContract = contractService.getContractId(
-  "bulk_payment",
-  "testnet",
-);
-const vestingContract = contractService.getContractId(
-  "vesting_escrow",
-  "mainnet",
-);
+const bulkPaymentContract = contractService.getContractId('bulk_payment', 'testnet');
+const vestingContract = contractService.getContractId('vesting_escrow', 'mainnet');
 
 // Use the contract IDs with Stellar SDK
 // No more hardcoded addresses!

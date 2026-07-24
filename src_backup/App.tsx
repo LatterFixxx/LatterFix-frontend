@@ -1,11 +1,11 @@
-import { Button, Icon, Layout } from "@stellar/design-system";
-import "./App.module.css";
-import ConnectAccount from "./components/ConnectAccount.tsx";
-import { Routes, Route, Outlet, NavLink } from "react-router-dom";
+import { Button, Icon, Layout } from '@stellar/design-system';
+import './App.module.css';
+import ConnectAccount from './components/ConnectAccount.tsx';
+import { Routes, Route, Outlet, NavLink } from 'react-router-dom';
 // import Home from "./pages/Home";
-import Debugger from "./pages/Debugger.tsx";
-import PayrollScheduler from "./pages/PayrollScheduler";
-import EmployeeEntry from "./pages/EmployeeEntry";
+import Debugger from './pages/Debugger.tsx';
+import PayrollScheduler from './pages/PayrollScheduler';
+import EmployeeEntry from './pages/EmployeeEntry';
 
 const AppLayout: React.FC = () => (
   <main>
@@ -18,7 +18,7 @@ const AppLayout: React.FC = () => (
             <NavLink
               to="/payroll"
               className={({ isActive }: { isActive: boolean }) =>
-                `text-sm font-medium ${isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700"}`
+                `text-sm font-medium ${isActive ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`
               }
             >
               Payroll
@@ -26,7 +26,7 @@ const AppLayout: React.FC = () => (
             <NavLink
               to="/employee"
               className={({ isActive }: { isActive: boolean }) =>
-                `text-sm font-medium ${isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700"}`
+                `text-sm font-medium ${isActive ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`
               }
             >
               Employees
@@ -34,14 +34,14 @@ const AppLayout: React.FC = () => (
             <NavLink
               to="/debug"
               style={{
-                textDecoration: "none",
+                textDecoration: 'none',
               }}
             >
               {({ isActive }) => (
                 <Button
                   variant="tertiary"
                   size="md"
-                  onClick={() => (window.location.href = "/debug")}
+                  onClick={() => (window.location.href = '/debug')}
                   disabled={isActive}
                 >
                   <Icon.Code02 size="md" />
@@ -57,7 +57,7 @@ const AppLayout: React.FC = () => (
     <Outlet />
     <Layout.Footer>
       <span>
-        © {new Date().getFullYear()} PayD. Licensed under the{" "}
+        © {new Date().getFullYear()} PayD. Licensed under the{' '}
         <a
           href="http://www.apache.org/licenses/LICENSE-2.0"
           target="_blank"

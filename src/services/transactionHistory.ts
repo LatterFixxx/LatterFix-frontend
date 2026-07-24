@@ -47,7 +47,13 @@ export function getExplorerAccountUrl(address: string): string {
 // Types
 // ---------------------------------------------------------------------------
 
-export type TxKind = 'payment' | 'claimable_balance' | 'soroban_invoke' | 'change_trust' | 'path_payment' | 'other';
+export type TxKind =
+  | 'payment'
+  | 'claimable_balance'
+  | 'soroban_invoke'
+  | 'change_trust'
+  | 'path_payment'
+  | 'other';
 
 export interface HorizonTransaction {
   id: string;
@@ -114,11 +120,7 @@ export async function fetchAccountTransactions(
 ): Promise<{ transactions: HorizonTransaction[]; nextCursor: string | null }> {
   const server = new Horizon.Server(getHorizonUrl());
 
-  let builder = server
-    .transactions()
-    .forAccount(accountId)
-    .order('desc')
-    .limit(limit);
+  let builder = server.transactions().forAccount(accountId).order('desc').limit(limit);
 
   if (cursor) {
     builder = builder.cursor(cursor);
@@ -146,9 +148,7 @@ export async function fetchAccountTransactions(
 
   const lastRecord = response.records[response.records.length - 1];
   const nextCursor =
-    lastRecord && response.records.length === limit
-      ? lastRecord.paging_token
-      : null;
+    lastRecord && response.records.length === limit ? lastRecord.paging_token : null;
 
   return { transactions, nextCursor };
 }
@@ -186,9 +186,7 @@ function labelForKind(kind: TxKind): string {
 /**
  * Fetches operation details for a specific transaction hash.
  */
-export async function fetchTransactionOperations(
-  txHash: string
-): Promise<HorizonOperation[]> {
+export async function fetchTransactionOperations(txHash: string): Promise<HorizonOperation[]> {
   const server = new Horizon.Server(getHorizonUrl());
   const ops = await server.operations().forTransaction(txHash).limit(20).call();
 
@@ -347,16 +345,18 @@ export async function fetchContractEvents(
     throw new Error(`RPC error ${data.error.code}: ${data.error.message}`);
   }
 
-  return (data.result?.events ?? []).map((e): SorobanContractEvent => ({
-    id: e.id,
-    type: e.type,
-    ledger: e.ledger,
-    ledgerClosedAt: e.ledgerClosedAt,
-    contractId: e.contractId,
-    topics: e.topic,
-    value: e.value,
-    txHash: e.txHash,
-  }));
+  return (data.result?.events ?? []).map(
+    (e): SorobanContractEvent => ({
+      id: e.id,
+      type: e.type,
+      ledger: e.ledger,
+      ledgerClosedAt: e.ledgerClosedAt,
+      contractId: e.contractId,
+      topics: e.topic,
+      value: e.value,
+      txHash: e.txHash,
+    })
+  );
 }
 
 // ---------------------------------------------------------------------------

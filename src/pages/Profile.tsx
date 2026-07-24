@@ -3,7 +3,12 @@ import { ExternalLink, Star, CheckCircle, Loader2, User, Zap, Award } from 'luci
 import { useWallet } from '../hooks/useWallet';
 import { useHorizonAccount } from '../hooks/useHorizonAccount';
 import { getExplorerUrl } from '../services/stellar';
-import { queryGetProfile, queryGetUserReputation, queryGetUserTier, type SorobanUserProfile } from '../services/sorobanTaskContract';
+import {
+  queryGetProfile,
+  queryGetUserReputation,
+  queryGetUserTier,
+  type SorobanUserProfile,
+} from '../services/sorobanTaskContract';
 import { useTaskStore } from '../services/taskStore';
 
 export default function Profile() {
@@ -48,7 +53,9 @@ export default function Profile() {
       <div className="border-b border-white/5 pb-6">
         <h1 className="text-3xl font-black text-white tracking-tight">On-chain Profile</h1>
         <p className="text-xs text-muted mt-1">
-          Calls <code className="text-accent">get_profile()</code>, <code className="text-accent">get_user_reputation()</code>, and <code className="text-accent">get_user_tier()</code> on the Soroban contract.
+          Calls <code className="text-accent">get_profile()</code>,{' '}
+          <code className="text-accent">get_user_reputation()</code>, and{' '}
+          <code className="text-accent">get_user_tier()</code> on the Soroban contract.
         </p>
       </div>
 
@@ -59,7 +66,8 @@ export default function Profile() {
           <div>
             <p className="text-base font-bold text-white">Connect Your Wallet</p>
             <p className="text-xs text-muted mt-1 max-w-xs mx-auto">
-              Connect Freighter, xBull, or Lobstr to view your live on-chain reputation, balances, and task history.
+              Connect Freighter, xBull, or Lobstr to view your live on-chain reputation, balances,
+              and task history.
             </p>
           </div>
           <button
@@ -96,8 +104,11 @@ export default function Profile() {
               )}
             </div>
             {tier && (
-              <span className={`text-xs font-bold px-3 py-1.5 rounded-full border ${tierColor(tier)}`}>
-                <Award className="w-3.5 h-3.5 inline mr-1" />{tier}
+              <span
+                className={`text-xs font-bold px-3 py-1.5 rounded-full border ${tierColor(tier)}`}
+              >
+                <Award className="w-3.5 h-3.5 inline mr-1" />
+                {tier}
               </span>
             )}
           </div>
@@ -107,14 +118,22 @@ export default function Profile() {
             {[
               {
                 label: 'Reputation',
-                value: loading ? '...' : reputation !== null ? String(reputation) : String(currentUser.reputation),
+                value: loading
+                  ? '...'
+                  : reputation !== null
+                    ? String(reputation)
+                    : String(currentUser.reputation),
                 sub: 'On-chain points',
                 color: 'text-accent',
                 icon: <Star className="w-4 h-4 text-accent" />,
               },
               {
                 label: 'Tasks Completed',
-                value: loading ? '...' : onChainProfile?.completedTasks !== undefined ? String(onChainProfile.completedTasks) : '0',
+                value: loading
+                  ? '...'
+                  : onChainProfile?.completedTasks !== undefined
+                    ? String(onChainProfile.completedTasks)
+                    : '0',
                 sub: 'Soroban contract',
                 color: 'text-green-400',
                 icon: <CheckCircle className="w-4 h-4 text-green-400" />,
@@ -141,7 +160,9 @@ export default function Profile() {
                 </div>
                 <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
                 <div>
-                  <p className="text-[10px] font-bold text-muted uppercase tracking-wider">{stat.label}</p>
+                  <p className="text-[10px] font-bold text-muted uppercase tracking-wider">
+                    {stat.label}
+                  </p>
                   <p className="text-[9px] text-white/30">{stat.sub}</p>
                 </div>
               </div>
@@ -151,7 +172,8 @@ export default function Profile() {
           {/* Token balances */}
           <div className="card glass noise p-6 space-y-4">
             <h3 className="text-sm font-bold text-white border-b border-white/5 pb-3">
-              Wallet Balances <span className="text-[10px] font-normal text-muted ml-2">from Stellar Horizon</span>
+              Wallet Balances{' '}
+              <span className="text-[10px] font-normal text-muted ml-2">from Stellar Horizon</span>
             </h3>
             <div className="space-y-3">
               {[
@@ -159,7 +181,10 @@ export default function Profile() {
                 { token: 'USDC', balance: balances.USDC, sub: 'Circle USD Coin (SEP-24)' },
                 { token: 'EURC', balance: balances.EURC, sub: 'Circle Euro Coin (SEP-24)' },
               ].map(({ token, balance, sub }) => (
-                <div key={token} className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
+                <div
+                  key={token}
+                  className="flex items-center justify-between py-3 border-b border-white/5 last:border-0"
+                >
                   <div>
                     <p className="text-sm font-bold text-white">{token}</p>
                     <p className="text-[10px] text-muted">{sub}</p>
@@ -193,7 +218,10 @@ export default function Profile() {
           {onChainProfile && (
             <div className="card glass noise p-6 space-y-4">
               <h3 className="text-sm font-bold text-white border-b border-white/5 pb-3">
-                Contract Storage <span className="text-[10px] font-normal text-muted ml-2">get_profile() result</span>
+                Contract Storage{' '}
+                <span className="text-[10px] font-normal text-muted ml-2">
+                  get_profile() result
+                </span>
               </h3>
               <pre className="bg-black/40 border border-white/5 text-[11px] font-mono p-4 rounded-xl text-accent overflow-x-auto">
                 {JSON.stringify(onChainProfile, null, 2)}

@@ -9,6 +9,7 @@ import PaymentLedger from './pages/PaymentLedger';
 import Settings from './pages/Settings';
 import Governance from './pages/Governance';
 import Profile from './pages/Profile';
+import CrossAssetPayment from './pages/CrossAssetPayment';
 import AppLayout from './components/AppLayout';
 import ErrorBoundary from './components/ErrorBoundary';
 import ErrorFallback from './components/ErrorFallback';
@@ -64,6 +65,14 @@ function App() {
           element={
             <ErrorBoundary fallback={<ErrorFallback title="Escrow Error" />}>
               <EscrowManager />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/cross-asset"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Cross-Asset Error" />}>
+              <CrossAssetPayment />
             </ErrorBoundary>
           }
         />

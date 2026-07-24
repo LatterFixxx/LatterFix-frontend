@@ -5,10 +5,7 @@ import { useContractTask } from '../hooks/useContractTask';
 import { useWallet } from '../hooks/useWallet';
 import { useHorizonAccount } from '../hooks/useHorizonAccount';
 import { getExplorerUrl } from '../services/stellar';
-import {
-  queryGetEscrowStats,
-  type SorobanEscrowStats,
-} from '../services/sorobanTaskContract';
+import { queryGetEscrowStats, type SorobanEscrowStats } from '../services/sorobanTaskContract';
 
 // Converts a task reward number (display units) to i128 stroops (7 decimals)
 function toStroops(amount: number): bigint {
@@ -16,13 +13,16 @@ function toStroops(amount: number): bigint {
 }
 
 export default function EscrowManager() {
-  const { tasks, currentUser, completeTaskAndPayout, triggerDispute, resolveDispute } = useTaskStore();
+  const { tasks, currentUser, completeTaskAndPayout, triggerDispute, resolveDispute } =
+    useTaskStore();
   const { address, connect } = useWallet();
   const { balances, isLoading: balancesLoading } = useHorizonAccount(address);
   const contract = useContractTask();
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [resolutionType, setResolutionType] = useState<'Creator' | 'Contributor' | 'Split'>('Split');
+  const [resolutionType, setResolutionType] = useState<'Creator' | 'Contributor' | 'Split'>(
+    'Split'
+  );
   const [customDisputeText, setCustomDisputeText] = useState('');
   const [onChainStats, setOnChainStats] = useState<SorobanEscrowStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
@@ -60,7 +60,10 @@ export default function EscrowManager() {
   // ── On-chain Dispute ─────────────────────────────────────────────────────
   const handleDispute = async (task: Task) => {
     if (!customDisputeText.trim()) return;
-    if (!address) { await connect(); return; }
+    if (!address) {
+      await connect();
+      return;
+    }
 
     try {
       const result = await contract.disputeTask(parseInt(task.id.replace('task-', '')) || 1);
@@ -74,7 +77,10 @@ export default function EscrowManager() {
 
   // ── On-chain Resolve ─────────────────────────────────────────────────────
   const handleResolve = async (task: Task) => {
-    if (!address) { await connect(); return; }
+    if (!address) {
+      await connect();
+      return;
+    }
 
     const totalStroops = toStroops(task.reward);
     let creatorRefund = 0n;
@@ -109,8 +115,12 @@ export default function EscrowManager() {
       {/* Header */}
       <div className="border-b border-white/5 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Escrow &amp; Dispute Manager</h1>
-          <p className="text-xs text-muted">Soroban smart contract escrows — funds locked on Stellar Testnet.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">
+            Escrow &amp; Dispute Manager
+          </h1>
+          <p className="text-xs text-muted">
+            Soroban smart contract escrows — funds locked on Stellar Testnet.
+          </p>
         </div>
         <div className="flex gap-2 flex-wrap">
           {!address ? (
@@ -147,7 +157,9 @@ export default function EscrowManager() {
           >
             View <ExternalLink className="w-3 h-3" />
           </a>
-          <button onClick={() => setTxFeedback(null)} className="text-muted hover:text-white">✕</button>
+          <button onClick={() => setTxFeedback(null)} className="text-muted hover:text-white">
+            ✕
+          </button>
         </div>
       )}
 
@@ -164,9 +176,7 @@ export default function EscrowManager() {
         {[
           {
             label: 'Total Locked (On-chain)',
-            value: onChainStats
-              ? `${(Number(onChainStats.totalLocked) / 1e7).toFixed(4)}`
-              : '—',
+            value: onChainStats ? `${(Number(onChainStats.totalLocked) / 1e7).toFixed(4)}` : '—',
             sub: 'Stroops → tokens',
           },
           {
@@ -191,7 +201,9 @@ export default function EscrowManager() {
             ) : (
               <p className="text-lg font-black text-white">{stat.value}</p>
             )}
-            <p className="text-[10px] font-bold text-muted uppercase tracking-wider">{stat.label}</p>
+            <p className="text-[10px] font-bold text-muted uppercase tracking-wider">
+              {stat.label}
+            </p>
             <p className="text-[9px] text-white/30">{stat.sub}</p>
           </div>
         ))}
@@ -204,13 +216,18 @@ export default function EscrowManager() {
           <div className="card glass noise p-6 space-y-4">
             <h3 className="text-lg font-bold text-white border-b border-white/5 pb-3">
               Active Smart Contract Escrows
-              <span className="ml-2 text-[10px] font-mono text-muted">TaskManagerContract.sol → Soroban</span>
+              <span className="ml-2 text-[10px] font-mono text-muted">
+                TaskManagerContract.sol → Soroban
+              </span>
             </h3>
 
             <div className="divide-y divide-white/5">
               {escrowTasks.length > 0 ? (
                 escrowTasks.map((task) => (
-                  <div key={task.id} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div
+                    key={task.id}
+                    className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  >
                     <div>
                       <div className="flex items-center gap-2 mb-1.5">
                         <span
@@ -218,25 +235,31 @@ export default function EscrowManager() {
                             task.status === 'Disputed'
                               ? 'bg-red-500/10 text-red-400 border border-red-500/20'
                               : task.status === 'Assigned'
-                              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                              : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                                ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                                : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
                           }`}
                         >
                           {task.status === 'InEscrow' ? 'Funded' : task.status}
                         </span>
                         <span className="text-xs font-mono text-muted">#{task.id}</span>
                       </div>
-                      <h4 className="text-sm font-bold text-white hover:underline cursor-pointer" onClick={() => setSelectedTask(task)}>
+                      <h4
+                        className="text-sm font-bold text-white hover:underline cursor-pointer"
+                        onClick={() => setSelectedTask(task)}
+                      >
                         {task.title}
                       </h4>
                       <p className="text-[11px] text-muted font-mono truncate max-w-sm mt-1">
-                        Creator: {task.creator.slice(0, 10)}... | Assignee: {task.assignee ? task.assignee.slice(0, 10) : 'None'}
+                        Creator: {task.creator.slice(0, 10)}... | Assignee:{' '}
+                        {task.assignee ? task.assignee.slice(0, 10) : 'None'}
                       </p>
                     </div>
 
                     <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end">
                       <div className="text-right">
-                        <p className="text-sm font-black text-white">{task.reward} {task.token}</p>
+                        <p className="text-sm font-black text-white">
+                          {task.reward} {task.token}
+                        </p>
                         <p className="text-[10px] text-muted">Locked in Escrow</p>
                       </div>
                       <button
@@ -260,14 +283,18 @@ export default function EscrowManager() {
         {/* Right Column: Inspect / Actions Panel */}
         <div className="space-y-6">
           <div className="card glass noise p-6 space-y-6">
-            <h3 className="text-lg font-bold text-white border-b border-white/5 pb-3">Arbitration Inspector</h3>
+            <h3 className="text-lg font-bold text-white border-b border-white/5 pb-3">
+              Arbitration Inspector
+            </h3>
 
             {selectedTask ? (
               <div className="space-y-5">
                 <div className="bg-black/20 p-4 rounded-xl border border-white/5 text-xs space-y-2">
                   <div className="flex justify-between">
                     <span className="text-muted">Contract Method:</span>
-                    <span className="font-mono text-accent text-[10px]">complete_task / dispute_task</span>
+                    <span className="font-mono text-accent text-[10px]">
+                      complete_task / dispute_task
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted">Escrow ID:</span>
@@ -275,11 +302,15 @@ export default function EscrowManager() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted">Locked Reward:</span>
-                    <span className="font-bold text-accent">{selectedTask.reward} {selectedTask.token}</span>
+                    <span className="font-bold text-accent">
+                      {selectedTask.reward} {selectedTask.token}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted">In Stroops:</span>
-                    <span className="font-mono text-white/60 text-[10px]">{toStroops(selectedTask.reward).toString()}</span>
+                    <span className="font-mono text-white/60 text-[10px]">
+                      {toStroops(selectedTask.reward).toString()}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted">Status:</span>
@@ -294,73 +325,91 @@ export default function EscrowManager() {
                 </div>
 
                 {/* Contributor Action */}
-                {currentUser.role === 'Contributor' && selectedTask.assignee === currentUser.address && selectedTask.status === 'Assigned' && (
-                  <div className="space-y-3">
-                    <p className="text-xs text-muted">Raise a dispute if terms changed unfairly. Calls <code className="text-accent">dispute_task</code> on-chain.</p>
-                    <div className="flex flex-col gap-2">
-                      <input
-                        type="text"
-                        placeholder="Reason for dispute..."
-                        value={customDisputeText}
-                        onChange={(e) => setCustomDisputeText(e.target.value)}
-                        className="bg-black/20 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none"
-                      />
-                      <button
-                        onClick={() => handleDispute(selectedTask)}
-                        disabled={contract.isLoading}
-                        className="w-full py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/25 rounded-xl font-bold transition text-xs flex items-center justify-center gap-2 disabled:opacity-50"
-                      >
-                        {contract.isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-                        Raise Dispute {address ? '(On-chain)' : '— Connect Wallet'}
-                      </button>
+                {currentUser.role === 'Contributor' &&
+                  selectedTask.assignee === currentUser.address &&
+                  selectedTask.status === 'Assigned' && (
+                    <div className="space-y-3">
+                      <p className="text-xs text-muted">
+                        Raise a dispute if terms changed unfairly. Calls{' '}
+                        <code className="text-accent">dispute_task</code> on-chain.
+                      </p>
+                      <div className="flex flex-col gap-2">
+                        <input
+                          type="text"
+                          placeholder="Reason for dispute..."
+                          value={customDisputeText}
+                          onChange={(e) => setCustomDisputeText(e.target.value)}
+                          className="bg-black/20 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none"
+                        />
+                        <button
+                          onClick={() => handleDispute(selectedTask)}
+                          disabled={contract.isLoading}
+                          className="w-full py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/25 rounded-xl font-bold transition text-xs flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                          {contract.isLoading ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : null}
+                          Raise Dispute {address ? '(On-chain)' : '— Connect Wallet'}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Creator Action */}
-                {currentUser.role === 'Creator' && selectedTask.creator === currentUser.address && selectedTask.status === 'Assigned' && (
-                  <div className="space-y-4">
-                    <p className="text-xs text-muted">Release funds via <code className="text-accent">complete_task</code> or open a dispute.</p>
-                    <div className="flex flex-col gap-2">
-                      <button
-                        onClick={() => handleRelease(selectedTask)}
-                        disabled={contract.isLoading}
-                        className="w-full py-2.5 bg-accent text-bg font-extrabold rounded-xl hover:scale-102 transition-transform text-xs flex items-center justify-center gap-2 disabled:opacity-50"
-                      >
-                        {contract.isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-                        Release Payout {address ? '(On-chain)' : '— Connect Wallet'}
-                      </button>
-                      <input
-                        type="text"
-                        placeholder="Reason for dispute..."
-                        value={customDisputeText}
-                        onChange={(e) => setCustomDisputeText(e.target.value)}
-                        className="bg-black/20 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none"
-                      />
-                      <button
-                        onClick={() => handleDispute(selectedTask)}
-                        disabled={contract.isLoading}
-                        className="w-full py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/25 rounded-xl font-bold transition text-xs disabled:opacity-50"
-                      >
-                        File Dispute
-                      </button>
+                {currentUser.role === 'Creator' &&
+                  selectedTask.creator === currentUser.address &&
+                  selectedTask.status === 'Assigned' && (
+                    <div className="space-y-4">
+                      <p className="text-xs text-muted">
+                        Release funds via <code className="text-accent">complete_task</code> or open
+                        a dispute.
+                      </p>
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => handleRelease(selectedTask)}
+                          disabled={contract.isLoading}
+                          className="w-full py-2.5 bg-accent text-bg font-extrabold rounded-xl hover:scale-102 transition-transform text-xs flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                          {contract.isLoading ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : null}
+                          Release Payout {address ? '(On-chain)' : '— Connect Wallet'}
+                        </button>
+                        <input
+                          type="text"
+                          placeholder="Reason for dispute..."
+                          value={customDisputeText}
+                          onChange={(e) => setCustomDisputeText(e.target.value)}
+                          className="bg-black/20 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none"
+                        />
+                        <button
+                          onClick={() => handleDispute(selectedTask)}
+                          disabled={contract.isLoading}
+                          className="w-full py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/25 rounded-xl font-bold transition text-xs disabled:opacity-50"
+                        >
+                          File Dispute
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Admin Action (Dispute Arbitration) */}
                 {currentUser.role === 'Admin' && selectedTask.status === 'Disputed' && (
                   <div className="space-y-4 bg-purple-500/5 border border-purple-500/10 p-4 rounded-xl">
                     <h4 className="text-xs font-bold text-purple-400 flex items-center gap-1">
-                      <ShieldAlert className="w-3.5 h-3.5" /> Resolve via <code className="ml-1 text-accent">resolve_dispute</code>
+                      <ShieldAlert className="w-3.5 h-3.5" /> Resolve via{' '}
+                      <code className="ml-1 text-accent">resolve_dispute</code>
                     </h4>
                     <p className="text-[11px] text-muted">
-                      Splits {selectedTask.reward} {selectedTask.token} ({toStroops(selectedTask.reward).toString()} stroops) between parties.
+                      Splits {selectedTask.reward} {selectedTask.token} (
+                      {toStroops(selectedTask.reward).toString()} stroops) between parties.
                     </p>
                     <div className="flex flex-col gap-2">
                       <select
                         value={resolutionType}
-                        onChange={(e) => setResolutionType(e.target.value as 'Creator' | 'Contributor' | 'Split')}
+                        onChange={(e) =>
+                          setResolutionType(e.target.value as 'Creator' | 'Contributor' | 'Split')
+                        }
                         className="bg-black/25 border border-white/10 rounded-lg p-2 text-xs text-white"
                       >
                         <option value="Contributor">Award 100% to Contributor (Payout)</option>
@@ -372,7 +421,9 @@ export default function EscrowManager() {
                         disabled={contract.isLoading}
                         className="w-full py-2.5 bg-purple-500 text-white font-extrabold rounded-xl hover:scale-102 transition-transform text-xs flex items-center justify-center gap-2 disabled:opacity-50"
                       >
-                        {contract.isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                        {contract.isLoading ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : null}
                         Execute Resolution {address ? '(On-chain)' : '— Connect Wallet'}
                       </button>
                     </div>

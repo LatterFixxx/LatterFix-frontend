@@ -15,6 +15,7 @@ import {
   Zap,
   ExternalLink,
   UserCircle2,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { useTaskStore } from '../services/taskStore';
 import { useWallet } from '../hooks/useWallet';
@@ -36,7 +37,9 @@ const AppNav: React.FC = () => {
         .then(setFeeStats)
         .catch(() => null);
     void load();
-    const interval = setInterval(load, 60_000);
+    const interval = setInterval(() => {
+      void load();
+    }, 60_000);
     return () => clearInterval(interval);
   }, []);
 
@@ -57,10 +60,10 @@ const AppNav: React.FC = () => {
     feeStats?.congestion === 'low'
       ? 'bg-green-400'
       : feeStats?.congestion === 'moderate'
-      ? 'bg-yellow-400'
-      : feeStats?.congestion
-      ? 'bg-red-400'
-      : 'bg-white/20';
+        ? 'bg-yellow-400'
+        : feeStats?.congestion
+          ? 'bg-red-400'
+          : 'bg-white/20';
 
   const navLinks = (
     <>
@@ -122,6 +125,21 @@ const AppNav: React.FC = () => {
       >
         <Coins className="w-4 h-4" />
         <span>Escrow &amp; Disputes</span>
+      </NavLink>
+
+      <NavLink
+        to="/cross-asset"
+        className={({ isActive }) =>
+          `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${
+            isActive
+              ? 'text-(--accent) bg-white/5'
+              : 'text-(--muted) hover:bg-white/10 hover:text-white'
+          }`
+        }
+        onClick={() => setMobileOpen(false)}
+      >
+        <ArrowRightLeft className="w-4 h-4" />
+        <span>Cross-Asset</span>
       </NavLink>
 
       <NavLink
@@ -190,7 +208,6 @@ const AppNav: React.FC = () => {
 
       {/* Right side: Network pill + wallet + role */}
       <div className="ml-auto flex items-center gap-2">
-
         {/* Live network congestion indicator */}
         {feeStats && (
           <div
@@ -201,9 +218,7 @@ const AppNav: React.FC = () => {
             <span className="text-[9px] font-mono uppercase tracking-wider text-muted">
               {feeStats.congestion}
             </span>
-            <span className="text-[9px] font-mono text-white/30">
-              {feeStats.baseFee}s
-            </span>
+            <span className="text-[9px] font-mono text-white/30">{feeStats.baseFee}s</span>
           </div>
         )}
 
@@ -222,9 +237,7 @@ const AppNav: React.FC = () => {
                 <ExternalLink className="w-2.5 h-2.5" />
               </a>
               <p className="text-[9px] text-muted mt-0.5 leading-none">
-                {balancesLoading
-                  ? '...'
-                  : `${parseFloat(balances.XLM).toFixed(2)} XLM`}
+                {balancesLoading ? '...' : `${parseFloat(balances.XLM).toFixed(2)} XLM`}
               </p>
             </div>
             <button
@@ -237,7 +250,7 @@ const AppNav: React.FC = () => {
           </div>
         ) : (
           <button
-            onClick={connect}
+            onClick={() => void connect()}
             disabled={isConnecting}
             className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent rounded-xl text-[11px] font-bold hover:bg-accent/20 transition disabled:opacity-50"
           >
@@ -253,15 +266,25 @@ const AppNav: React.FC = () => {
         {/* Role Switcher */}
         <div className="hidden md:flex items-center gap-1.5 bg-black/35 px-2.5 py-1.5 rounded-xl border border-white/5">
           <UserCheck className="w-3.5 h-3.5 text-accent opacity-75" />
-          <span className="text-[10px] uppercase font-mono tracking-wider text-muted mr-1">Role:</span>
+          <span className="text-[10px] uppercase font-mono tracking-wider text-muted mr-1">
+            Role:
+          </span>
           <select
             value={currentUser.role}
-            onChange={(e) => handleRoleChange(e.target.value as 'Creator' | 'Contributor' | 'Admin')}
+            onChange={(e) =>
+              handleRoleChange(e.target.value as 'Creator' | 'Contributor' | 'Admin')
+            }
             className="bg-transparent text-[11px] font-bold text-white focus:outline-none cursor-pointer pr-1 border-0"
           >
-            <option value="Contributor" className="bg-slate-900 text-white">Contributor</option>
-            <option value="Creator" className="bg-slate-900 text-white">Creator</option>
-            <option value="Admin" className="bg-slate-900 text-white">Admin</option>
+            <option value="Contributor" className="bg-slate-900 text-white">
+              Contributor
+            </option>
+            <option value="Creator" className="bg-slate-900 text-white">
+              Creator
+            </option>
+            <option value="Admin" className="bg-slate-900 text-white">
+              Admin
+            </option>
           </select>
         </div>
 
@@ -278,7 +301,9 @@ const AppNav: React.FC = () => {
               {address ? (
                 <span className="text-green-400">● on-chain</span>
               ) : (
-                <span>{currentUser.address.slice(0, 6)}...{currentUser.address.slice(-4)}</span>
+                <span>
+                  {currentUser.address.slice(0, 6)}...{currentUser.address.slice(-4)}
+                </span>
               )}
             </p>
           </div>
@@ -287,7 +312,7 @@ const AppNav: React.FC = () => {
         {/* Mobile wallet quick-connect */}
         {!address && (
           <button
-            onClick={connect}
+            onClick={() => void connect()}
             disabled={isConnecting}
             className="md:hidden p-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition disabled:opacity-50"
             title="Connect wallet"
@@ -308,13 +333,20 @@ const AppNav: React.FC = () => {
               {address ? (
                 <div className="flex items-center justify-between text-xs">
                   <div>
-                    <p className="font-mono text-green-400">{address.slice(0, 8)}...{address.slice(-4)}</p>
+                    <p className="font-mono text-green-400">
+                      {address.slice(0, 8)}...{address.slice(-4)}
+                    </p>
                     <p className="text-muted text-[10px]">
-                      {balancesLoading ? 'Loading...' : `${parseFloat(balances.XLM).toFixed(4)} XLM`}
+                      {balancesLoading
+                        ? 'Loading...'
+                        : `${parseFloat(balances.XLM).toFixed(4)} XLM`}
                     </p>
                   </div>
                   <button
-                    onClick={() => { disconnect(); setMobileOpen(false); }}
+                    onClick={() => {
+                      disconnect();
+                      setMobileOpen(false);
+                    }}
                     className="text-red-400 text-[11px] font-bold border border-red-500/20 px-2 py-1 rounded-lg"
                   >
                     Disconnect
@@ -322,7 +354,10 @@ const AppNav: React.FC = () => {
                 </div>
               ) : (
                 <button
-                  onClick={() => { void connect(); setMobileOpen(false); }}
+                  onClick={() => {
+                    void connect();
+                    setMobileOpen(false);
+                  }}
                   className="w-full py-2 bg-accent text-bg font-bold rounded-lg text-xs"
                 >
                   Connect Wallet
@@ -348,7 +383,8 @@ const AppNav: React.FC = () => {
               {feeStats && (
                 <div className="flex items-center gap-2 text-[10px] text-muted">
                   <span className={`w-1.5 h-1.5 rounded-full ${congestionDot}`} />
-                  Stellar Testnet — {feeStats.congestion} congestion | Ledger #{feeStats.lastLedger.toLocaleString()}
+                  Stellar Testnet — {feeStats.congestion} congestion | Ledger #
+                  {feeStats.lastLedger.toLocaleString()}
                 </div>
               )}
             </div>

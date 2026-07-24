@@ -104,30 +104,27 @@ Create a test file to verify the frontend service:
 
 ```typescript
 // test-contract-service.ts
-import { contractService } from "./frontend/src/services/contracts";
+import { contractService } from './frontend/src/services/contracts';
 
 async function test() {
   try {
     // Initialize the service
-    console.log("Initializing contract service...");
+    console.log('Initializing contract service...');
     await contractService.initialize();
 
     // Get a specific contract
-    const bulkPaymentId = contractService.getContractId(
-      "bulk_payment",
-      "testnet",
-    );
-    console.log("Bulk Payment (testnet):", bulkPaymentId);
+    const bulkPaymentId = contractService.getContractId('bulk_payment', 'testnet');
+    console.log('Bulk Payment (testnet):', bulkPaymentId);
 
     // Get all contracts
     const registry = contractService.getAllContracts();
-    console.log("Total contracts:", registry?.count);
-    console.log("All contracts:", registry?.contracts);
+    console.log('Total contracts:', registry?.count);
+    console.log('All contracts:', registry?.contracts);
 
     // Test cache
-    console.log("Cache valid:", contractService.isCacheValid());
+    console.log('Cache valid:', contractService.isCacheValid());
   } catch (error) {
-    console.error("Error:", error);
+    console.error('Error:', error);
   }
 }
 

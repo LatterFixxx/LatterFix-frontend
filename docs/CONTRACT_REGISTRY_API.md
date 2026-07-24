@@ -68,7 +68,7 @@ BULK_PAYMENT_MAINNET_DEPLOYED_AT=54321
 ### Initialize the Service
 
 ```typescript
-import { contractService } from "./services/contracts";
+import { contractService } from './services/contracts';
 
 // Initialize on app startup
 await contractService.initialize();
@@ -78,7 +78,7 @@ await contractService.initialize();
 
 ```typescript
 // Get a specific contract ID
-const contractId = contractService.getContractId("bulk_payment", "testnet");
+const contractId = contractService.getContractId('bulk_payment', 'testnet');
 
 // Get all contracts
 const registry = contractService.getAllContracts();
@@ -94,13 +94,13 @@ Replace hardcoded contract addresses with dynamic fetching:
 **Before:**
 
 ```typescript
-const BULK_PAYMENT_CONTRACT = "CABC...";
+const BULK_PAYMENT_CONTRACT = 'CABC...';
 ```
 
 **After:**
 
 ```typescript
-const contractId = contractService.getContractId("bulk_payment", "testnet");
+const contractId = contractService.getContractId('bulk_payment', 'testnet');
 ```
 
 ## Features
@@ -134,11 +134,11 @@ const contractId = contractService.getContractId("bulk_payment", "testnet");
    ```typescript
    // frontend/src/services/contracts.types.ts
    export type ContractType =
-     | "bulk_payment"
-     | "vesting_escrow"
-     | "revenue_split"
-     | "cross_asset_payment"
-     | "my_new_contract"; // Add here
+     | 'bulk_payment'
+     | 'vesting_escrow'
+     | 'revenue_split'
+     | 'cross_asset_payment'
+     | 'my_new_contract'; // Add here
    ```
 
 ## Testing

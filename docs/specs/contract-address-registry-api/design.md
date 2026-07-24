@@ -162,7 +162,7 @@ export class ContractController {
 **Route Definition**:
 
 ```typescript
-router.get("/contracts", ContractController.getContracts);
+router.get('/contracts', ContractController.getContracts);
 ```
 
 **Middleware Stack**:
@@ -217,12 +217,8 @@ class ContractService {
 ```typescript
 export interface ContractEntry {
   contractId: string;
-  network: "testnet" | "mainnet";
-  contractType:
-    | "bulk_payment"
-    | "vesting_escrow"
-    | "revenue_split"
-    | "cross_asset_payment";
+  network: 'testnet' | 'mainnet';
+  contractType: 'bulk_payment' | 'vesting_escrow' | 'revenue_split' | 'cross_asset_payment';
   version: string;
   deployedAt: number;
 }
@@ -233,12 +229,12 @@ export interface ContractRegistry {
   count: number;
 }
 
-export type NetworkType = "testnet" | "mainnet";
+export type NetworkType = 'testnet' | 'mainnet';
 export type ContractType =
-  | "bulk_payment"
-  | "vesting_escrow"
-  | "revenue_split"
-  | "cross_asset_payment";
+  | 'bulk_payment'
+  | 'vesting_escrow'
+  | 'revenue_split'
+  | 'cross_asset_payment';
 ```
 
 ## Data Models
@@ -395,12 +391,10 @@ interface ErrorResponse {
 async function fetchWithRetry(maxRetries = 3): Promise<ContractRegistry> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      return await axios.get("/api/contracts");
+      return await axios.get('/api/contracts');
     } catch (error) {
       if (attempt === maxRetries) {
-        throw new Error(
-          `Failed to fetch contracts after ${maxRetries} attempts: ${error.message}`,
-        );
+        throw new Error(`Failed to fetch contracts after ${maxRetries} attempts: ${error.message}`);
       }
       await sleep(Math.pow(2, attempt - 1) * 1000);
     }
@@ -515,7 +509,7 @@ Each property test should run a minimum of 100 iterations and include a comment 
 
 ```typescript
 // Feature: contract-address-registry-api, Property 2: Contract Entries Have Required Fields
-test("all contract entries have required fields with correct types", async () => {
+test('all contract entries have required fields with correct types', async () => {
   // Generate random valid configuration
   // Call API
   // Verify all entries have contractId, network, contractType, version, deployedAt
@@ -523,7 +517,7 @@ test("all contract entries have required fields with correct types", async () =>
 });
 
 // Feature: contract-address-registry-api, Property 3: Response Structure Consistency
-test("response structure is consistent", async () => {
+test('response structure is consistent', async () => {
   // Generate random valid configuration
   // Call API
   // Verify response has contracts array, timestamp, and count
@@ -532,7 +526,7 @@ test("response structure is consistent", async () => {
 });
 
 // Feature: contract-address-registry-api, Property 4: Contract ID Format Validation
-test("contract ID validation enforces Stellar format", async () => {
+test('contract ID validation enforces Stellar format', async () => {
   // Generate random contract IDs (valid and invalid)
   // Validate each
   // Verify valid ones pass, invalid ones fail
@@ -540,7 +534,7 @@ test("contract ID validation enforces Stellar format", async () => {
 });
 
 // Feature: contract-address-registry-api, Property 5: Environment Variable Parsing
-test("environment variables are parsed correctly", async () => {
+test('environment variables are parsed correctly', async () => {
   // Generate random env vars following naming pattern
   // Parse configuration
   // Verify all contracts are extracted correctly
@@ -548,7 +542,7 @@ test("environment variables are parsed correctly", async () => {
 });
 
 // Feature: contract-address-registry-api, Property 6: Dynamic Contract Discovery
-test("new contracts are discovered dynamically", async () => {
+test('new contracts are discovered dynamically', async () => {
   // Generate random contract entries
   // Add to configuration
   // Call API
@@ -573,7 +567,7 @@ test("new contracts are discovered dynamically", async () => {
 
 ```typescript
 // Feature: contract-address-registry-api, Property 7: Cache Retrieval Consistency
-test("cached contracts are retrieved consistently", async () => {
+test('cached contracts are retrieved consistently', async () => {
   // Generate random contract registry
   // Initialize service with mock response
   // For each contract, call getContractId()
@@ -582,7 +576,7 @@ test("cached contracts are retrieved consistently", async () => {
 });
 
 // Feature: contract-address-registry-api, Property 8: Configuration Source Fallback
-test("fallback to environment variables works", async () => {
+test('fallback to environment variables works', async () => {
   // Simulate missing TOML file
   // Set random environment variables
   // Call API
@@ -606,16 +600,16 @@ test("fallback to environment variables works", async () => {
 **Test Configuration**:
 
 ```typescript
-import fc from "fast-check";
+import fc from 'fast-check';
 
 fc.assert(
   fc.property(
     // Arbitrary generators here
     (generatedData) => {
       // Property assertion
-    },
+    }
   ),
-  { numRuns: 100 }, // Minimum 100 iterations
+  { numRuns: 100 } // Minimum 100 iterations
 );
 ```
 
@@ -625,17 +619,17 @@ fc.assert(
 // Generate valid Stellar contract addresses
 const contractIdArbitrary = fc
   .string({ minLength: 56, maxLength: 56 })
-  .map((s) => "C" + s.toUpperCase().replace(/[^A-Z0-9]/g, "0"));
+  .map((s) => 'C' + s.toUpperCase().replace(/[^A-Z0-9]/g, '0'));
 
 // Generate valid contract entries
 const contractEntryArbitrary = fc.record({
   contractId: contractIdArbitrary,
-  network: fc.constantFrom("testnet", "mainnet"),
+  network: fc.constantFrom('testnet', 'mainnet'),
   contractType: fc.constantFrom(
-    "bulk_payment",
-    "vesting_escrow",
-    "revenue_split",
-    "cross_asset_payment",
+    'bulk_payment',
+    'vesting_escrow',
+    'revenue_split',
+    'cross_asset_payment'
   ),
   version: fc.string(),
   deployedAt: fc.integer({ min: 1 }),

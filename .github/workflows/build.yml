@@ -2,9 +2,9 @@ name: Build Project and Run Tests
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
-    branches: ["main"]
+    branches: ['main']
     types: [opened, synchronize, reopened, ready_for_review]
 
 env:
@@ -27,7 +27,9 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      # Add the wasm32-unknown-unknown target for building contracts
+      # Update Rust and add the wasm32-unknown-unknown target for building contracts
+      - name: Update Rust Toolchain
+        run: rustup toolchain install nightly && rustup default nightly
       - run: rustup target add wasm32-unknown-unknown
       - run: sudo apt-get update && sudo apt-get install -y libudev-dev libdbus-1-dev pkg-config
       # Install binstall to quickly install stellar-scaffold-cli
@@ -90,25 +92,14 @@ jobs:
             echo "Check the \"Build with Scaffold\" step logs."
             exit 1
           fi
-      - name: Move packages to frontend
-        run: |
-          mkdir -p frontend/packages
-          # Copy generated packages if they exist in root packages/
-          if [ -d "packages" ]; then
-            cp -r packages/* frontend/packages/
-          fi
+
       - name: Install Frontend Dependencies
-        working-directory: ./frontend
         run: npm ci --legacy-peer-deps
       - name: Lint Frontend
-        working-directory: ./frontend
         run: npm run lint
       - name: Check Formatting
-        working-directory: ./frontend
         run: npx prettier . --check
       - name: Build Frontend
-        working-directory: ./frontend
         run: npm run build
       - name: Run Tests
-        working-directory: ./frontend
         run: npm test --if-present

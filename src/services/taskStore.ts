@@ -56,8 +56,20 @@ interface TaskState {
   initialized: boolean;
 
   // Actions
-  initializePlatform: (admin: string, feeBps: number, whitelisted: ('USDC' | 'XLM' | 'EURC')[]) => void;
-  createTask: (title: string, description: string, reward: number, token: 'USDC' | 'XLM' | 'EURC', deadline: string, tags: string[], reputationRequired: number) => void;
+  initializePlatform: (
+    admin: string,
+    feeBps: number,
+    whitelisted: ('USDC' | 'XLM' | 'EURC')[]
+  ) => void;
+  createTask: (
+    title: string,
+    description: string,
+    reward: number,
+    token: 'USDC' | 'XLM' | 'EURC',
+    deadline: string,
+    tags: string[],
+    reputationRequired: number
+  ) => void;
   fundTask: (taskId: string) => void;
   applyForTask: (taskId: string, applicantAddress: string) => void;
   assignTask: (taskId: string, contributorAddress: string) => void;
@@ -65,7 +77,11 @@ interface TaskState {
   completeTaskAndPayout: (taskId: string) => void;
   triggerDispute: (taskId: string, reason: string) => void;
   resolveDispute: (taskId: string, resolution: 'Creator' | 'Contributor' | 'Split') => void;
-  updateProfile: (username: string, address: string, role: 'Creator' | 'Contributor' | 'Admin') => void;
+  updateProfile: (
+    username: string,
+    address: string,
+    role: 'Creator' | 'Contributor' | 'Admin'
+  ) => void;
   setPlatformFee: (feeBps: number) => void;
   togglePause: () => void;
   resetAll: () => void;
@@ -75,7 +91,8 @@ const initialTasks: Task[] = [
   {
     id: 'task-1',
     title: 'Implement Stellar Soroban Smart Contract for Escrow',
-    description: 'We need a robust smart contract written in Rust for locking tokens (USDC/XLM) in escrow and releasing them upon confirmation. It should support platform fee deduction (2.5%) and optional 2-of-3 multi-sig dispute arbitration.',
+    description:
+      'We need a robust smart contract written in Rust for locking tokens (USDC/XLM) in escrow and releasing them upon confirmation. It should support platform fee deduction (2.5%) and optional 2-of-3 multi-sig dispute arbitration.',
     reward: 500,
     token: 'USDC',
     creator: 'G-CREATOR-LatterFix-777',
@@ -85,12 +102,13 @@ const initialTasks: Task[] = [
     tags: ['Rust', 'Soroban', 'Smart Contract'],
     applicants: ['G-CONTRIB-Alice-888', 'G-CONTRIB-Bob-999'],
     reputationRequired: 80,
-    completionSubmitted: false
+    completionSubmitted: false,
   },
   {
     id: 'task-2',
     title: 'Design UI for Task Manager Dashboard',
-    description: 'Create a state-of-the-art Web3 dashboard UI. Needs to have support for dark mode, glassmorphic panels, visual transaction logs, and profile reputation widgets. Must look clean and futuristic.',
+    description:
+      'Create a state-of-the-art Web3 dashboard UI. Needs to have support for dark mode, glassmorphic panels, visual transaction logs, and profile reputation widgets. Must look clean and futuristic.',
     reward: 1200,
     token: 'XLM',
     creator: 'G-CREATOR-LatterFix-777',
@@ -100,12 +118,13 @@ const initialTasks: Task[] = [
     tags: ['React', 'TailwindCSS', 'UI/UX'],
     applicants: ['G-CONTRIB-Alice-888'],
     reputationRequired: 50,
-    completionSubmitted: false
+    completionSubmitted: false,
   },
   {
     id: 'task-3',
     title: 'Integrate Stellar Wallets Kit (Freighter, Albedo, Rovo)',
-    description: 'Implement frontend integration with `@creit.tech/stellar-wallets-kit`. Users should be able to connect their wallet, request signatures for transactions, and view their balance directly on the dashboard.',
+    description:
+      'Implement frontend integration with `@creit.tech/stellar-wallets-kit`. Users should be able to connect their wallet, request signatures for transactions, and view their balance directly on the dashboard.',
     reward: 350,
     token: 'EURC',
     creator: 'G-CREATOR-LatterFix-777',
@@ -115,12 +134,13 @@ const initialTasks: Task[] = [
     tags: ['Stellar SDK', 'Wallets', 'TypeScript'],
     applicants: [],
     reputationRequired: 70,
-    completionSubmitted: false
+    completionSubmitted: false,
   },
   {
     id: 'task-4',
     title: 'Audit Escrow Contracts for Reentrancy Bugs',
-    description: 'Perform a comprehensive security audit of our Soroban escrow implementation. Look for integer overflow issues, authorization bypasses in `require_auth()` calls, and edge cases in path payment routines.',
+    description:
+      'Perform a comprehensive security audit of our Soroban escrow implementation. Look for integer overflow issues, authorization bypasses in `require_auth()` calls, and edge cases in path payment routines.',
     reward: 800,
     token: 'USDC',
     creator: 'G-CREATOR-Admin-111',
@@ -130,8 +150,8 @@ const initialTasks: Task[] = [
     tags: ['Audit', 'Security', 'Rust'],
     applicants: ['G-CONTRIB-Bob-999'],
     reputationRequired: 90,
-    completionSubmitted: false
-  }
+    completionSubmitted: false,
+  },
 ];
 
 const initialPayments: PaymentLog[] = [
@@ -145,7 +165,7 @@ const initialPayments: PaymentLog[] = [
     timestamp: '2026-07-05 14:32:10',
     txHash: 'e6b72a8c3d9a1f4b0e5d8c7b6f2a9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a21',
     sender: 'G-CONTRACT-ESCROW-000',
-    recipient: 'G-CONTRIB-Bob-999'
+    recipient: 'G-CONTRIB-Bob-999',
   },
   {
     id: 'tx-2',
@@ -157,7 +177,7 @@ const initialPayments: PaymentLog[] = [
     timestamp: '2026-07-05 14:32:10',
     txHash: 'e6b72a8c3d9a1f4b0e5d8c7b6f2a9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a21',
     sender: 'G-CONTRACT-ESCROW-000',
-    recipient: 'G-CREATOR-Admin-111'
+    recipient: 'G-CREATOR-Admin-111',
   },
   {
     id: 'tx-3',
@@ -169,8 +189,8 @@ const initialPayments: PaymentLog[] = [
     timestamp: '2026-07-10 09:15:42',
     txHash: 'a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7',
     sender: 'G-CREATOR-LatterFix-777',
-    recipient: 'G-CONTRACT-ESCROW-000'
-  }
+    recipient: 'G-CONTRACT-ESCROW-000',
+  },
 ];
 
 export const useTaskStore = create<TaskState>()(
@@ -183,14 +203,14 @@ export const useTaskStore = create<TaskState>()(
         reputation: 95,
         earnings: 1450,
         tasksCompleted: 4,
-        role: 'Contributor'
+        role: 'Contributor',
       },
       governance: {
         initialized: true,
         adminAddress: 'G-CREATOR-Admin-111',
         platformFeeBps: 250, // 2.5%
         whitelistedTokens: ['USDC', 'XLM', 'EURC'],
-        paused: false
+        paused: false,
       },
       payments: initialPayments,
       initialized: true,
@@ -202,8 +222,8 @@ export const useTaskStore = create<TaskState>()(
             initialized: true,
             adminAddress: admin,
             platformFeeBps: feeBps,
-            whitelistedTokens: whitelisted
-          }
+            whitelistedTokens: whitelisted,
+          },
         }));
       },
 
@@ -221,11 +241,11 @@ export const useTaskStore = create<TaskState>()(
           tags,
           applicants: [],
           reputationRequired,
-          completionSubmitted: false
+          completionSubmitted: false,
         };
 
         set((state) => ({
-          tasks: [newTask, ...state.tasks]
+          tasks: [newTask, ...state.tasks],
         }));
       },
 
@@ -236,14 +256,16 @@ export const useTaskStore = create<TaskState>()(
 
           const updatedTasks = [...state.tasks];
           const task = updatedTasks[taskIndex];
-          
+
           if (task.status !== 'Open') return state;
-          
+
           updatedTasks[taskIndex] = { ...task, status: 'InEscrow' };
 
           // Create standard transaction hash
-          const mockHash = Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
-          
+          const mockHash = Array.from({ length: 64 }, () =>
+            Math.floor(Math.random() * 16).toString(16)
+          ).join('');
+
           const newPayment: PaymentLog = {
             id: `tx-${Date.now()}`,
             taskId: task.id,
@@ -254,12 +276,12 @@ export const useTaskStore = create<TaskState>()(
             timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
             txHash: mockHash,
             sender: state.currentUser.address,
-            recipient: 'G-CONTRACT-ESCROW-000'
+            recipient: 'G-CONTRACT-ESCROW-000',
           };
 
           return {
             tasks: updatedTasks,
-            payments: [newPayment, ...state.payments]
+            payments: [newPayment, ...state.payments],
           };
         });
       },
@@ -276,7 +298,7 @@ export const useTaskStore = create<TaskState>()(
 
           updatedTasks[taskIndex] = {
             ...task,
-            applicants: [...task.applicants, applicantAddress]
+            applicants: [...task.applicants, applicantAddress],
           };
 
           return { tasks: updatedTasks };
@@ -296,7 +318,7 @@ export const useTaskStore = create<TaskState>()(
           updatedTasks[taskIndex] = {
             ...task,
             assignee: contributorAddress,
-            status: 'Assigned'
+            status: 'Assigned',
           };
 
           return { tasks: updatedTasks };
@@ -315,7 +337,7 @@ export const useTaskStore = create<TaskState>()(
 
           updatedTasks[taskIndex] = {
             ...task,
-            completionSubmitted: true
+            completionSubmitted: true,
           };
 
           return { tasks: updatedTasks };
@@ -340,10 +362,12 @@ export const useTaskStore = create<TaskState>()(
           updatedTasks[taskIndex] = {
             ...task,
             status: 'Completed',
-            completionSubmitted: false
+            completionSubmitted: false,
           };
 
-          const txHash = Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+          const txHash = Array.from({ length: 64 }, () =>
+            Math.floor(Math.random() * 16).toString(16)
+          ).join('');
           const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
           const payoutTx: PaymentLog = {
@@ -356,7 +380,7 @@ export const useTaskStore = create<TaskState>()(
             timestamp,
             txHash,
             sender: 'G-CONTRACT-ESCROW-000',
-            recipient: task.assignee || 'Unknown'
+            recipient: task.assignee || 'Unknown',
           };
 
           const feeTx: PaymentLog = {
@@ -369,7 +393,7 @@ export const useTaskStore = create<TaskState>()(
             timestamp,
             txHash,
             sender: 'G-CONTRACT-ESCROW-000',
-            recipient: state.governance.adminAddress
+            recipient: state.governance.adminAddress,
           };
 
           // If current user is the assignee, update their stats
@@ -379,14 +403,14 @@ export const useTaskStore = create<TaskState>()(
               ...state.currentUser,
               reputation: Math.min(100, state.currentUser.reputation + 2),
               earnings: state.currentUser.earnings + netPayout,
-              tasksCompleted: state.currentUser.tasksCompleted + 1
+              tasksCompleted: state.currentUser.tasksCompleted + 1,
             };
           }
 
           return {
             tasks: updatedTasks,
             payments: [payoutTx, feeTx, ...state.payments],
-            currentUser: updatedUser
+            currentUser: updatedUser,
           };
         });
       },
@@ -402,7 +426,7 @@ export const useTaskStore = create<TaskState>()(
           updatedTasks[taskIndex] = {
             ...task,
             status: 'Disputed',
-            disputeReason: reason
+            disputeReason: reason,
           };
 
           return { tasks: updatedTasks };
@@ -419,7 +443,9 @@ export const useTaskStore = create<TaskState>()(
 
           if (task.status !== 'Disputed') return state;
 
-          const txHash = Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+          const txHash = Array.from({ length: 64 }, () =>
+            Math.floor(Math.random() * 16).toString(16)
+          ).join('');
           const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
           const newPayments: PaymentLog[] = [];
@@ -437,13 +463,13 @@ export const useTaskStore = create<TaskState>()(
               timestamp,
               txHash,
               sender: 'G-CONTRACT-ESCROW-000',
-              recipient: task.creator
+              recipient: task.creator,
             });
             // Reduce assignee reputation
             if (task.assignee === state.currentUser.address) {
               updatedUser = {
                 ...state.currentUser,
-                reputation: Math.max(0, state.currentUser.reputation - 5)
+                reputation: Math.max(0, state.currentUser.reputation - 5),
               };
             }
           } else if (resolution === 'Contributor') {
@@ -462,7 +488,7 @@ export const useTaskStore = create<TaskState>()(
               timestamp,
               txHash,
               sender: 'G-CONTRACT-ESCROW-000',
-              recipient: task.assignee || 'Unknown'
+              recipient: task.assignee || 'Unknown',
             });
 
             newPayments.push({
@@ -475,20 +501,20 @@ export const useTaskStore = create<TaskState>()(
               timestamp,
               txHash,
               sender: 'G-CONTRACT-ESCROW-000',
-              recipient: state.governance.adminAddress
+              recipient: state.governance.adminAddress,
             });
 
             if (task.assignee === state.currentUser.address) {
               updatedUser = {
                 ...state.currentUser,
                 earnings: state.currentUser.earnings + netPayout,
-                tasksCompleted: state.currentUser.tasksCompleted + 1
+                tasksCompleted: state.currentUser.tasksCompleted + 1,
               };
             }
           } else {
             // Split 50-50
             const half = parseFloat((task.reward / 2).toFixed(4));
-            
+
             newPayments.push({
               id: `tx-split-creator-${Date.now()}`,
               taskId: task.id,
@@ -499,7 +525,7 @@ export const useTaskStore = create<TaskState>()(
               timestamp,
               txHash,
               sender: 'G-CONTRACT-ESCROW-000',
-              recipient: task.creator
+              recipient: task.creator,
             });
 
             newPayments.push({
@@ -512,14 +538,14 @@ export const useTaskStore = create<TaskState>()(
               timestamp,
               txHash,
               sender: 'G-CONTRACT-ESCROW-000',
-              recipient: task.assignee || 'Unknown'
+              recipient: task.assignee || 'Unknown',
             });
 
             if (task.assignee === state.currentUser.address) {
               updatedUser = {
                 ...state.currentUser,
                 earnings: state.currentUser.earnings + half,
-                tasksCompleted: state.currentUser.tasksCompleted + 1
+                tasksCompleted: state.currentUser.tasksCompleted + 1,
               };
             }
           }
@@ -527,13 +553,13 @@ export const useTaskStore = create<TaskState>()(
           updatedTasks[taskIndex] = {
             ...task,
             status: 'Completed',
-            disputeReason: undefined
+            disputeReason: undefined,
           };
 
           return {
             tasks: updatedTasks,
             payments: [...newPayments, ...state.payments],
-            currentUser: updatedUser
+            currentUser: updatedUser,
           };
         });
       },
@@ -544,8 +570,8 @@ export const useTaskStore = create<TaskState>()(
             ...state.currentUser,
             username,
             address,
-            role
-          }
+            role,
+          },
         }));
       },
 
@@ -553,8 +579,8 @@ export const useTaskStore = create<TaskState>()(
         set((state) => ({
           governance: {
             ...state.governance,
-            platformFeeBps: feeBps
-          }
+            platformFeeBps: feeBps,
+          },
         }));
       },
 
@@ -562,8 +588,8 @@ export const useTaskStore = create<TaskState>()(
         set((state) => ({
           governance: {
             ...state.governance,
-            paused: !state.governance.paused
-          }
+            paused: !state.governance.paused,
+          },
         }));
       },
 
@@ -576,21 +602,21 @@ export const useTaskStore = create<TaskState>()(
             reputation: 95,
             earnings: 1450,
             tasksCompleted: 4,
-            role: 'Contributor'
+            role: 'Contributor',
           },
           governance: {
             initialized: true,
             adminAddress: 'G-CREATOR-Admin-111',
             platformFeeBps: 250,
             whitelistedTokens: ['USDC', 'XLM', 'EURC'],
-            paused: false
+            paused: false,
           },
-          payments: initialPayments
+          payments: initialPayments,
         });
-      }
+      },
     }),
     {
-      name: 'latterfix-task-manager-store'
+      name: 'latterfix-task-manager-store',
     }
   )
 );

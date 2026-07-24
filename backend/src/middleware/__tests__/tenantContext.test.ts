@@ -116,10 +116,9 @@ describe('Tenant Context Middleware', () => {
 
       await validateTenant(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(pool.query).toHaveBeenCalledWith(
-        'SELECT id, name FROM organizations WHERE id = $1',
-        [123]
-      );
+      expect(pool.query).toHaveBeenCalledWith('SELECT id, name FROM organizations WHERE id = $1', [
+        123,
+      ]);
       expect((mockRequest as any).organization).toEqual({ id: 123, name: 'Test Org' });
       expect(mockNext).toHaveBeenCalled();
       expect(statusMock).not.toHaveBeenCalled();
