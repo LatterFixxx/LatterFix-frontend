@@ -45,13 +45,13 @@ Every user action (task creation, assignment, work submission, dispute, governan
 
 ### The Problem We Solve
 
-| Challenge | Traditional Systems | LatterFix Solution |
-|-----------|---------------------|-------------------|
-| **Payment Trust** | 40% of freelancers face payment disputes | Smart contract escrow ensures guaranteed payments |
-| **Transaction Fees** | 5-15% for international transfers | ~$0.000005 per transaction on Stellar |
-| **Settlement Time** | 3-5 business days | 3-5 seconds finality |
-| **Global Access** | Requires bank account | Only needs internet & wallet |
-| **Reputation Tracking** | Platform-locked, opaque | On-chain, portable reputation |
+| Challenge               | Traditional Systems                      | LatterFix Solution                                |
+| ----------------------- | ---------------------------------------- | ------------------------------------------------- |
+| **Payment Trust**       | 40% of freelancers face payment disputes | Smart contract escrow ensures guaranteed payments |
+| **Transaction Fees**    | 5-15% for international transfers        | ~$0.000005 per transaction on Stellar             |
+| **Settlement Time**     | 3-5 business days                        | 3-5 seconds finality                              |
+| **Global Access**       | Requires bank account                    | Only needs internet & wallet                      |
+| **Reputation Tracking** | Platform-locked, opaque                  | On-chain, portable reputation                     |
 
 ### Why Stellar?
 
@@ -77,35 +77,41 @@ Every user action (task creation, assignment, work submission, dispute, governan
 ## ✨ Key Features
 
 ### ⛓️ Real Soroban Contract Integration
+
 - **Full transaction lifecycle** — Simulate → Prepare → Sign → Submit → Poll for every action
 - **20+ contract methods** exposed via `sorobanTaskContract.ts` service
 - **Wallet support** — Freighter, xBull, Lobstr via `@creit.tech/stellar-wallets-kit`
 - **Simulation-first** — Every tx is simulated against Soroban RPC before wallet prompt
 
 ### 🔒 On-Chain Escrow
+
 - **`create_task()`** locks reward tokens in Soroban contract storage
 - **`complete_task()`** releases net payout (reward minus 2.5% platform fee) to contributor
 - **`dispute_task()`** freezes escrow awaiting admin `resolve_dispute()` with custom split
 - **`cancel_task()`** refunds creator in full
 
 ### 📊 Live Horizon & RPC Data
+
 - **Real account balances** — XLM, USDC, EURC queried from Horizon on every page
 - **Network congestion** — Live fee stats from `/fee_stats` endpoint in AppNav
 - **Transaction history** — Paginated Horizon tx list, claimable balances, Soroban `getEvents`
 - **Live ledger number** — Shown on landing page, updates on mount
 
 ### 🗳️ On-Chain Governance
+
 - **`create_proposal()` / `cast_vote()` / `execute_proposal()`** all wallet-signed
 - **`grant_role()` / `pause_all()` / `unpause_all()`** for admin circuit-breaking
 - Live proposals fetched from Soroban RPC on page load
 
 ### 👤 On-Chain Profiles & Reputation
+
 - **Tiered reputation system** — Newcomer → Contributor → Expert → Master → Legend
 - **`get_profile()` / `get_user_reputation()` / `get_user_tier()`** called from Profile page
 - **`slash_reputation()` / `reward_contribution()`** for admin reputation management
 - **`total_earnings`** tracked cumulatively in on-chain profile storage
 
 ### 🛡️ Access Control & Pausable
+
 - **Role-based auth** — Admin / Moderator / Verifier with `require_auth()` guards
 - **Granular pause** — Each of 7 actions can be independently paused/unpaused
 - **Emergency circuit-breaker** — `pause_all()` halts the entire contract in one call
@@ -240,29 +246,34 @@ VITE_STELLAR_NETWORK=testnet
 
 ### Development Servers
 
-| Service | Port | Description |
-|---------|------|-------------|
+| Service  | Port | Description             |
+| -------- | ---- | ----------------------- |
 | Frontend | 5173 | React + Vite dev server |
-| Backend | 3001 | Express API server |
-| Redis | 6379 | Cache & job queues |
+| Backend  | 3001 | Express API server      |
+| Redis    | 6379 | Cache & job queues      |
 
 ---
 
 ## 📸 Application Showcase
 
 ### Brand Identity & Design System
+
 <p align="center">
   <img src="./docs/images/logo.png" alt="LatterFix Logo" width="200" height="200">
 </p>
 
 ### Interactive Landing & Contract Explorer
+
 Our root layout showcases an interactive contract browser designed to let developers explore, query, and test Soroban functions directly from their browser:
+
 <p align="center">
   <img src="./docs/images/hero-banner.png" alt="LatterFix Hero Banner" width="800">
 </p>
 
 ### Enterprise Workspace & Operations
+
 The workspace dashboard integrates employee rosters, smart escrow trackers, and historical transaction ledgers into a single, cohesive pane:
+
 <p align="center">
   <img src="./docs/images/dashboard-overview.png" alt="LatterFix Dashboard Overview" width="800">
 </p>
@@ -322,50 +333,53 @@ graph LR
 ## 🔧 Technology Stack
 
 ### Frontend
-| Technology | Version | Purpose |
-|------------|---------|--------|
-| **React** | 19 | UI framework |
-| **TypeScript** | 5.9 | Type safety |
-| **Vite** | 7 | Build tool |
-| **Zustand** | latest | Client state management |
-| **@stellar/stellar-sdk** | latest | Transaction building, XDR, Horizon |
-| **@creit.tech/stellar-wallets-kit** | latest | Freighter / xBull / Lobstr |
-| **Vanilla CSS** | — | Styling (no Tailwind) |
-| **lucide-react** | latest | Icons |
+
+| Technology                          | Version | Purpose                            |
+| ----------------------------------- | ------- | ---------------------------------- |
+| **React**                           | 19      | UI framework                       |
+| **TypeScript**                      | 5.9     | Type safety                        |
+| **Vite**                            | 7       | Build tool                         |
+| **Zustand**                         | latest  | Client state management            |
+| **@stellar/stellar-sdk**            | latest  | Transaction building, XDR, Horizon |
+| **@creit.tech/stellar-wallets-kit** | latest  | Freighter / xBull / Lobstr         |
+| **Vanilla CSS**                     | —       | Styling (no Tailwind)              |
+| **lucide-react**                    | latest  | Icons                              |
 
 ### Stellar Integration Layer
-| Module | What it does |
-|--------|--------------|
-| `sorobanTaskContract.ts` | 20+ contract methods, simulate → sign → poll |
-| `stellar.ts` | Horizon account ops, path payments, claimable balances, trustlines |
-| `transactionHistory.ts` | Paginated Horizon txs, `getEvents` RPC, fee stats |
-| `useContractTask.ts` | React hook wiring contract actions to wallet |
-| `useHorizonAccount.ts` | Live XLM/USDC/EURC balances from Horizon |
+
+| Module                   | What it does                                                       |
+| ------------------------ | ------------------------------------------------------------------ |
+| `sorobanTaskContract.ts` | 20+ contract methods, simulate → sign → poll                       |
+| `stellar.ts`             | Horizon account ops, path payments, claimable balances, trustlines |
+| `transactionHistory.ts`  | Paginated Horizon txs, `getEvents` RPC, fee stats                  |
+| `useContractTask.ts`     | React hook wiring contract actions to wallet                       |
+| `useHorizonAccount.ts`   | Live XLM/USDC/EURC balances from Horizon                           |
 
 ### Smart Contract (Rust / Soroban)
-| Module | Responsibility |
-|--------|----------------|
-| `lib.rs` | Public contract entrypoint (20+ methods) |
-| `escrow.rs` | Task state machine & token locking |
-| `governance.rs` | Proposals, voting, execution |
-| `reputation.rs` | Tiered points system & leaderboard |
-| `access_control.rs` | Role-based auth with `require_auth()` |
-| `pausable.rs` | Granular + global circuit-breaker |
-| `user_profile.rs` | On-chain profiles, earnings, avatar |
-| `storage.rs` | TTL management, statistics, categories |
-| `events.rs` | 22 timestamped event emitters |
+
+| Module              | Responsibility                           |
+| ------------------- | ---------------------------------------- |
+| `lib.rs`            | Public contract entrypoint (20+ methods) |
+| `escrow.rs`         | Task state machine & token locking       |
+| `governance.rs`     | Proposals, voting, execution             |
+| `reputation.rs`     | Tiered points system & leaderboard       |
+| `access_control.rs` | Role-based auth with `require_auth()`    |
+| `pausable.rs`       | Granular + global circuit-breaker        |
+| `user_profile.rs`   | On-chain profiles, earnings, avatar      |
+| `storage.rs`        | TTL management, statistics, categories   |
+| `events.rs`         | 22 timestamped event emitters            |
 
 ---
 
 ## 📖 Documentation
 
-| Document | Description |
-|----------|-------------|
-| [Architecture Diagram](ARCHITECTURE_DIAGRAM.md) | System architecture details |
-| [Multi-Tenant Setup](backend/MULTI_TENANT_SETUP.md) | Tenant configuration guide |
-| [API Documentation](backend/README.md) | REST API reference |
-| [Testing Guide](backend/TESTING.md) | Test instructions |
-| [SDS Integration](backend/docs/SDS_INTEGRATION.md) | Stellar Data Service docs |
+| Document                                            | Description                 |
+| --------------------------------------------------- | --------------------------- |
+| [Architecture Diagram](ARCHITECTURE_DIAGRAM.md)     | System architecture details |
+| [Multi-Tenant Setup](backend/MULTI_TENANT_SETUP.md) | Tenant configuration guide  |
+| [API Documentation](backend/README.md)              | REST API reference          |
+| [Testing Guide](backend/TESTING.md)                 | Test instructions           |
+| [SDS Integration](backend/docs/SDS_INTEGRATION.md)  | Stellar Data Service docs   |
 
 ---
 

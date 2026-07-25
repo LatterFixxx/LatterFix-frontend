@@ -94,7 +94,11 @@ export default function PaymentHistory() {
     if (!address || !nextCursor || onChainLoading) return;
     setOnChainLoading(true);
     try {
-      const { transactions, nextCursor: cursor } = await fetchAccountTransactions(address, 15, nextCursor);
+      const { transactions, nextCursor: cursor } = await fetchAccountTransactions(
+        address,
+        15,
+        nextCursor
+      );
       setOnChainTxs((prev) => [...prev, ...transactions]);
       setNextCursor(cursor);
     } catch (err) {
@@ -108,8 +112,8 @@ export default function PaymentHistory() {
     feeStats?.congestion === 'low'
       ? 'text-green-400'
       : feeStats?.congestion === 'moderate'
-      ? 'text-yellow-400'
-      : 'text-red-400';
+        ? 'text-yellow-400'
+        : 'text-red-400';
 
   return (
     <div className="space-y-8 page-fade">
@@ -148,14 +152,24 @@ export default function PaymentHistory() {
       {feeStats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: 'Network Congestion', value: feeStats.congestion.toUpperCase(), className: congestionColor },
+            {
+              label: 'Network Congestion',
+              value: feeStats.congestion.toUpperCase(),
+              className: congestionColor,
+            },
             { label: 'Base Fee', value: `${feeStats.baseFee} stroops`, className: 'text-white' },
             { label: 'p50 Fee', value: `${feeStats.p50Fee} stroops`, className: 'text-white' },
-            { label: 'Last Ledger', value: `#${feeStats.lastLedger.toLocaleString()}`, className: 'text-accent' },
+            {
+              label: 'Last Ledger',
+              value: `#${feeStats.lastLedger.toLocaleString()}`,
+              className: 'text-accent',
+            },
           ].map((stat) => (
             <div key={stat.label} className="card glass noise p-4 space-y-1">
               <p className={`text-sm font-black ${stat.className}`}>{stat.value}</p>
-              <p className="text-[10px] font-bold text-muted uppercase tracking-wider">{stat.label}</p>
+              <p className="text-[10px] font-bold text-muted uppercase tracking-wider">
+                {stat.label}
+              </p>
             </div>
           ))}
         </div>
@@ -246,20 +260,25 @@ export default function PaymentHistory() {
                         <p className="text-[10px] text-muted font-mono mt-0.5">Ref: {pay.taskId}</p>
                       </td>
                       <td className="p-4 sm:p-5">
-                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                          pay.type === 'Payout'
-                            ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                            : pay.type === 'Funding'
-                            ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                            : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
-                        }`}>
+                        <span
+                          className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                            pay.type === 'Payout'
+                              ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                              : pay.type === 'Funding'
+                                ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                                : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                          }`}
+                        >
                           {pay.type}
                         </span>
                       </td>
                       <td className="p-4 sm:p-5 font-black text-sm">
-                        {pay.amount.toLocaleString()} <span className="text-[10px] font-normal text-muted">{pay.token}</span>
+                        {pay.amount.toLocaleString()}{' '}
+                        <span className="text-[10px] font-normal text-muted">{pay.token}</span>
                       </td>
-                      <td className="p-4 sm:p-5 text-muted font-mono whitespace-nowrap">{pay.timestamp}</td>
+                      <td className="p-4 sm:p-5 text-muted font-mono whitespace-nowrap">
+                        {pay.timestamp}
+                      </td>
                       <td className="p-4 sm:p-5 font-mono text-[10px] text-muted max-w-[150px]">
                         <div className="truncate">From: {pay.sender}</div>
                         <div className="truncate mt-0.5">To: {pay.recipient}</div>
@@ -323,16 +342,23 @@ export default function PaymentHistory() {
                       <tr key={tx.hash} className="hover:bg-white/2 transition">
                         <td className="p-4 font-mono text-muted">#{tx.ledger}</td>
                         <td className="p-4">
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border uppercase ${
-                            tx.kind === 'soroban_invoke'
-                              ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-                              : 'bg-white/5 text-muted border-white/10'
-                          }`}>
+                          <span
+                            className={`text-[9px] font-bold px-2 py-0.5 rounded-full border uppercase ${
+                              tx.kind === 'soroban_invoke'
+                                ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                                : 'bg-white/5 text-muted border-white/10'
+                            }`}
+                          >
                             {tx.label}
                           </span>
                         </td>
                         <td className="p-4 font-mono text-muted text-[10px] max-w-[120px] truncate">
-                          <a href={getExplorerAccountUrl(tx.sourceAccount)} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
+                          <a
+                            href={getExplorerAccountUrl(tx.sourceAccount)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-accent"
+                          >
                             {tx.sourceAccount.slice(0, 8)}...
                           </a>
                         </td>
@@ -341,7 +367,9 @@ export default function PaymentHistory() {
                           {new Date(tx.createdAt).toLocaleString()}
                         </td>
                         <td className="p-4">
-                          <span className={`text-[9px] font-bold ${tx.successful ? 'text-green-400' : 'text-red-400'}`}>
+                          <span
+                            className={`text-[9px] font-bold ${tx.successful ? 'text-green-400' : 'text-red-400'}`}
+                          >
                             {tx.successful ? '✓ Success' : '✗ Failed'}
                           </span>
                         </td>
@@ -389,7 +417,9 @@ export default function PaymentHistory() {
       {activeTab === 'claims' && (
         <div className="card glass noise p-0 overflow-hidden">
           {!address ? (
-            <div className="text-center py-16 text-muted text-sm">Connect wallet to view claimable balances.</div>
+            <div className="text-center py-16 text-muted text-sm">
+              Connect wallet to view claimable balances.
+            </div>
           ) : onChainLoading ? (
             <div className="text-center py-12">
               <Loader2 className="w-6 h-6 text-accent animate-spin mx-auto mb-3" />
@@ -397,8 +427,12 @@ export default function PaymentHistory() {
             </div>
           ) : claimableBalances.length === 0 ? (
             <div className="text-center py-12 text-muted text-sm p-6">
-              No claimable balances for this address on {getExplorerAccountUrl(address) ? 'Testnet' : 'Mainnet'}.
-              <br /><span className="text-xs">These appear when a creator sends you a payment via CreateClaimableBalance.</span>
+              No claimable balances for this address on{' '}
+              {getExplorerAccountUrl(address) ? 'Testnet' : 'Mainnet'}.
+              <br />
+              <span className="text-xs">
+                These appear when a creator sends you a payment via CreateClaimableBalance.
+              </span>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -417,8 +451,12 @@ export default function PaymentHistory() {
                     <tr key={cb.id} className="hover:bg-white/2 transition">
                       <td className="p-4 font-mono text-muted">{cb.id.slice(0, 20)}...</td>
                       <td className="p-4 font-bold text-accent">{cb.asset}</td>
-                      <td className="p-4 font-black text-white">{parseFloat(cb.amount).toFixed(4)}</td>
-                      <td className="p-4 font-mono text-muted">{cb.sponsor ? `${cb.sponsor.slice(0, 8)}...` : 'None'}</td>
+                      <td className="p-4 font-black text-white">
+                        {parseFloat(cb.amount).toFixed(4)}
+                      </td>
+                      <td className="p-4 font-mono text-muted">
+                        {cb.sponsor ? `${cb.sponsor.slice(0, 8)}...` : 'None'}
+                      </td>
                       <td className="p-4 text-muted">{cb.claimants.length} claimant(s)</td>
                     </tr>
                   ))}
@@ -441,7 +479,9 @@ export default function PaymentHistory() {
             <div className="text-center py-12 text-muted text-sm p-6">
               No contract events found for LatterFix TaskManagerContract.
               <br />
-              <span className="text-xs">Events appear once tasks are created/completed on-chain.</span>
+              <span className="text-xs">
+                Events appear once tasks are created/completed on-chain.
+              </span>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -469,7 +509,9 @@ export default function PaymentHistory() {
                         {ev.topics.slice(0, 2).join(', ')}
                         {ev.topics.length > 2 ? ` +${ev.topics.length - 2} more` : ''}
                       </td>
-                      <td className="p-4 font-mono text-muted text-[10px] truncate max-w-[100px]">{ev.value}</td>
+                      <td className="p-4 font-mono text-muted text-[10px] truncate max-w-[100px]">
+                        {ev.value}
+                      </td>
                       <td className="p-4 text-muted whitespace-nowrap">
                         {new Date(ev.ledgerClosedAt).toLocaleString()}
                       </td>

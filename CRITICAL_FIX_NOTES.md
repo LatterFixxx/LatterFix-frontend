@@ -28,12 +28,12 @@ During implementation verification, I discovered that `backend/src/index.ts` (th
 
 ```typescript
 // OLD (backend/src/index.ts)
-import express from "express";
-import cors from "cors";
-import helmet from "helmet";
-import dotenv from "dotenv";
-import passport from "./config/passport.js";
-import authRoutes from "./routes/authRoutes.js";
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import dotenv from 'dotenv';
+import passport from './config/passport.js';
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 
@@ -46,10 +46,10 @@ app.use(express.json());
 app.use(passport.initialize());
 
 // Routes
-app.use("/auth", authRoutes);
+app.use('/auth', authRoutes);
 
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
 });
 
 app.listen(PORT, () => {
@@ -59,10 +59,10 @@ app.listen(PORT, () => {
 
 ```typescript
 // NEW (backend/src/index.ts)
-import dotenv from "dotenv";
-import app from "./app.js";
-import logger from "./utils/logger.js";
-import config from "./config/index.js";
+import dotenv from 'dotenv';
+import app from './app.js';
+import logger from './utils/logger.js';
+import config from './config/index.js';
 
 dotenv.config();
 

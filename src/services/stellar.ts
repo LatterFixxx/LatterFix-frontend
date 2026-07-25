@@ -42,8 +42,7 @@ function getNetworkPassphrase(): string {
 }
 
 export function getExplorerUrl(type: 'tx' | 'account' | 'asset', id: string): string {
-  const network =
-    getNetworkPassphrase() === Networks.PUBLIC ? 'public' : 'testnet';
+  const network = getNetworkPassphrase() === Networks.PUBLIC ? 'public' : 'testnet';
   return `https://stellar.expert/explorer/${network}/${type}/${id}`;
 }
 
@@ -56,10 +55,10 @@ export function getHorizonServer(): Horizon.Server {
 // ---------------------------------------------------------------------------
 
 export interface StellarAccountBalance {
-  asset: string;        // 'XLM' | 'USDC:GABC...' | etc.
+  asset: string; // 'XLM' | 'USDC:GABC...' | etc.
   assetCode: string;
   assetIssuer: string | null;
-  balance: string;      // raw string as returned by Horizon
+  balance: string; // raw string as returned by Horizon
   isNative: boolean;
 }
 
@@ -195,10 +194,7 @@ export async function buildClaimableBalanceTx(
   const server = getHorizonServer();
   const sourceAccount = await server.loadAccount(sourcePublicKey);
 
-  const asset =
-    assetCode === 'XLM'
-      ? Asset.native()
-      : new Asset(assetCode, assetIssuer ?? '');
+  const asset = assetCode === 'XLM' ? Asset.native() : new Asset(assetCode, assetIssuer ?? '');
 
   // Claimant: employee can claim unconditionally
   const claimants: Claimant[] = [
@@ -283,9 +279,7 @@ export async function hasTrustline(
   if (assetCode === 'XLM') return true;
   try {
     const info = await loadAccount(publicKey);
-    return info.balances.some(
-      (b) => b.assetCode === assetCode && b.assetIssuer === assetIssuer
-    );
+    return info.balances.some((b) => b.assetCode === assetCode && b.assetIssuer === assetIssuer);
   } catch {
     return false;
   }
@@ -416,8 +410,7 @@ export async function buildPaymentTx(
   const server = getHorizonServer();
   const sourceAccount = await server.loadAccount(sourcePublicKey);
 
-  const asset =
-    assetCode === 'XLM' ? Asset.native() : new Asset(assetCode, assetIssuer ?? '');
+  const asset = assetCode === 'XLM' ? Asset.native() : new Asset(assetCode, assetIssuer ?? '');
 
   const builder = new TransactionBuilder(sourceAccount, {
     fee: BASE_FEE,

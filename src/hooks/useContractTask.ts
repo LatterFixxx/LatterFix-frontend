@@ -79,10 +79,7 @@ export function useContractTask() {
 
   // ── Core sign-and-submit pipeline ──────────────────────────────────────
   const signAndSubmit = useCallback(
-    async (
-      preparedResult: PreparedTxResult,
-      successMessage: string
-    ): Promise<SubmitResult> => {
+    async (preparedResult: PreparedTxResult, successMessage: string): Promise<SubmitResult> => {
       setState((s) => ({ ...s, isLoading: true, error: null }));
       try {
         notify(`Signing: ${preparedResult.summary}`);
@@ -276,10 +273,7 @@ export function useContractTask() {
   );
 
   const castVote = useCallback(
-    async (
-      proposalId: number,
-      voteType: 'For' | 'Against' | 'Abstain'
-    ): Promise<SubmitResult> => {
+    async (proposalId: number, voteType: 'For' | 'Against' | 'Abstain'): Promise<SubmitResult> => {
       const caller = await requireWallet();
       if (!caller) throw new Error('Wallet not connected');
 

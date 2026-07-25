@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { AutosaveIndicator } from "../components/AutosaveIndicator";
-import { useAutosave } from "../hooks/useAutosave";
+import React, { useEffect, useState } from 'react';
+import { AutosaveIndicator } from '../components/AutosaveIndicator';
+import { useAutosave } from '../hooks/useAutosave';
 
 interface PayrollFormState {
   employeeName: string;
   amount: string;
-  frequency: "weekly" | "monthly";
+  frequency: 'weekly' | 'monthly';
   startDate: string;
 }
 
 const initialFormState: PayrollFormState = {
-  employeeName: "",
-  amount: "",
-  frequency: "monthly",
-  startDate: "",
+  employeeName: '',
+  amount: '',
+  frequency: 'monthly',
+  startDate: '',
 };
 
 export default function PayrollScheduler() {
   const [formData, setFormData] = useState<PayrollFormState>(initialFormState);
 
   const { saving, lastSaved, loadSavedData } = useAutosave<PayrollFormState>(
-    "payroll-scheduler-draft",
-    formData,
+    'payroll-scheduler-draft',
+    formData
   );
 
   useEffect(() => {
@@ -31,16 +31,14 @@ export default function PayrollScheduler() {
     }
   }, [loadSavedData]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    console.log('Form submitted:', formData);
   };
 
   return (
@@ -80,9 +78,7 @@ export default function PayrollScheduler() {
             Amount (USD equivalent)
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted font-mono">
-              $
-            </span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted font-mono">$</span>
             <input
               type="number"
               name="amount"

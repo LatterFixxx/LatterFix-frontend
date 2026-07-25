@@ -82,7 +82,7 @@ my_new_contract = { id = "CNEW...", version = "1.0.0", deployed_at = 99999 }
 2. Use in frontend:
 
 ```typescript
-const contractId = contractService.getContractId("my_new_contract", "testnet");
+const contractId = contractService.getContractId('my_new_contract', 'testnet');
 ```
 
 That's it! No code changes needed.

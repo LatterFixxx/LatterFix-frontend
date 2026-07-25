@@ -23,12 +23,17 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
 } from 'recharts';
 import { useTaskStore } from '../services/taskStore';
 import { useWallet } from '../hooks/useWallet';
 import { useHorizonAccount } from '../hooks/useHorizonAccount';
-import { queryGetStatistics, queryGetEscrowStats, type SorobanContractStatistics, type SorobanEscrowStats } from '../services/sorobanTaskContract';
+import {
+  queryGetStatistics,
+  queryGetEscrowStats,
+  type SorobanContractStatistics,
+  type SorobanEscrowStats,
+} from '../services/sorobanTaskContract';
 import { fetchNetworkFeeStats, type NetworkFeeStats } from '../services/transactionHistory';
 import { getExplorerUrl } from '../services/stellar';
 
@@ -88,7 +93,7 @@ export default function Home() {
   const chartData = [
     { name: 'May', Volume: 200, TVL: 500 },
     { name: 'Jun', Volume: 800, TVL: 1200 },
-    { name: 'Jul', Volume: tvl + 500, TVL: tvl }
+    { name: 'Jul', Volume: tvl + 500, TVL: tvl },
   ];
 
   // Chart data 2: Task distribution
@@ -97,7 +102,7 @@ export default function Home() {
     { name: 'In Escrow', value: escrowTasks.length, color: '#f1c40f' },
     { name: 'Assigned', value: assignedTasks.length, color: '#3498db' },
     { name: 'Completed', value: completedTasks.length, color: '#2ecc71' },
-    { name: 'Disputed', value: disputedTasks.length, color: '#e74c3c' }
+    { name: 'Disputed', value: disputedTasks.length, color: '#e74c3c' },
   ].filter((d) => d.value > 0);
 
   return (
@@ -114,7 +119,8 @@ export default function Home() {
               Task Manager <span className="text-accent">Pro</span>
             </h1>
             <p className="text-muted text-base sm:text-lg leading-relaxed">
-              Decentralized, escrow-powered project agreements. Ensure payment security, instant settlements, and verify developer reputation on the Stellar ledger.
+              Decentralized, escrow-powered project agreements. Ensure payment security, instant
+              settlements, and verify developer reputation on the Stellar ledger.
             </p>
           </div>
           <div className="flex flex-wrap gap-4 shrink-0">
@@ -175,7 +181,9 @@ export default function Home() {
             </div>
             <p className="text-xl font-black text-white">{stat.value}</p>
             <div>
-              <p className="text-[10px] font-bold text-muted uppercase tracking-wider">{stat.label}</p>
+              <p className="text-[10px] font-bold text-muted uppercase tracking-wider">
+                {stat.label}
+              </p>
               <p className="text-[9px] text-white/30">{stat.sub}</p>
             </div>
           </div>
@@ -190,11 +198,17 @@ export default function Home() {
               <User className="w-4 h-4 text-green-400" />
             </div>
             <div>
-              <p className="text-xs font-bold text-white font-mono">{address.slice(0, 8)}...{address.slice(-6)}</p>
+              <p className="text-xs font-bold text-white font-mono">
+                {address.slice(0, 8)}...{address.slice(-6)}
+              </p>
               <p className="text-[10px] text-muted">Connected Wallet</p>
             </div>
           </div>
-          {[{ token: 'XLM', balance: balances.XLM }, { token: 'USDC', balance: balances.USDC }, { token: 'EURC', balance: balances.EURC }].map(({ token, balance }) => (
+          {[
+            { token: 'XLM', balance: balances.XLM },
+            { token: 'USDC', balance: balances.USDC },
+            { token: 'EURC', balance: balances.EURC },
+          ].map(({ token, balance }) => (
             <div key={token} className="text-center">
               <p className="text-lg font-black text-white">
                 {balancesLoading ? '...' : parseFloat(balance).toFixed(4)}
@@ -232,7 +246,9 @@ export default function Home() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="card glass noise flex items-center justify-between p-6">
           <div>
-            <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">Total Tasks</p>
+            <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">
+              Total Tasks
+            </p>
             <h3 className="text-3xl font-black text-white">{totalTasks}</h3>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 text-purple-400">
@@ -242,9 +258,12 @@ export default function Home() {
 
         <div className="card glass noise flex items-center justify-between p-6">
           <div>
-            <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">Total Value Locked</p>
+            <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">
+              Total Value Locked
+            </p>
             <h3 className="text-3xl font-black text-accent flex items-baseline gap-1">
-              {tvl.toLocaleString()} <span className="text-xs font-normal text-muted">USDC/XLM</span>
+              {tvl.toLocaleString()}{' '}
+              <span className="text-xs font-normal text-muted">USDC/XLM</span>
             </h3>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20 text-accent">
@@ -254,7 +273,9 @@ export default function Home() {
 
         <div className="card glass noise flex items-center justify-between p-6">
           <div>
-            <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">Completed Agreements</p>
+            <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">
+              Completed Agreements
+            </p>
             <h3 className="text-3xl font-black text-white">{completedTasks.length}</h3>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center border border-green-500/20 text-green-400">
@@ -266,9 +287,12 @@ export default function Home() {
           {currentUser.role === 'Admin' ? (
             <>
               <div>
-                <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">Fees Collected (2.5%)</p>
+                <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">
+                  Fees Collected (2.5%)
+                </p>
                 <h3 className="text-3xl font-black text-purple-400">
-                  {totalPlatformFees.toFixed(2)} <span className="text-xs font-normal text-muted">USDC</span>
+                  {totalPlatformFees.toFixed(2)}{' '}
+                  <span className="text-xs font-normal text-muted">USDC</span>
                 </h3>
               </div>
               <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 text-purple-400">
@@ -278,9 +302,12 @@ export default function Home() {
           ) : (
             <>
               <div>
-                <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">My Reputation Score</p>
+                <p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">
+                  My Reputation Score
+                </p>
                 <h3 className="text-3xl font-black text-white">
-                  {currentUser.reputation} <span className="text-xs font-normal text-muted">/ 100</span>
+                  {currentUser.reputation}{' '}
+                  <span className="text-xs font-normal text-muted">/ 100</span>
                 </h3>
               </div>
               <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-blue-400">
@@ -298,7 +325,9 @@ export default function Home() {
           <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <div>
               <h3 className="text-lg font-bold text-white">Stellar Activity & TVL Volume</h3>
-              <p className="text-xs text-muted">Monthly escrow growth and transaction settlement volume</p>
+              <p className="text-xs text-muted">
+                Monthly escrow growth and transaction settlement volume
+              </p>
             </div>
             <div className="flex gap-2">
               <span className="flex items-center gap-1 text-[11px] font-medium text-accent">
@@ -331,11 +360,25 @@ export default function Home() {
                     background: 'rgba(13, 17, 23, 0.95)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '12px',
-                    color: '#fff'
+                    color: '#fff',
                   }}
                 />
-                <Area type="monotone" dataKey="TVL" stroke="#4af0b8" fillOpacity={1} fill="url(#colorTVL)" strokeWidth={2} />
-                <Area type="monotone" dataKey="Volume" stroke="#7c6ff7" fillOpacity={1} fill="url(#colorVol)" strokeWidth={2} />
+                <Area
+                  type="monotone"
+                  dataKey="TVL"
+                  stroke="#4af0b8"
+                  fillOpacity={1}
+                  fill="url(#colorTVL)"
+                  strokeWidth={2}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="Volume"
+                  stroke="#7c6ff7"
+                  fillOpacity={1}
+                  fill="url(#colorVol)"
+                  strokeWidth={2}
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -372,8 +415,13 @@ export default function Home() {
               <div className="grid grid-cols-2 gap-3 w-full text-xs">
                 {taskDistribution.map((entry, index) => (
                   <div key={index} className="flex items-center gap-1.5 font-medium text-white/80">
-                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
-                    <span className="truncate">{entry.name}: {entry.value}</span>
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: entry.color }}
+                    />
+                    <span className="truncate">
+                      {entry.name}: {entry.value}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -400,7 +448,10 @@ export default function Home() {
           <div className="divide-y divide-white/5">
             {userTasks.length > 0 ? (
               userTasks.slice(0, 4).map((task) => (
-                <div key={task.id} className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
+                <div
+                  key={task.id}
+                  className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4"
+                >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-1.5">
                       <span
@@ -408,24 +459,29 @@ export default function Home() {
                           task.status === 'Completed'
                             ? 'bg-green-500/10 text-green-400 border border-green-500/20'
                             : task.status === 'Disputed'
-                            ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                            : task.status === 'Assigned'
-                            ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                            : task.status === 'InEscrow'
-                            ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
-                            : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                              ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                              : task.status === 'Assigned'
+                                ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                                : task.status === 'InEscrow'
+                                  ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                                  : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
                         }`}
                       >
                         {task.status}
                       </span>
                       <span className="text-xs font-mono text-muted">#{task.id}</span>
                     </div>
-                    <h4 className="text-sm font-bold text-white hover:text-accent cursor-pointer truncate" onClick={() => navigate('/tasks')}>
+                    <h4
+                      className="text-sm font-bold text-white hover:text-accent cursor-pointer truncate"
+                      onClick={() => navigate('/tasks')}
+                    >
                       {task.title}
                     </h4>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-black text-white">{task.reward} {task.token}</p>
+                    <p className="text-sm font-black text-white">
+                      {task.reward} {task.token}
+                    </p>
                     <p className="text-[11px] text-muted">Due {task.deadline}</p>
                   </div>
                 </div>
@@ -448,23 +504,34 @@ export default function Home() {
               <div key={pay.id} className="flex gap-3 text-xs leading-normal">
                 <div className="shrink-0 mt-0.5">
                   {pay.type === 'Payout' && (
-                    <span className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 text-[10px] font-bold">✓</span>
+                    <span className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 text-[10px] font-bold">
+                      ✓
+                    </span>
                   )}
                   {pay.type === 'Funding' && (
-                    <span className="w-5 h-5 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 text-[10px] font-bold">$</span>
+                    <span className="w-5 h-5 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 text-[10px] font-bold">
+                      $
+                    </span>
                   )}
                   {pay.type === 'Fee' && (
-                    <span className="w-5 h-5 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 text-[10px] font-bold">%</span>
+                    <span className="w-5 h-5 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 text-[10px] font-bold">
+                      %
+                    </span>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-white/90 font-medium">
-                    {pay.type === 'Funding' ? 'Task funded' : pay.type === 'Payout' ? 'Payment released' : 'Platform fee collected'}
+                    {pay.type === 'Funding'
+                      ? 'Task funded'
+                      : pay.type === 'Payout'
+                        ? 'Payment released'
+                        : 'Platform fee collected'}
                   </p>
                   <p className="text-[10px] text-muted truncate">{pay.taskTitle}</p>
                   <div className="flex items-center justify-between gap-2 mt-1">
                     <span className="font-bold text-white/70">
-                      {pay.type === 'Fee' ? '+' : ''}{pay.amount} {pay.token}
+                      {pay.type === 'Fee' ? '+' : ''}
+                      {pay.amount} {pay.token}
                     </span>
                     <a
                       href={`https://stellar.expert/explorer/testnet/tx/${pay.txHash}`}

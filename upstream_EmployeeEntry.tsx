@@ -1,43 +1,43 @@
-import { Icon } from "@stellar/design-system";
-import { EmployeeList } from "../components/EmployeeList";
+import { Icon } from '@stellar/design-system';
+import { EmployeeList } from '../components/EmployeeList';
 
 export default function EmployeeEntry() {
   const mockEmployees = [
     {
-      id: "1",
-      name: "Wilfred G.",
-      email: "wilfred@example.com",
-      imageUrl: "",
-      position: "Lead Developer",
-      wallet: "GDUKMGUGKAAZBAMNSMUA4Y6G4XDSZPSZ3SW5UN3ARVMO6QSRDWP5YLEXT2U2D6",
-      status: "Active" as "Active",
+      id: '1',
+      name: 'Wilfred G.',
+      email: 'wilfred@example.com',
+      imageUrl: '',
+      position: 'Lead Developer',
+      wallet: 'GDUKMGUGKAAZBAMNSMUA4Y6G4XDSZPSZ3SW5UN3ARVMO6QSRDWP5YLEXT2U2D6',
+      status: 'Active' as 'Active',
     },
     {
-      id: "2",
-      name: "Chinelo A.",
-      email: "chinelo@example.com",
-      imageUrl: "",
-      position: "Product Manager",
-      wallet: "GDUKMGUGKAAZBAMNSMUA4Y6G4XDSZPSZ3SW5UN3ARVMO6QSRDWP5YLEXT2U2D6",
-      status: "Active" as "Active",
+      id: '2',
+      name: 'Chinelo A.',
+      email: 'chinelo@example.com',
+      imageUrl: '',
+      position: 'Product Manager',
+      wallet: 'GDUKMGUGKAAZBAMNSMUA4Y6G4XDSZPSZ3SW5UN3ARVMO6QSRDWP5YLEXT2U2D6',
+      status: 'Active' as 'Active',
     },
     {
-      id: "3",
-      name: "Emeka N.",
-      email: "emeka@example.com",
-      imageUrl: "https://i.pravatar.cc/150?img=3", // custom image
-      position: "UX Designer",
-      wallet: "GDUKMGUGKAAZBAMNSMUA4Y6G4XDSZPSZ3SW5UN3ARVMO6QSRDWP5YLEXT2U2D6",
-      status: "Active" as "Active",
+      id: '3',
+      name: 'Emeka N.',
+      email: 'emeka@example.com',
+      imageUrl: 'https://i.pravatar.cc/150?img=3', // custom image
+      position: 'UX Designer',
+      wallet: 'GDUKMGUGKAAZBAMNSMUA4Y6G4XDSZPSZ3SW5UN3ARVMO6QSRDWP5YLEXT2U2D6',
+      status: 'Active' as 'Active',
     },
     {
-      id: "4",
-      name: "Fatima K.",
-      email: "fatima@example.com",
-      imageUrl: "",
-      position: "HR Specialist",
-      wallet: "GDUKMGUGKAAZBAMNSMUA4Y6G4XDSZPSZ3SW5UN3ARVMO6QSRDWP5YLEXT2U2D6",
-      status: "Active" as "Active",
+      id: '4',
+      name: 'Fatima K.',
+      email: 'fatima@example.com',
+      imageUrl: '',
+      position: 'HR Specialist',
+      wallet: 'GDUKMGUGKAAZBAMNSMUA4Y6G4XDSZPSZ3SW5UN3ARVMO6QSRDWP5YLEXT2U2D6',
+      status: 'Active' as 'Active',
     },
   ];
 

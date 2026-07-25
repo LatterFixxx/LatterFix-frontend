@@ -21,14 +21,16 @@ This document outlines the core platform features, architectural requirements, a
 The traditional freelance network model relies heavily on centralized platforms that impose 10%–20% service fees, introduce payment delays of up to 14 business days, and leave contributors vulnerable to arbitrary chargebacks and payment disputes.
 
 ### 2.1 Key Customer Pain Points
-* **Payment Insecurity:** Contributors often execute project deliverables without verified funding locks, resulting in payment default or renegotiation.
-* **High Processing Overhead:** Cross-border wire transfers and traditional processors consume significant time and cost (averaging 5%–15% in fees).
-* **Siloed Platforms:** Contribution histories and reputation rankings are locked inside centralized platform ecosystems, precluding portable worker profiles.
+
+- **Payment Insecurity:** Contributors often execute project deliverables without verified funding locks, resulting in payment default or renegotiation.
+- **High Processing Overhead:** Cross-border wire transfers and traditional processors consume significant time and cost (averaging 5%–15% in fees).
+- **Siloed Platforms:** Contribution histories and reputation rankings are locked inside centralized platform ecosystems, precluding portable worker profiles.
 
 ### 2.2 Target Market
-* **Decentralized Autonomous Organizations (DAOs)** needing atomic contributor payouts.
-* **Global Tech Enterprises** seeking frictionless cross-border payments.
-* **Freelance Developers & Contractors** looking for trustless milestones.
+
+- **Decentralized Autonomous Organizations (DAOs)** needing atomic contributor payouts.
+- **Global Tech Enterprises** seeking frictionless cross-border payments.
+- **Freelance Developers & Contractors** looking for trustless milestones.
 
 ---
 
@@ -36,26 +38,30 @@ The traditional freelance network model relies heavily on centralized platforms 
 
 The platform models three primary user personas, each interacting with the underlying Soroban contracts and the UI database schema with distinct access rights:
 
-| User Role | System Permissions | Key Actions |
-|---|---|---|
+| User Role               | System Permissions                                                           | Key Actions                                                                                  |
+| ----------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | **Creator (Org Admin)** | Write access to project creation, escrow financing, and delivery validation. | Bootstraps contracts, creates tasks, funds escrows, verifies deliverables, releases payouts. |
-| **Contributor** | Write access to registrations, applications, and task completions. | Claims funded tasks, registers professional profile, submits project completion URLs. |
-| **Admin (Arbitrator)** | Write access to platform governance parameters and dispute overrides. | Sets protocol fees, resolves payment disputes, splits escrowed funds, pauses contract. |
+| **Contributor**         | Write access to registrations, applications, and task completions.           | Claims funded tasks, registers professional profile, submits project completion URLs.        |
+| **Admin (Arbitrator)**  | Write access to platform governance parameters and dispute overrides.        | Sets protocol fees, resolves payment disputes, splits escrowed funds, pauses contract.       |
 
 ---
 
 ## 4. Functional Specifications
 
 ### 4.1 On-Chain Escrow & Payout System
+
 All financial transactions are governed directly by a Soroban smart contract. The contract guarantees that once a Creator allocates funds to a task, they cannot claw back the funds arbitrarily.
-* **Fund Lock:** Escrow deposits lock native XLM, USDC, or EURC assets directly into the contract storage.
-* **Platform Fee:** The contract dynamically deducts a customizable basis point fee (default: 2.5%) during payout execution.
-* **Instant Payout:** Payout commands release net funds to the contributor's public key address instantly.
+
+- **Fund Lock:** Escrow deposits lock native XLM, USDC, or EURC assets directly into the contract storage.
+- **Platform Fee:** The contract dynamically deducts a customizable basis point fee (default: 2.5%) during payout execution.
+- **Instant Payout:** Payout commands release net funds to the contributor's public key address instantly.
 
 ### 4.2 Interactive Contract Method Explorer
+
 To assist audit compliance and technical users, the landing page includes an interactive Contract Explorer. The explorer lists the 12 primary Soroban functions, accepts test parameters, and simulates transaction envelopes using live workspace Zustand states or web3 wallet injection.
 
 ### 4.3 Multi-Tenant Workspace Isolation
+
 The platform supports isolation for multiple enterprise clients. PostgreSQL Row-Level Security (RLS) is applied to keep tenant data separate. Users belonging to Tenant A cannot view employee databases, ledger sheets, or custom keys belonging to Tenant B.
 
 ---
@@ -108,6 +114,6 @@ fn retrieve_profile(developer: Address) -> DeveloperProfile;
 
 ## 6. Non-Functional & Security Requirements
 
-* **Sub-second UI Responsiveness:** Local caching via Zustand and React Query ensures that state mutations are rendered immediately, regardless of network latency.
-* **Strict Authorization:** Secure wallet message signing (Freighter/xBull) is mandatory for executing any mutable state functions on the Stellar Testnet.
-* **Portable Reputation:** Rep points accumulated on-chain must be stored in the contract's instance storage, allowing integration with external Web3 job boards.
+- **Sub-second UI Responsiveness:** Local caching via Zustand and React Query ensures that state mutations are rendered immediately, regardless of network latency.
+- **Strict Authorization:** Secure wallet message signing (Freighter/xBull) is mandatory for executing any mutable state functions on the Stellar Testnet.
+- **Portable Reputation:** Rep points accumulated on-chain must be stored in the contract's instance storage, allowing integration with external Web3 job boards.

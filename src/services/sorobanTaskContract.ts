@@ -330,16 +330,20 @@ export async function buildCreateTaskWithMilestonesTx(
   tags: string[]
 ): Promise<PreparedTxResult> {
   const milestoneVec = toScVec(
-    milestones.map((m) =>
-      xdr.ScVal.scvVec([toScString(null, m.title), toScI128(m.amount)])
-    )
+    milestones.map((m) => xdr.ScVal.scvVec([toScString(null, m.title), toScI128(m.amount)]))
   );
   const tagVec = toScVec(tags.map((t) => toScString(null, t)));
 
   return buildAndPrepareSorobanTx(
     callerAddress,
     'create_task_with_milestones',
-    [toScAddress(callerAddress), toScString(null, title), toScString(null, description), milestoneVec, tagVec],
+    [
+      toScAddress(callerAddress),
+      toScString(null, title),
+      toScString(null, description),
+      milestoneVec,
+      tagVec,
+    ],
     `Create milestoned task: "${title}" (${milestones.length} milestones)`
   );
 }

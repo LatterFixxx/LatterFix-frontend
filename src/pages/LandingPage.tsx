@@ -28,7 +28,11 @@ interface ContractMethod {
   description: string;
   params: MethodParam[];
   returnType: string;
-  execute: (inputs: Record<string, string>, store: any, walletAddress: string | null) => { success: boolean; data: any; message: string };
+  execute: (
+    inputs: Record<string, string>,
+    store: any,
+    walletAddress: string | null
+  ) => { success: boolean; data: any; message: string };
 }
 
 export default function LandingPage() {
@@ -38,7 +42,10 @@ export default function LandingPage() {
 
   const [activeMethod, setActiveMethod] = useState<string | null>(null);
   const [methodInputs, setMethodInputs] = useState<Record<string, string>>({});
-  const [executionResult, setExecutionResult] = useState<{ success: boolean; output: string } | null>(null);
+  const [executionResult, setExecutionResult] = useState<{
+    success: boolean;
+    output: string;
+  } | null>(null);
   const [feeStats, setFeeStats] = useState<NetworkFeeStats | null>(null);
 
   useEffect(() => {
@@ -59,160 +66,190 @@ export default function LandingPage() {
         { name: 'admin', type: 'string (address)', placeholder: 'G-CREATOR-Admin-111' },
         { name: 'fee_bps', type: 'u32 (basis points)', placeholder: '250 (equals 2.5%)' },
         { name: 'token', type: 'string (address)', placeholder: 'USDC_TOKEN_ADDRESS' },
-        { name: 'fee_recipient', type: 'string (address)', placeholder: 'G-FEE-RECIPIENT' }
+        { name: 'fee_recipient', type: 'string (address)', placeholder: 'G-FEE-RECIPIENT' },
       ],
       returnType: 'void',
       execute: (inputs, store) => {
         const feeBps = parseInt(inputs.fee_bps || '250');
-        store.initializePlatform(inputs.admin || 'G-CREATOR-Admin-111', feeBps, ['USDC', 'XLM', 'EURC']);
+        store.initializePlatform(inputs.admin || 'G-CREATOR-Admin-111', feeBps, [
+          'USDC',
+          'XLM',
+          'EURC',
+        ]);
         return {
           success: true,
           data: { initialized: true, admin: inputs.admin || 'G-CREATOR-Admin-111', feeBps },
-          message: 'Contract successfully bootstrapped on-chain!'
+          message: 'Contract successfully bootstrapped on-chain!',
         };
-      }
+      },
     },
     {
       name: 'deposit_reward',
       description: 'Deposit reward into escrow and register a new on-chain task.',
       params: [
         { name: 'task_id', type: 'string', placeholder: 'task-3' },
-        { name: 'reward', type: 'u32', placeholder: '350' }
+        { name: 'reward', type: 'u32', placeholder: '350' },
       ],
       returnType: 'void',
       execute: (inputs, store) => {
         const taskId = inputs.task_id;
-        if (!taskId) return { success: false, data: null, message: 'task_id parameter is required' };
+        if (!taskId)
+          return { success: false, data: null, message: 'task_id parameter is required' };
         const taskExists = store.tasks.find((t: any) => t.id === taskId);
-        if (!taskExists) return { success: false, data: null, message: `Task with ID ${taskId} not found` };
-        if (taskExists.status !== 'Open') return { success: false, data: null, message: `Task is already funded or in progress (current status: ${taskExists.status})` };
-        
+        if (!taskExists)
+          return { success: false, data: null, message: `Task with ID ${taskId} not found` };
+        if (taskExists.status !== 'Open')
+          return {
+            success: false,
+            data: null,
+            message: `Task is already funded or in progress (current status: ${taskExists.status})`,
+          };
+
         store.fundTask(taskId);
         return {
           success: true,
           data: { taskId, reward: taskExists.reward, status: 'InEscrow' },
-          message: `Escrow successfully funded for task: ${taskExists.title}`
+          message: `Escrow successfully funded for task: ${taskExists.title}`,
         };
-      }
+      },
     },
     {
       name: 'claim',
       description: 'Claim an open task and move it to InProgress state.',
       params: [
         { name: 'task_id', type: 'string', placeholder: 'task-2' },
-        { name: 'contributor', type: 'string (address)', placeholder: 'G-CONTRIB-Alice-888' }
+        { name: 'contributor', type: 'string (address)', placeholder: 'G-CONTRIB-Alice-888' },
       ],
       returnType: 'void',
       execute: (inputs, store) => {
         const taskId = inputs.task_id;
         const contributor = inputs.contributor || 'G-CONTRIB-Alice-888';
-        if (!taskId) return { success: false, data: null, message: 'task_id parameter is required' };
-        
+        if (!taskId)
+          return { success: false, data: null, message: 'task_id parameter is required' };
+
         const task = store.tasks.find((t: any) => t.id === taskId);
         if (!task) return { success: false, data: null, message: `Task ${taskId} not found` };
-        if (task.status !== 'InEscrow') return { success: false, data: null, message: `Task status must be Funded/InEscrow to claim (current: ${task.status})` };
-        
+        if (task.status !== 'InEscrow')
+          return {
+            success: false,
+            data: null,
+            message: `Task status must be Funded/InEscrow to claim (current: ${task.status})`,
+          };
+
         store.assignTask(taskId, contributor);
         return {
           success: true,
           data: { taskId, assignee: contributor, status: 'Assigned' },
-          message: `Task successfully claimed by and assigned to: ${contributor}`
+          message: `Task successfully claimed by and assigned to: ${contributor}`,
         };
-      }
+      },
     },
     {
       name: 'submit',
       description: 'Submit a delivery URL, advancing the task to Completed state.',
       params: [
         { name: 'task_id', type: 'string', placeholder: 'task-1' },
-        { name: 'delivery_url', type: 'string', placeholder: 'https://github.com/my-pr-link' }
+        { name: 'delivery_url', type: 'string', placeholder: 'https://github.com/my-pr-link' },
       ],
       returnType: 'void',
       execute: (inputs, store) => {
         const taskId = inputs.task_id;
-        const deliveryUrl = inputs.delivery_url || 'https://github.com/LatterFixxx/LatterFix-frontend/pull/1';
-        if (!taskId) return { success: false, data: null, message: 'task_id parameter is required' };
-        
+        const deliveryUrl =
+          inputs.delivery_url || 'https://github.com/LatterFixxx/LatterFix-frontend/pull/1';
+        if (!taskId)
+          return { success: false, data: null, message: 'task_id parameter is required' };
+
         const task = store.tasks.find((t: any) => t.id === taskId);
         if (!task) return { success: false, data: null, message: `Task ${taskId} not found` };
-        if (task.status !== 'Assigned') return { success: false, data: null, message: `Task status must be Assigned to submit work (current: ${task.status})` };
-        
+        if (task.status !== 'Assigned')
+          return {
+            success: false,
+            data: null,
+            message: `Task status must be Assigned to submit work (current: ${task.status})`,
+          };
+
         store.submitCompletion(taskId);
         return {
           success: true,
           data: { taskId, deliveryUrl, completionSubmitted: true },
-          message: `Delivery URL successfully submitted for review: ${deliveryUrl}`
+          message: `Delivery URL successfully submitted for review: ${deliveryUrl}`,
         };
-      }
+      },
     },
     {
       name: 'verify',
       description: 'Verify delivery and release escrowed funds minus platform fee.',
-      params: [
-        { name: 'task_id', type: 'string', placeholder: 'task-1' }
-      ],
+      params: [{ name: 'task_id', type: 'string', placeholder: 'task-1' }],
       returnType: 'void',
       execute: (inputs, store) => {
         const taskId = inputs.task_id;
-        if (!taskId) return { success: false, data: null, message: 'task_id parameter is required' };
-        
+        if (!taskId)
+          return { success: false, data: null, message: 'task_id parameter is required' };
+
         const task = store.tasks.find((t: any) => t.id === taskId);
         if (!task) return { success: false, data: null, message: `Task ${taskId} not found` };
-        if (task.status !== 'Assigned') return { success: false, data: null, message: `Task must be Assigned to verify and payout` };
-        
+        if (task.status !== 'Assigned')
+          return {
+            success: false,
+            data: null,
+            message: `Task must be Assigned to verify and payout`,
+          };
+
         store.completeTaskAndPayout(taskId);
         return {
           success: true,
           data: { taskId, status: 'Completed', released: true },
-          message: `Delivery verified. On-chain payout successfully triggered and released!`
+          message: `Delivery verified. On-chain payout successfully triggered and released!`,
         };
-      }
+      },
     },
     {
       name: 'cancel',
       description: 'Cancel an open task and refund the escrowed reward to creator.',
-      params: [
-        { name: 'task_id', type: 'string', placeholder: 'task-2' }
-      ],
+      params: [{ name: 'task_id', type: 'string', placeholder: 'task-2' }],
       returnType: 'void',
       execute: (inputs, store) => {
         const taskId = inputs.task_id;
         if (!taskId) return { success: false, data: null, message: 'task_id is required' };
-        
+
         const task = store.tasks.find((t: any) => t.id === taskId);
         if (!task) return { success: false, data: null, message: `Task ${taskId} not found` };
-        
+
         // Simulating cancel (moving back to Open or deleting/refund)
         return {
           success: true,
           data: { taskId, refunded: true, refundRecipient: task.creator },
-          message: `Task successfully cancelled. Escrowed refund of ${task.reward} ${task.token} sent back to creator.`
+          message: `Task successfully cancelled. Escrowed refund of ${task.reward} ${task.token} sent back to creator.`,
         };
-      }
+      },
     },
     {
       name: 'dispute',
       description: 'Flag a task as Disputed, freezing escrow until admin resolution.',
       params: [
         { name: 'task_id', type: 'string', placeholder: 'task-1' },
-        { name: 'reason', type: 'string', placeholder: 'Contributor did not finish the full spec.' }
+        {
+          name: 'reason',
+          type: 'string',
+          placeholder: 'Contributor did not finish the full spec.',
+        },
       ],
       returnType: 'void',
       execute: (inputs, store) => {
         const taskId = inputs.task_id;
         const reason = inputs.reason || 'Work does not match deliverables';
         if (!taskId) return { success: false, data: null, message: 'task_id is required' };
-        
+
         const task = store.tasks.find((t: any) => t.id === taskId);
         if (!task) return { success: false, data: null, message: `Task ${taskId} not found` };
-        
+
         store.triggerDispute(taskId, reason);
         return {
           success: true,
           data: { taskId, status: 'Disputed', reason },
-          message: `Task flagged as Disputed. Escrow frozen on-chain awaiting governance action.`
+          message: `Task flagged as Disputed. Escrow frozen on-chain awaiting governance action.`,
         };
-      }
+      },
     },
     {
       name: 'admin_split',
@@ -220,7 +257,7 @@ export default function LandingPage() {
       params: [
         { name: 'task_id', type: 'string', placeholder: 'task-1' },
         { name: 'creator_share', type: 'u32 (BPS)', placeholder: '5000 (equals 50%)' },
-        { name: 'assignee_share', type: 'u32 (BPS)', placeholder: '5000 (equals 50%)' }
+        { name: 'assignee_share', type: 'u32 (BPS)', placeholder: '5000 (equals 50%)' },
       ],
       returnType: 'void',
       execute: (inputs, store) => {
@@ -228,25 +265,30 @@ export default function LandingPage() {
         const creatorShare = parseInt(inputs.creator_share || '5000');
         const assigneeShare = parseInt(inputs.assignee_share || '5000');
         if (!taskId) return { success: false, data: null, message: 'task_id is required' };
-        
+
         const task = store.tasks.find((t: any) => t.id === taskId);
         if (!task) return { success: false, data: null, message: `Task ${taskId} not found` };
-        if (task.status !== 'Disputed') return { success: false, data: null, message: `Custom split can only be executed on Disputed tasks` };
-        
+        if (task.status !== 'Disputed')
+          return {
+            success: false,
+            data: null,
+            message: `Custom split can only be executed on Disputed tasks`,
+          };
+
         store.resolveDispute(taskId, 'Split');
         return {
           success: true,
           data: { taskId, creatorShare, assigneeShare, resolution: 'Split' },
-          message: `Dispute resolved. Custom split successfully disbursed to Creator and Assignee.`
+          message: `Dispute resolved. Custom split successfully disbursed to Creator and Assignee.`,
         };
-      }
+      },
     },
     {
       name: 'register_developer',
       description: 'Register a developer profile on-chain with username and bio.',
       params: [
         { name: 'username', type: 'string', placeholder: 'StellarCoder' },
-        { name: 'bio', type: 'string', placeholder: 'Full-stack rust & frontend dev.' }
+        { name: 'bio', type: 'string', placeholder: 'Full-stack rust & frontend dev.' },
       ],
       returnType: 'void',
       execute: (inputs, store, address) => {
@@ -256,16 +298,16 @@ export default function LandingPage() {
         return {
           success: true,
           data: { username, address: targetAddress, reputation: 10, bio: inputs.bio || '' },
-          message: `Developer successfully registered under address: ${targetAddress}`
+          message: `Developer successfully registered under address: ${targetAddress}`,
         };
-      }
+      },
     },
     {
       name: 'increment_reputation',
       description: 'Increment contributor reputation points upon verified task completion.',
       params: [
         { name: 'developer', type: 'string (address)', placeholder: 'G-CONTRIB-Alice-888' },
-        { name: 'amount', type: 'u32', placeholder: '5' }
+        { name: 'amount', type: 'u32', placeholder: '5' },
       ],
       returnType: 'void',
       execute: (inputs, store) => {
@@ -276,51 +318,60 @@ export default function LandingPage() {
           useTaskStore.setState({
             currentUser: {
               ...store.currentUser,
-              reputation: Math.min(100, store.currentUser.reputation + amt)
-            }
+              reputation: Math.min(100, store.currentUser.reputation + amt),
+            },
           });
         }
         return {
           success: true,
-          data: { developer: dev, increment: amt, newReputation: store.currentUser.address === dev ? Math.min(100, store.currentUser.reputation + amt) : 95 },
-          message: `Developer reputation points successfully incremented on-chain!`
+          data: {
+            developer: dev,
+            increment: amt,
+            newReputation:
+              store.currentUser.address === dev
+                ? Math.min(100, store.currentUser.reputation + amt)
+                : 95,
+          },
+          message: `Developer reputation points successfully incremented on-chain!`,
         };
-      }
+      },
     },
     {
       name: 'fetch_task',
       description: 'Fetch the full on-chain task struct by its ID.',
-      params: [
-        { name: 'task_id', type: 'string', placeholder: 'task-1' }
-      ],
+      params: [{ name: 'task_id', type: 'string', placeholder: 'task-1' }],
       returnType: 'TaskStruct',
       execute: (inputs, store) => {
         const taskId = inputs.task_id || 'task-1';
         const task = store.tasks.find((t: any) => t.id === taskId);
-        if (!task) return { success: false, data: null, message: `Task with ID ${taskId} not found` };
+        if (!task)
+          return { success: false, data: null, message: `Task with ID ${taskId} not found` };
         return {
           success: true,
           data: task,
-          message: `Successfully fetched task ${taskId} details!`
+          message: `Successfully fetched task ${taskId} details!`,
         };
-      }
+      },
     },
     {
       name: 'retrieve_profile',
       description: 'Retrieve contributor profile details from on-chain storage.',
-      params: [
-        { name: 'developer', type: 'string (address)', placeholder: 'G-CONTRIB-Alice-888' }
-      ],
+      params: [{ name: 'developer', type: 'string (address)', placeholder: 'G-CONTRIB-Alice-888' }],
       returnType: 'DeveloperProfile',
       execute: (inputs, store) => {
         const dev = inputs.developer || 'G-CONTRIB-Alice-888';
         let profile = {
           address: dev,
-          username: dev === 'G-CONTRIB-Alice-888' ? 'Alice' : dev === 'G-CONTRIB-Bob-999' ? 'Bob' : 'RegisteredDeveloper',
+          username:
+            dev === 'G-CONTRIB-Alice-888'
+              ? 'Alice'
+              : dev === 'G-CONTRIB-Bob-999'
+                ? 'Bob'
+                : 'RegisteredDeveloper',
           reputation: dev === 'G-CONTRIB-Alice-888' ? 95 : dev === 'G-CONTRIB-Bob-999' ? 82 : 65,
           earnings: dev === 'G-CONTRIB-Alice-888' ? 1450 : dev === 'G-CONTRIB-Bob-999' ? 800 : 0,
           tasksCompleted: dev === 'G-CONTRIB-Alice-888' ? 4 : dev === 'G-CONTRIB-Bob-999' ? 2 : 0,
-          role: 'Contributor'
+          role: 'Contributor',
         };
         if (store.currentUser.address === dev) {
           profile = store.currentUser;
@@ -328,10 +379,10 @@ export default function LandingPage() {
         return {
           success: true,
           data: profile,
-          message: `Successfully retrieved developer profile for: ${dev}`
+          message: `Successfully retrieved developer profile for: ${dev}`,
         };
-      }
-    }
+      },
+    },
   ];
 
   const handleMethodSelect = (methodName: string) => {
@@ -343,7 +394,7 @@ export default function LandingPage() {
   const handleInputChange = (paramName: string, value: string) => {
     setMethodInputs((prev) => ({
       ...prev,
-      [paramName]: value
+      [paramName]: value,
     }));
   };
 
@@ -363,11 +414,11 @@ export default function LandingPage() {
         {
           status: res.success ? 'Success' : 'Failed',
           message: res.message,
-          data: res.data
+          data: res.data,
         },
         null,
         2
-      )
+      ),
     });
   };
 
@@ -386,11 +437,14 @@ export default function LandingPage() {
 
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white leading-tight">
             Decentralized Work, <br />
-            <span className="text-accent bg-linear-to-r from-accent to-accent2 bg-clip-text text-transparent">Secured by Stellar.</span>
+            <span className="text-accent bg-linear-to-r from-accent to-accent2 bg-clip-text text-transparent">
+              Secured by Stellar.
+            </span>
           </h1>
 
           <p className="text-muted text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
-            Create tasks, fund them via on-chain escrow, and securely release payments when work is verified. Fast, transparent, and globally accessible.
+            Create tasks, fund them via on-chain escrow, and securely release payments when work is
+            verified. Fast, transparent, and globally accessible.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
@@ -416,16 +470,31 @@ export default function LandingPage() {
         <section className="max-w-4xl mx-auto">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: 'Network', value: 'Testnet', icon: <Zap className="w-3.5 h-3.5 text-accent" /> },
+              {
+                label: 'Network',
+                value: 'Testnet',
+                icon: <Zap className="w-3.5 h-3.5 text-accent" />,
+              },
               {
                 label: 'Congestion',
                 value: feeStats.congestion.toUpperCase(),
                 icon: <Activity className="w-3.5 h-3.5 text-yellow-400" />,
               },
-              { label: 'Base Fee', value: `${feeStats.baseFee} stroops`, icon: <Zap className="w-3.5 h-3.5 text-purple-400" /> },
-              { label: 'Latest Ledger', value: `#${feeStats.lastLedger.toLocaleString()}`, icon: <GitBranch className="w-3.5 h-3.5 text-green-400" /> },
+              {
+                label: 'Base Fee',
+                value: `${feeStats.baseFee} stroops`,
+                icon: <Zap className="w-3.5 h-3.5 text-purple-400" />,
+              },
+              {
+                label: 'Latest Ledger',
+                value: `#${feeStats.lastLedger.toLocaleString()}`,
+                icon: <GitBranch className="w-3.5 h-3.5 text-green-400" />,
+              },
             ].map((stat) => (
-              <div key={stat.label} className="card glass noise px-4 py-3 flex items-center gap-3 border border-white/5">
+              <div
+                key={stat.label}
+                className="card glass noise px-4 py-3 flex items-center gap-3 border border-white/5"
+              >
                 {stat.icon}
                 <div>
                   <p className="text-xs font-bold text-white">{stat.value}</p>
@@ -441,7 +510,9 @@ export default function LandingPage() {
       <section className="max-w-4xl mx-auto card glass noise p-8 border border-white/10 rounded-3xl relative">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-muted">Stellar Wallet — Freighter · xBull · Lobstr</span>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-muted">
+              Stellar Wallet — Freighter · xBull · Lobstr
+            </span>
             <h2 className="text-2xl font-black text-white">
               {walletAddress ? (
                 <span className="flex items-center gap-2 text-accent">
@@ -482,9 +553,13 @@ export default function LandingPage() {
       {/* ── FEATURES GRID ── */}
       <section id="features" className="space-y-12">
         <div className="text-center space-y-2">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-accent2">Core Infrastructure</span>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-accent2">
+            Core Infrastructure
+          </span>
           <h2 className="text-3xl sm:text-4xl font-black text-white">How TaskManager Pro Works</h2>
-          <p className="text-xs text-muted max-w-md mx-auto">Deterministic payments, verified deliverables, zero trust issues.</p>
+          <p className="text-xs text-muted max-w-md mx-auto">
+            Deterministic payments, verified deliverables, zero trust issues.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -494,7 +569,8 @@ export default function LandingPage() {
             </div>
             <h3 className="text-xl font-bold text-white">Native Escrow</h3>
             <p className="text-sm text-muted leading-relaxed">
-              Funds are deterministically locked in Soroban native smart contracts. Zero counterparty risk for both creators and contributors.
+              Funds are deterministically locked in Soroban native smart contracts. Zero
+              counterparty risk for both creators and contributors.
             </p>
           </div>
 
@@ -504,7 +580,8 @@ export default function LandingPage() {
             </div>
             <h3 className="text-xl font-bold text-white">Instant Payouts</h3>
             <p className="text-sm text-muted leading-relaxed">
-              Upon task completion, the smart contract triggers sub-second token transfers securely over the Stellar network.
+              Upon task completion, the smart contract triggers sub-second token transfers securely
+              over the Stellar network.
             </p>
           </div>
 
@@ -514,7 +591,8 @@ export default function LandingPage() {
             </div>
             <h3 className="text-xl font-bold text-white">Multi-Sig Verified</h3>
             <p className="text-sm text-muted leading-relaxed">
-              Requires transparent authorization to release payouts, keeping both creators and workers protected against disputes.
+              Requires transparent authorization to release payouts, keeping both creators and
+              workers protected against disputes.
             </p>
           </div>
         </div>
@@ -524,9 +602,13 @@ export default function LandingPage() {
       <section id="bounties" className="space-y-12">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/5 pb-6">
           <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-accent">Stellar Network Bounties</span>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-accent">
+              Stellar Network Bounties
+            </span>
             <h2 className="text-3xl font-black text-white">Live Bounties & Tasks</h2>
-            <p className="text-xs text-muted">Claim tasks, submit your work, and get paid instantly in decentralized escrows.</p>
+            <p className="text-xs text-muted">
+              Claim tasks, submit your work, and get paid instantly in decentralized escrows.
+            </p>
           </div>
           <button
             onClick={() => navigate('/tasks')}
@@ -544,31 +626,42 @@ export default function LandingPage() {
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase border ${
-                    task.status === 'InEscrow'
-                      ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                      : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-                  }`}>
+                  <span
+                    className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase border ${
+                      task.status === 'InEscrow'
+                        ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                        : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                    }`}
+                  >
                     {task.status === 'InEscrow' ? 'Funded' : 'Open'}
                   </span>
                   <span className="text-[9px] font-mono text-muted">#{task.id}</span>
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">{task.title}</h3>
-                <p className="text-xs text-muted line-clamp-2 leading-relaxed mb-4">{task.description}</p>
+                <p className="text-xs text-muted line-clamp-2 leading-relaxed mb-4">
+                  {task.description}
+                </p>
               </div>
 
               <div>
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {task.tags.map((t) => (
-                    <span key={t} className="text-[9px] font-mono bg-white/5 border border-white/5 text-muted px-2 py-0.5 rounded">
+                    <span
+                      key={t}
+                      className="text-[9px] font-mono bg-white/5 border border-white/5 text-muted px-2 py-0.5 rounded"
+                    >
                       {t}
                     </span>
                   ))}
                 </div>
                 <div className="flex items-center justify-between border-t border-white/5 pt-3">
                   <div>
-                    <span className="text-[9px] uppercase tracking-wider text-muted font-mono leading-none block mb-1">Escrow Reward</span>
-                    <span className="text-base font-black text-white">{task.reward} {task.token}</span>
+                    <span className="text-[9px] uppercase tracking-wider text-muted font-mono leading-none block mb-1">
+                      Escrow Reward
+                    </span>
+                    <span className="text-base font-black text-white">
+                      {task.reward} {task.token}
+                    </span>
                   </div>
                   <button
                     onClick={() => navigate('/tasks')}
@@ -586,17 +679,22 @@ export default function LandingPage() {
       {/* ── CONTRACT METHOD EXPLORER ── */}
       <section id="explorer" className="space-y-12">
         <div className="text-center space-y-2">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-accent2">Interactive SDK Interface</span>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-accent2">
+            Interactive SDK Interface
+          </span>
           <h2 className="text-3xl sm:text-4xl font-black text-white">Contract Method Explorer</h2>
           <p className="text-xs text-muted max-w-md mx-auto">
-            Inspect every public function exposed by the TaskManager Pro Soroban contract deployed on the Stellar Testnet.
+            Inspect every public function exposed by the TaskManager Pro Soroban contract deployed
+            on the Stellar Testnet.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Method list */}
           <div className="lg:col-span-1 card glass noise p-6 space-y-4 max-h-[580px] overflow-y-auto pr-1">
-            <h3 className="text-sm font-bold text-white border-b border-white/5 pb-2 uppercase tracking-wider">Public Methods</h3>
+            <h3 className="text-sm font-bold text-white border-b border-white/5 pb-2 uppercase tracking-wider">
+              Public Methods
+            </h3>
             <div className="flex flex-col gap-1.5">
               {contractMethods.map((m) => (
                 <button
@@ -628,7 +726,9 @@ export default function LandingPage() {
                         <span className="text-[10px] font-mono bg-accent/10 text-accent px-2.5 py-1 rounded-md mb-2 inline-block">
                           Soroban Function
                         </span>
-                        <h3 className="text-2xl font-black text-white font-mono">{method.name}()</h3>
+                        <h3 className="text-2xl font-black text-white font-mono">
+                          {method.name}()
+                        </h3>
                         <p className="text-xs text-muted mt-2">{method.description}</p>
                       </div>
 
@@ -636,7 +736,9 @@ export default function LandingPage() {
                       <form onSubmit={handleExecute} className="space-y-4">
                         {method.params.length > 0 ? (
                           <div className="space-y-3">
-                            <h4 className="text-xs uppercase tracking-wider text-muted font-bold font-mono">Parameters</h4>
+                            <h4 className="text-xs uppercase tracking-wider text-muted font-bold font-mono">
+                              Parameters
+                            </h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               {method.params.map((param) => (
                                 <div key={param.name} className="space-y-1.5">
@@ -657,7 +759,9 @@ export default function LandingPage() {
                             </div>
                           </div>
                         ) : (
-                          <p className="text-xs text-muted italic">This function accepts no input arguments.</p>
+                          <p className="text-xs text-muted italic">
+                            This function accepts no input arguments.
+                          </p>
                         )}
 
                         <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-6">
@@ -694,7 +798,8 @@ export default function LandingPage() {
                 <Terminal className="w-12 h-12 text-muted/30 mb-4" />
                 <h3 className="text-base font-bold text-white/80">Select a contract method</h3>
                 <p className="text-xs text-muted max-w-xs mx-auto mt-1">
-                  Choose a public function from the sidebar to inspect parameters, input arguments, and simulate live transactions.
+                  Choose a public function from the sidebar to inspect parameters, input arguments,
+                  and simulate live transactions.
                 </p>
               </div>
             )}
@@ -706,12 +811,16 @@ export default function LandingPage() {
       <section className="grid grid-cols-2 md:grid-cols-4 gap-6">
         <div className="card glass noise p-6 text-center border border-white/5">
           <h3 className="text-4xl font-black text-white mb-1">20+</h3>
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted">Contract Methods</p>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted">
+            Contract Methods
+          </p>
           <p className="text-[9px] text-muted mt-1">create_task · complete · dispute · resolve</p>
         </div>
         <div className="card glass noise p-6 text-center border border-white/5">
           <h3 className="text-4xl font-black text-accent mb-1">8 / 8</h3>
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted">Test Cases Passing</p>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted">
+            Test Cases Passing
+          </p>
           <p className="text-[9px] text-muted mt-1">Soroban SDK test harness</p>
         </div>
         <div className="card glass noise p-6 text-center border border-white/5">
@@ -731,9 +840,12 @@ export default function LandingPage() {
       {/* ── READY CALL TO ACTION ── */}
       <section className="relative overflow-hidden rounded-3xl bg-linear-to-r from-accent2/25 to-slate-900 border border-accent2/20 py-16 px-8 sm:px-12 text-center shadow-2xl">
         <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">Ready to decentralize your workflow?</h2>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+            Ready to decentralize your workflow?
+          </h2>
           <p className="text-muted text-sm sm:text-base leading-relaxed max-w-lg mx-auto">
-            Join thousands of developers and DAOs using TaskManager Pro to securely delegate tasks and distribute bounties using the Stellar network.
+            Join thousands of developers and DAOs using TaskManager Pro to securely delegate tasks
+            and distribute bounties using the Stellar network.
           </p>
           <button
             onClick={() => navigate('/dashboard')}

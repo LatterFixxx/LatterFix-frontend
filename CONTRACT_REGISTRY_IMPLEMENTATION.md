@@ -117,11 +117,11 @@ Returns all deployed contract addresses with metadata.
 The contract service is automatically initialized in `App.tsx`:
 
 ```typescript
-import { contractService } from "./services/contracts";
+import { contractService } from './services/contracts';
 
 useEffect(() => {
   contractService.initialize().catch((error) => {
-    console.error("Failed to initialize contract service:", error);
+    console.error('Failed to initialize contract service:', error);
   });
 }, []);
 ```
@@ -129,10 +129,10 @@ useEffect(() => {
 ### Get Contract IDs
 
 ```typescript
-import { contractService } from "./services/contracts";
+import { contractService } from './services/contracts';
 
 // Get a specific contract ID
-const contractId = contractService.getContractId("bulk_payment", "testnet");
+const contractId = contractService.getContractId('bulk_payment', 'testnet');
 
 // Get all contracts
 const registry = contractService.getAllContracts();
@@ -172,16 +172,16 @@ To add a new contract type:
    ```typescript
    // frontend/src/services/contracts.types.ts
    export type ContractType =
-     | "bulk_payment"
-     | "vesting_escrow"
-     | "revenue_split"
-     | "cross_asset_payment"
-     | "new_contract"; // Add here
+     | 'bulk_payment'
+     | 'vesting_escrow'
+     | 'revenue_split'
+     | 'cross_asset_payment'
+     | 'new_contract'; // Add here
    ```
 
 3. **Use in frontend:**
    ```typescript
-   const contractId = contractService.getContractId("new_contract", "testnet");
+   const contractId = contractService.getContractId('new_contract', 'testnet');
    ```
 
 No code changes required in controllers or services!
@@ -246,13 +246,13 @@ Tests cover:
 **Before:**
 
 ```typescript
-const BULK_PAYMENT_CONTRACT = "CABC123...";
+const BULK_PAYMENT_CONTRACT = 'CABC123...';
 ```
 
 **After:**
 
 ```typescript
-const contractId = contractService.getContractId("bulk_payment", "testnet");
+const contractId = contractService.getContractId('bulk_payment', 'testnet');
 ```
 
 ### From Environment Variables
@@ -266,7 +266,7 @@ const contractId = import.meta.env.VITE_BULK_PAYMENT_CONTRACT_ID;
 **After:**
 
 ```typescript
-const contractId = contractService.getContractId("bulk_payment", "testnet");
+const contractId = contractService.getContractId('bulk_payment', 'testnet');
 ```
 
 ## Performance
