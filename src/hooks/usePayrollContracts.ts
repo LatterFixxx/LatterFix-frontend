@@ -1,4 +1,4 @@
-import { nativeToScVal, scValToNative, xdr } from '@stellar/stellar-sdk';
+import { Address, nativeToScVal, scValToNative, xdr } from '@stellar/stellar-sdk';
 import type { ContractType } from '../services/contracts.types';
 import { useSorobanContract } from './useSorobanContract';
 
@@ -9,13 +9,16 @@ export interface BulkPaymentResult {
   transactionHash: string;
 }
 
-export interface VestingScheduleResult {
-  scheduleId: string;
+export interface VestingGrantResult {
   beneficiary: string;
-  totalAmount: string;
+  token: string;
   startTime: number;
-  endTime: number;
-  releasedAmount: string;
+  cliffSeconds: number;
+  durationSeconds: number;
+  totalAmount: string;
+  claimedAmount: string;
+  clawbackAdmin: string;
+  isActive: boolean;
 }
 
 export interface RevenueSplitResult {
@@ -35,15 +38,49 @@ function parseBulkPaymentResult(raw: unknown): BulkPaymentResult {
   };
 }
 
-function parseVestingScheduleResult(raw: unknown): VestingScheduleResult {
-  const data = raw as Record<string, unknown>;
+function toStringValue(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'bigint') return String(value);
+  if (typeof value === 'object' && value instanceof Address) return value.toString();
+  if (value && typeof value === 'object' && 'toString' in value) {
+    return String((value as { toString: () => string }).toString());
+  }
+  return '';
+}
+
+function toNumberValue(value: unknown): number {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'bigint') return Number(value);
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+}
+
+function toBigIntString(value: unknown): string {
+  if (typeof value === 'bigint') return value.toString();
+  if (typeof value === 'number') return String(Math.trunc(value));
+  if (typeof value === 'string' && value.trim()) return value;
+  return '0';
+}
+
+function parseVestingGrantResult(raw: unknown): VestingGrantResult {
+  const data = (raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {}) as Record<
+    string,
+    unknown
+  >;
+
   return {
-    scheduleId: typeof data?.scheduleId === 'string' ? data.scheduleId : '',
-    beneficiary: typeof data?.beneficiary === 'string' ? data.beneficiary : '',
-    totalAmount: typeof data?.totalAmount === 'string' ? data.totalAmount : '0',
-    startTime: typeof data?.startTime === 'number' ? data.startTime : 0,
-    endTime: typeof data?.endTime === 'number' ? data.endTime : 0,
-    releasedAmount: typeof data?.releasedAmount === 'string' ? data.releasedAmount : '0',
+    beneficiary: toStringValue(data.beneficiary ?? data.beneficiary_address),
+    token: toStringValue(data.token),
+    startTime: toNumberValue(data.start_time ?? data.startTime),
+    cliffSeconds: toNumberValue(data.cliff_seconds ?? data.cliffSeconds),
+    durationSeconds: toNumberValue(data.duration_seconds ?? data.durationSeconds),
+    totalAmount: toBigIntString(data.total_amount ?? data.totalAmount),
+    claimedAmount: toBigIntString(data.claimed_amount ?? data.claimedAmount),
+    clawbackAdmin: toStringValue(data.clawback_admin ?? data.clawbackAdmin),
+    isActive: data.is_active === true || data.isActive === true,
   };
 }
 
@@ -84,45 +121,67 @@ export function useBulkPaymentContract(contractId: string) {
 }
 
 export function useVestingEscrowContract(contractId: string) {
-  const hook = useSorobanContract<VestingScheduleResult>(contractId);
+  const hook = useSorobanContract<unknown>(contractId);
 
-  const createSchedule = async (args: {
+  const createGrant = async (args: {
+    funder: string;
     beneficiary: string;
-    amount: string;
+    token: string;
     startTime: number;
-    endTime: number;
-    cliffDuration?: number;
+    cliffSeconds: number;
+    durationSeconds: number;
+    amount: string;
+    clawbackAdmin?: string;
   }) => {
     return hook.invoke({
-      method: 'create_vesting_schedule',
+      method: 'initialize',
       args: [
-        args.beneficiary,
-        args.amount,
+        new Address(args.funder),
+        new Address(args.beneficiary),
+        new Address(args.token),
         BigInt(args.startTime),
-        BigInt(args.endTime),
-        BigInt(args.cliffDuration ?? 0),
+        BigInt(args.cliffSeconds),
+        BigInt(args.durationSeconds),
+        BigInt(args.amount),
+        new Address(args.clawbackAdmin ?? args.funder),
       ],
-      parseResult: parseVestingScheduleResult,
+      parseResult: () => null,
     });
   };
 
-  const release = async (scheduleId: string) => {
+  const claim = async () => {
     return hook.invoke({
-      method: 'release',
-      args: [scheduleId],
-      parseResult: parseVestingScheduleResult,
+      method: 'claim',
+      args: [],
+      parseResult: () => null,
     });
   };
 
-  const getSchedule = async (scheduleId: string) => {
+  const getGrant = async () => {
     return hook.invoke({
-      method: 'get_schedule',
-      args: [scheduleId],
-      parseResult: parseVestingScheduleResult,
+      method: 'get_config',
+      args: [],
+      parseResult: parseVestingGrantResult,
     });
   };
 
-  return { ...hook, createSchedule, release, getSchedule };
+  const getVestedAmount = async () => {
+    return hook.invoke({
+      method: 'get_vested_amount',
+      args: [],
+      parseResult: toBigIntString,
+    });
+  };
+
+  const getClaimableAmount = async () => {
+    return hook.invoke({
+      method: 'get_claimable_amount',
+      args: [],
+      parseResult: toBigIntString,
+    });
+  };
+
+  return { ...hook, createGrant, claim, getGrant, getVestedAmount, getClaimableAmount };
 }
 
 export function useRevenueSplitContract(contractId: string) {
