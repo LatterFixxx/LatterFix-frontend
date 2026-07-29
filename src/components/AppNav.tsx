@@ -18,6 +18,7 @@ import {
   ArrowRightLeft,
   Shield,
   Bug,
+  Clock3,
 } from 'lucide-react';
 import { useTaskStore } from '../services/taskStore';
 import { useWallet } from '../hooks/useWallet';
@@ -119,7 +120,7 @@ const AppNav: React.FC = () => {
         className={({ isActive }) =>
           `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${
             isActive
-              ? 'text-(--accent) bg-white/5'
+              ? 'text-(--accent) bg-white/5 shadow-sm shadow-accent/5'
               : 'text-(--muted) hover:bg-white/10 hover:text-white'
           }`
         }
@@ -127,6 +128,21 @@ const AppNav: React.FC = () => {
       >
         <Coins className="w-4 h-4" />
         <span>Escrow &amp; Disputes</span>
+      </NavLink>
+
+      <NavLink
+        to="/vesting"
+        className={({ isActive }) =>
+          `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${
+            isActive
+              ? 'text-(--accent) bg-white/5 shadow-sm shadow-accent/5'
+              : 'text-(--muted) hover:bg-white/10 hover:text-white'
+          }`
+        }
+        onClick={() => setMobileOpen(false)}
+      >
+        <Clock3 className="w-4 h-4" />
+        <span>Vesting Escrow</span>
       </NavLink>
 
       <NavLink

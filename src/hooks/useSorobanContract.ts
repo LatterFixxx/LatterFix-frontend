@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import {
+  Address,
   BASE_FEE,
   Contract,
   StrKey,
@@ -17,7 +18,7 @@ import { getActiveNetwork, getNetworkEndpoints } from '../services/networkConfig
 
 type SorobanNativeArg = string | number | bigint | boolean | null;
 
-type SorobanArg = SorobanNativeArg | xdr.ScVal;
+type SorobanArg = SorobanNativeArg | xdr.ScVal | Address;
 
 interface InvokeOptions<TResult> {
   method: string;
@@ -62,6 +63,7 @@ function isScVal(value: SorobanArg): value is xdr.ScVal {
 
 function toScVal(arg: SorobanArg): xdr.ScVal {
   if (isScVal(arg)) return arg;
+  if (arg instanceof Address) return arg.toScVal();
   return nativeToScVal(arg);
 }
 

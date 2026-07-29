@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import CreateTask from './pages/CreateTask';
 import TaskExplorer from './pages/TaskExplorer';
 import EscrowManager from './pages/EscrowManager';
+import VestingEscrowManager from './pages/VestingEscrowManager';
 import PaymentLedger from './pages/PaymentLedger';
 import Settings from './pages/Settings';
 import Governance from './pages/Governance';
@@ -113,18 +114,10 @@ function App() {
           }
         />
         <Route
-          path="/admin"
+          path="/vesting"
           element={
-            <ErrorBoundary fallback={<ErrorFallback title="Admin Panel Error" />}>
-              <AdminPanel />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/debug/:contractName?"
-          element={
-            <ErrorBoundary fallback={<ErrorFallback title="Debugger Error" />}>
-              <Debugger />
+            <ErrorBoundary fallback={<ErrorFallback title="Vesting Escrow Error" />}>
+              <VestingEscrowManager />
             </ErrorBoundary>
           }
         />
