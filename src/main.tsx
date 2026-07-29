@@ -8,6 +8,7 @@ import { WalletProvider } from './providers/WalletProvider.tsx';
 import { NotificationProvider } from './providers/NotificationProvider.tsx';
 import { SocketProvider } from './providers/SocketProvider.tsx';
 import { ThemeProvider } from './providers/ThemeProvider.tsx';
+import { NetworkProvider } from './providers/NetworkProvider.tsx';
 import * as Sentry from '@sentry/react';
 import GlobalErrorBoundary from './components/GlobalErrorBoundary';
 import PageErrorFallback from './components/PageErrorFallback';
@@ -39,15 +40,17 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <NotificationProvider>
-          <SocketProvider>
-            <WalletProvider>
-              <BrowserRouter>
-                <GlobalErrorBoundary fallback={<PageErrorFallback />}>
-                  <App />
-                </GlobalErrorBoundary>
-              </BrowserRouter>
-            </WalletProvider>
-          </SocketProvider>
+          <NetworkProvider>
+            <SocketProvider>
+              <WalletProvider>
+                <BrowserRouter>
+                  <GlobalErrorBoundary fallback={<PageErrorFallback />}>
+                    <App />
+                  </GlobalErrorBoundary>
+                </BrowserRouter>
+              </WalletProvider>
+            </SocketProvider>
+          </NetworkProvider>
         </NotificationProvider>
       </ThemeProvider>
     </QueryClientProvider>

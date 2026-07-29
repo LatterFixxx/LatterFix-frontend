@@ -15,6 +15,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ErrorFallback from './components/ErrorFallback';
 import Login from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
+import AdminPanel from './pages/AdminPanel';
+import Debugger from './pages/Debugger';
 import { contractService } from './services/contracts';
 
 function App() {
@@ -107,6 +109,22 @@ function App() {
           element={
             <ErrorBoundary fallback={<ErrorFallback title="Profile Error" />}>
               <Profile />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Admin Panel Error" />}>
+              <AdminPanel />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/debug/:contractName?"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Debugger Error" />}>
+              <Debugger />
             </ErrorBoundary>
           }
         />

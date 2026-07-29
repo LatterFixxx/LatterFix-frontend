@@ -16,6 +16,8 @@ import {
   ExternalLink,
   UserCircle2,
   ArrowRightLeft,
+  Shield,
+  Bug,
 } from 'lucide-react';
 import { useTaskStore } from '../services/taskStore';
 import { useWallet } from '../hooks/useWallet';
@@ -170,6 +172,38 @@ const AppNav: React.FC = () => {
       >
         <ShieldCheck className="w-4 h-4" />
         <span>Governance</span>
+      </NavLink>
+
+      {currentUser.role === 'Admin' && (
+        <NavLink
+          to="/admin"
+          className={({ isActive }) =>
+            `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${
+              isActive
+                ? 'text-(--accent) bg-white/5'
+                : 'text-(--muted) hover:bg-white/10 hover:text-white'
+            }`
+          }
+          onClick={() => setMobileOpen(false)}
+        >
+          <Shield className="w-4 h-4" />
+          <span>Admin Panel</span>
+        </NavLink>
+      )}
+
+      <NavLink
+        to="/debug"
+        className={({ isActive }) =>
+          `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${
+            isActive
+              ? 'text-(--accent) bg-white/5'
+              : 'text-(--muted) hover:bg-white/10 hover:text-white'
+          }`
+        }
+        onClick={() => setMobileOpen(false)}
+      >
+        <Bug className="w-4 h-4" />
+        <span>Debug</span>
       </NavLink>
 
       <NavLink

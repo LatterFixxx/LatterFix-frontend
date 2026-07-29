@@ -21,28 +21,25 @@ import {
   Claimant,
   TransactionBuilder,
   BASE_FEE,
-  Networks,
   StrKey,
   Memo,
 } from '@stellar/stellar-sdk';
+import { getActiveNetwork, getNetworkEndpoints } from './networkConfig';
 
 // ---------------------------------------------------------------------------
 // Configuration helpers
 // ---------------------------------------------------------------------------
 
 function getHorizonUrl(): string {
-  const envUrl = import.meta.env.PUBLIC_STELLAR_HORIZON_URL as string | undefined;
-  return (envUrl ?? 'https://horizon-testnet.stellar.org').replace(/\/+$/, '');
+  return getNetworkEndpoints(getActiveNetwork()).horizonUrl;
 }
 
 function getNetworkPassphrase(): string {
-  const network = (import.meta.env.PUBLIC_STELLAR_NETWORK as string | undefined)?.toUpperCase();
-  if (network === 'MAINNET') return Networks.PUBLIC;
-  return Networks.TESTNET;
+  return getNetworkEndpoints(getActiveNetwork()).networkPassphrase;
 }
 
 export function getExplorerUrl(type: 'tx' | 'account' | 'asset', id: string): string {
-  const network = getNetworkPassphrase() === Networks.PUBLIC ? 'public' : 'testnet';
+  const network = getActiveNetwork() === 'mainnet' ? 'public' : 'testnet';
   return `https://stellar.expert/explorer/${network}/${type}/${id}`;
 }
 
