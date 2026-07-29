@@ -24,6 +24,7 @@ import assetRoutes from './routes/assetRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
 import contractRoutes from './routes/contractRoutes.js';
+import payrollScheduleRoutes from './routes/payrollScheduleRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,6 +70,7 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/schedules', payrollScheduleRoutes);
 app.use('/api', contractRoutes);
 
 // Health check endpoint

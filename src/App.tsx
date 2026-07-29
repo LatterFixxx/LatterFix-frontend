@@ -11,6 +11,7 @@ import Settings from './pages/Settings';
 import Governance from './pages/Governance';
 import Profile from './pages/Profile';
 import CrossAssetPayment from './pages/CrossAssetPayment';
+import PayrollScheduler from './pages/PayrollScheduler';
 import AppLayout from './components/AppLayout';
 import ErrorBoundary from './components/ErrorBoundary';
 import ErrorFallback from './components/ErrorFallback';
@@ -76,6 +77,14 @@ function App() {
           element={
             <ErrorBoundary fallback={<ErrorFallback title="Cross-Asset Error" />}>
               <CrossAssetPayment />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/payroll-scheduler"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Payroll Scheduler Error" />}>
+              <PayrollScheduler />
             </ErrorBoundary>
           }
         />

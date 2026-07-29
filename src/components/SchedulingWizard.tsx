@@ -1,36 +1,42 @@
 import React, { useState } from 'react';
 
-interface EmployeePreference {
+export interface EmployeePreference {
   id: string;
+  employeeId: number;
   name: string;
+  walletAddress: string;
   amount: string;
   currency: string;
 }
 
-interface SchedulingConfig {
+export interface SchedulingConfig {
   frequency: 'weekly' | 'biweekly' | 'monthly';
   dayOfWeek?: number; // 0-6 (Sunday-Saturday) for weekly/biweekly
   dayOfMonth?: number; // 1-31 for monthly
   timeOfDay: string; // HH:mm format
+  tokenAddress: string; // Soroban token contract address used by bulk_payment
   preferences: EmployeePreference[];
 }
 
 export const SchedulingWizard = ({
   onComplete,
   onCancel,
+  isSubmitting,
 }: {
   onComplete: (config: SchedulingConfig) => void;
   onCancel: () => void;
+  isSubmitting?: boolean;
 }) => {
   const [step, setStep] = useState(1);
   const [config, setConfig] = useState<SchedulingConfig>({
     frequency: 'monthly',
     dayOfMonth: 1,
     timeOfDay: '09:00',
+    tokenAddress: '',
     preferences: [
-      { id: '1', name: 'Alice', amount: '1000', currency: 'USDC' },
-      { id: '2', name: 'Bob', amount: '1500', currency: 'XLM' },
-    ], // Mock employees for now
+      { id: '1', employeeId: 1, name: 'Alice', walletAddress: '', amount: '1000', currency: 'USDC' },
+      { id: '2', employeeId: 2, name: 'Bob', walletAddress: '', amount: '1500', currency: 'XLM' },
+    ], // Mock employee roster for now — no employee directory API exists yet
   });
 
   const handleNext = () => setStep((s: number) => Math.min(s + 1, 3));
@@ -169,6 +175,21 @@ export const SchedulingWizard = ({
               className="w-full bg-black/20 border border-hi rounded-xl p-4 text-text outline-none focus:border-accent/50 focus:bg-accent/5 transition-all font-mono"
             />
           </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-xs font-bold uppercase tracking-widest text-muted mb-3 ml-1">
+              Token Contract Address
+            </label>
+            <input
+              type="text"
+              value={config.tokenAddress}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setConfig({ ...config, tokenAddress: e.target.value })
+              }
+              placeholder="C... Soroban token contract used for on-chain distribution"
+              className="w-full bg-black/20 border border-hi rounded-xl p-4 text-text outline-none focus:border-accent/50 focus:bg-accent/5 transition-all font-mono"
+            />
+          </div>
         </div>
       )}
 
@@ -183,6 +204,7 @@ export const SchedulingWizard = ({
               <thead className="bg-surface/50 text-xs uppercase text-muted tracking-wider border-b border-hi">
                 <tr>
                   <th className="px-4 py-3">Employee</th>
+                  <th className="px-4 py-3">Wallet Address</th>
                   <th className="px-4 py-3">Scheduled Amount</th>
                   <th className="px-4 py-3">Receive In</th>
                 </tr>
@@ -191,13 +213,26 @@ export const SchedulingWizard = ({
                 {config.preferences.map((emp, index) => (
                   <tr key={emp.id} className="bg-black/10 hover:bg-black/20">
                     <td className="px-4 py-3 font-medium">{emp.name}</td>
+                    <td className="px-4 py-3">
+                      <input
+                        type="text"
+                        value={emp.walletAddress}
+                        placeholder="G... Stellar address"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const newPrefs = [...config.preferences];
+                          newPrefs[index] = { ...newPrefs[index], walletAddress: e.target.value };
+                          setConfig({ ...config, preferences: newPrefs });
+                        }}
+                        className="w-full bg-transparent border border-hi rounded p-1 text-text font-mono text-xs focus:border-accent outline-none"
+                      />
+                    </td>
                     <td className="px-4 py-3 font-mono text-muted">${emp.amount}</td>
                     <td className="px-4 py-3">
                       <select
                         value={emp.currency}
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                           const newPrefs = [...config.preferences];
-                          newPrefs[index].currency = e.target.value;
+                          newPrefs[index] = { ...newPrefs[index], currency: e.target.value };
                           setConfig({ ...config, preferences: newPrefs });
                         }}
                         className="bg-transparent border border-hi rounded p-1 text-text focus:border-accent outline-none"
@@ -286,10 +321,11 @@ export const SchedulingWizard = ({
           </button>
         ) : (
           <button
-            className="py-2 px-6 rounded-lg bg-success text-bg font-bold text-sm tracking-wide hover:brightness-110 shadow-lg shadow-success/20 transition-all flex items-center gap-2"
+            className="py-2 px-6 rounded-lg bg-success text-bg font-bold text-sm tracking-wide hover:brightness-110 shadow-lg shadow-success/20 transition-all flex items-center gap-2 disabled:opacity-60"
             onClick={() => onComplete(config)}
+            disabled={isSubmitting}
           >
-            Confirm Schedule
+            {isSubmitting ? 'Submitting...' : 'Confirm Schedule'}
             <svg
               width="16"
               height="16"

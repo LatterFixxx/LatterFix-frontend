@@ -6,3 +6,4 @@ export const redisConnection: ConnectionOptions = {
 };
 
 export const PAYROLL_QUEUE_NAME = 'payroll-processing';
+export const SCHEDULE_QUEUE_NAME = 'payroll-schedule-dispatch';
