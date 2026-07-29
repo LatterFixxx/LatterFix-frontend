@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useNotification } from '../hooks/useNotification';
 import { SocketContext } from '../hooks/useSocket';
+import { useNetwork } from '../hooks/useNetwork';
 
 // Assuming backend is running on port 3000
 const SOCKET_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:3000';
@@ -10,6 +11,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const { notifySuccess, notifyError } = useNotification();
+  const { network } = useNetwork();
+  const subscribedIds = useRef<Set<string>>(new Set());
+  const isFirstNetworkRun = useRef(true);
 
   useEffect(() => {
     const newSocket = io(SOCKET_URL, {
@@ -45,6 +49,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const subscribeToTransaction = (transactionId: string) => {
     if (socket && connected) {
       socket.emit('subscribe:transaction', transactionId);
+      subscribedIds.current.add(transactionId);
     }
   };
 
@@ -52,7 +57,25 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (socket && connected) {
       socket.emit('unsubscribe:transaction', transactionId);
     }
+    subscribedIds.current.delete(transactionId);
   };
+
+  const resetSubscriptions = useCallback(() => {
+    if (socket && connected) {
+      subscribedIds.current.forEach((id) => socket.emit('unsubscribe:transaction', id));
+    }
+    subscribedIds.current.clear();
+  }, [socket, connected]);
+
+  // Network switch (#085): stale per-transaction subscriptions no longer
+  // apply once contract IDs/RPC endpoints resolve to a different network.
+  useEffect(() => {
+    if (isFirstNetworkRun.current) {
+      isFirstNetworkRun.current = false;
+      return;
+    }
+    resetSubscriptions();
+  }, [network, resetSubscriptions]);
 
   return (
     <SocketContext
@@ -61,6 +84,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         connected,
         subscribeToTransaction,
         unsubscribeFromTransaction,
+        resetSubscriptions,
       }}
     >
       {children}

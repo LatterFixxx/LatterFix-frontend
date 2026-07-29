@@ -3,7 +3,6 @@ import {
   Address,
   BASE_FEE,
   Contract,
-  Networks,
   StrKey,
   rpc,
   TransactionBuilder,
@@ -15,6 +14,7 @@ import { useNotification } from './useNotification';
 import { useWallet } from './useWallet';
 import { useWalletSigning } from './useWalletSigning';
 import { simulateTransaction } from '../services/transactionSimulation';
+import { getActiveNetwork, getNetworkEndpoints } from '../services/networkConfig';
 
 type SorobanNativeArg = string | number | bigint | boolean | null;
 
@@ -49,14 +49,12 @@ const DEFAULT_MAX_POLL_ATTEMPTS = 20;
 
 function getRpcUrl(override?: string): string {
   if (override) return override.replace(/\/+$/, '');
-  const envRpc = import.meta.env.PUBLIC_STELLAR_RPC_URL as string | undefined;
-  return envRpc?.replace(/\/+$/, '') || 'https://soroban-testnet.stellar.org';
+  return getNetworkEndpoints(getActiveNetwork()).rpcUrl;
 }
 
 function getNetworkPassphrase(override?: string): string {
   if (override) return override;
-  const network = (import.meta.env.PUBLIC_STELLAR_NETWORK as string | undefined)?.toUpperCase();
-  return network === 'MAINNET' ? Networks.PUBLIC : Networks.TESTNET;
+  return getNetworkEndpoints(getActiveNetwork()).networkPassphrase;
 }
 
 function isScVal(value: SorobanArg): value is xdr.ScVal {
@@ -141,7 +139,7 @@ export function useSorobanContract<TResult = unknown>(
 
         const simulation = await simulateTransaction({
           envelopeXdr: transaction.toXDR(),
-          horizonUrl: import.meta.env.PUBLIC_STELLAR_HORIZON_URL as string | undefined,
+          horizonUrl: getNetworkEndpoints(getActiveNetwork()).horizonUrl,
         });
 
         if (!simulation.success) {

@@ -9,6 +9,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../hooks/useNotification';
 import { WalletContext } from '../hooks/useWallet';
+import { useNetwork } from '../hooks/useNetwork';
 
 const LAST_WALLET_STORAGE_KEY = 'payd:last_wallet_name';
 
@@ -31,17 +32,30 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isInitialized, setIsInitialized] = useState(false);
   const [walletExtensionAvailable, setWalletExtensionAvailable] = useState(true);
   const kitRef = useRef<StellarWalletsKit | null>(null);
+  const isFirstNetworkRun = useRef(true);
   const { t } = useTranslation();
   const { notify, notifySuccess, notifyError } = useNotification();
+  const { network } = useNetwork();
 
   useEffect(() => {
     setWalletExtensionAvailable(hasAnyWalletExtension());
 
     const newKit = new StellarWalletsKit({
-      network: WalletNetwork.TESTNET,
+      network: network === 'mainnet' ? WalletNetwork.PUBLIC : WalletNetwork.TESTNET,
       modules: [new FreighterModule(), new xBullModule(), new LobstrModule()],
     });
     kitRef.current = newKit;
+
+    // Network switch after initial load: reset wallet context (#085) rather
+    // than silently reconnecting under the new network's passphrase.
+    if (!isFirstNetworkRun.current) {
+      setAddress(null);
+      setIsConnecting(false);
+      setIsInitialized(true);
+      notify(`Wallet reset — reconnect to continue on ${network === 'mainnet' ? 'Mainnet' : 'Testnet'}.`);
+      return;
+    }
+    isFirstNetworkRun.current = false;
 
     const attemptSilentReconnect = async () => {
       const lastWalletName = localStorage.getItem(LAST_WALLET_STORAGE_KEY);
@@ -71,7 +85,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     void attemptSilentReconnect();
-  }, [notifySuccess]);
+  }, [network, notify, notifySuccess]);
 
   const connect = async (): Promise<string | null> => {
     const kit = kitRef.current;

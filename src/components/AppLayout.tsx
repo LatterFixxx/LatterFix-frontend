@@ -3,6 +3,7 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import ConnectAccount from '../components/ConnectAccount';
 import AppNav from './AppNav';
 import ThemeToggle from './ThemeToggle';
+import TestnetBanner from './TestnetBanner';
 
 // ── Page Wrapper ───────────────────────
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -51,6 +52,7 @@ const AppLayout: React.FC = () => {
 
       {/* Main */}
       <main className="flex flex-col flex-1 pt-(--header-h)">
+        <TestnetBanner />
         <PageWrapper>
           <div key={location.pathname} className="flex flex-col flex-1 px-6 py-8">
             <Outlet />

@@ -1,9 +1,12 @@
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import NetworkSwitcher from '../components/NetworkSwitcher';
+import { useNetwork } from '../hooks/useNetwork';
 
 export default function Debugger() {
   const { contractName } = useParams<{ contractName?: string }>();
   const { t } = useTranslation();
+  const { network } = useNetwork();
 
   return (
     <div className="flex-1 flex flex-col items-center justify-start p-12 max-w-6xl mx-auto w-full">
@@ -29,6 +32,13 @@ export default function Debugger() {
           <div className="card glass noise h-fit">
             <h3 className="text-lg font-bold mb-4">{t('debugger.networkStatusTitle')}</h3>
             <div className="space-y-4">
+              <NetworkSwitcher className="w-full" />
+              <div className="flex justify-between items-center">
+                <span className="text-muted text-xs uppercase font-bold tracking-widest">
+                  Active Network
+                </span>
+                <span className="text-text font-mono text-sm capitalize">{network}</span>
+              </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted text-xs uppercase font-bold tracking-widest">
                   {t('debugger.protocol')}
