@@ -11,6 +11,7 @@ import Settings from './pages/Settings';
 import Governance from './pages/Governance';
 import Profile from './pages/Profile';
 import CrossAssetPayment from './pages/CrossAssetPayment';
+import CustomReportBuilder from './pages/CustomReportBuilder';
 import AppLayout from './components/AppLayout';
 import ErrorBoundary from './components/ErrorBoundary';
 import ErrorFallback from './components/ErrorFallback';
@@ -90,6 +91,14 @@ function App() {
           element={
             <ErrorBoundary fallback={<ErrorFallback title="History Error" />}>
               <PaymentLedger />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Custom Report Builder Error" />}>
+              <CustomReportBuilder />
             </ErrorBoundary>
           }
         />
