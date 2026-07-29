@@ -3,6 +3,7 @@
   @typescript-eslint/no-base-to-string
 */
 import {
+  Address,
   BASE_FEE,
   Contract,
   Networks,
@@ -12,7 +13,6 @@ import {
   scValToNative,
   xdr,
 } from '@stellar/stellar-sdk';
-import { simulateTransaction } from './transactionSimulation';
 
 const API_BASE_URL =
   (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:3000';
@@ -20,12 +20,7 @@ const DEFAULT_RPC_URL =
   (import.meta.env.PUBLIC_STELLAR_RPC_URL as string | undefined) ||
   'https://soroban-testnet.stellar.org';
 
-const GET_ALLOCATIONS_METHOD =
-  (import.meta.env.VITE_REVENUE_SPLIT_GET_ALLOCATIONS_METHOD as string | undefined) ||
-  'get_allocations';
-const UPDATE_ALLOCATIONS_METHOD =
-  (import.meta.env.VITE_REVENUE_SPLIT_UPDATE_ALLOCATIONS_METHOD as string | undefined) ||
-  'set_allocations';
+export const TOTAL_BASIS_POINTS = 10000;
 
 export interface RevenueAllocation {
   recipient: string;
@@ -60,30 +55,74 @@ function toNumber(value: unknown): number {
   return 0;
 }
 
+/**
+ * Converts allocation percentages (0-100, may carry decimals) into whole
+ * basis points (0-10000) whose sum is always exactly TOTAL_BASIS_POINTS.
+ * Any rounding residual is absorbed by the last entry, mirroring the
+ * contract's own remainder-absorption convention in `distribute`.
+ */
+export function percentagesToBasisPoints(percentages: number[]): number[] {
+  if (percentages.length === 0) return [];
+
+  const rounded = percentages.map((p) => Math.round(p * 100));
+  const sum = rounded.reduce((total, value) => total + value, 0);
+  const remainder = TOTAL_BASIS_POINTS - sum;
+
+  const result = [...rounded];
+  result[result.length - 1] += remainder;
+
+  if (result.some((bp) => bp < 0)) {
+    throw new Error(
+      'Could not convert allocation percentages to whole basis points without a negative share. Adjust percentages so the total is closer to 100%.'
+    );
+  }
+
+  return result;
+}
+
 function normalizeAllocationsFromNative(nativeValue: unknown): RevenueAllocation[] {
   if (!Array.isArray(nativeValue)) return [];
 
   return nativeValue
     .map((entry) => {
-      if (Array.isArray(entry)) {
-        const [recipient, percentageRaw] = entry;
-        return {
-          recipient: String(recipient || ''),
-          percentage: toNumber(percentageRaw),
-        };
-      }
-
-      if (entry && typeof entry === 'object') {
-        const item = entry as Record<string, unknown>;
-        return {
-          recipient: String(item.recipient ?? item.address ?? ''),
-          percentage: toNumber(item.percentage ?? item.weight ?? item.share),
-        };
-      }
-
-      return { recipient: '', percentage: 0 };
+      if (!entry || typeof entry !== 'object') return { recipient: '', percentage: 0 };
+      const item = entry as Record<string, unknown>;
+      return {
+        recipient: String(item.destination ?? ''),
+        percentage: toNumber(item.basis_points) / 100,
+      };
     })
     .filter((entry) => entry.recipient);
+}
+
+/**
+ * Encodes one RecipientShare struct as an ScMap. Soroban's #[contracttype]
+ * derive serializes named struct fields sorted alphabetically by field name
+ * (and requires ScMap entries to be key-sorted to be valid on-chain), so for
+ * `RecipientShare { destination, basis_points }` the `basis_points` entry
+ * must come before `destination` (b < d).
+ */
+function recipientShareToScVal(destination: string, basisPoints: number): xdr.ScVal {
+  return xdr.ScVal.scvMap([
+    new xdr.ScMapEntry({
+      key: xdr.ScVal.scvSymbol('basis_points'),
+      val: nativeToScVal(basisPoints, { type: 'u32' }),
+    }),
+    new xdr.ScMapEntry({
+      key: xdr.ScVal.scvSymbol('destination'),
+      val: nativeToScVal(Address.fromString(destination), { type: 'address' }),
+    }),
+  ]);
+}
+
+/** Builds the Vec<RecipientShare> ScVal argument for `update_recipients`. */
+export function buildRecipientShareVecScVal(allocations: RevenueAllocation[]): xdr.ScVal {
+  const basisPoints = percentagesToBasisPoints(allocations.map((entry) => entry.percentage));
+  return xdr.ScVal.scvVec(
+    allocations.map((allocation, index) =>
+      recipientShareToScVal(allocation.recipient, basisPoints[index])
+    )
+  );
 }
 
 export async function fetchRevenueSplitAllocations(
@@ -100,7 +139,7 @@ export async function fetchRevenueSplitAllocations(
     fee: BASE_FEE,
     networkPassphrase: getNetworkPassphrase(),
   })
-    .addOperation(contract.call(GET_ALLOCATIONS_METHOD))
+    .addOperation(contract.call('get_recipients'))
     .setTimeout(60)
     .build();
 
@@ -135,48 +174,6 @@ export async function fetchRevenueSplitAllocations(
   const retval = xdr.ScVal.fromXDR(payload.result.retval, 'base64');
   const nativeValue = scValToNative(retval);
   return normalizeAllocationsFromNative(nativeValue);
-}
-
-export async function updateRevenueAllocations(options: {
-  contractId: string;
-  sourceAddress: string;
-  allocations: RevenueAllocation[];
-  signTransaction: (xdr: string) => Promise<string>;
-  rpcUrlOverride?: string;
-}): Promise<{ txHash: string }> {
-  const rpcUrl = normalizeBaseUrl(options.rpcUrlOverride || DEFAULT_RPC_URL);
-  const server = new rpc.Server(rpcUrl, { allowHttp: rpcUrl.startsWith('http://') });
-  const account = await server.getAccount(options.sourceAddress);
-  const contract = new Contract(options.contractId);
-
-  const allocationPayload = options.allocations.map((entry) => [
-    entry.recipient,
-    Number.parseFloat(entry.percentage.toFixed(4)),
-  ]);
-
-  const tx = new TransactionBuilder(account, {
-    fee: BASE_FEE,
-    networkPassphrase: getNetworkPassphrase(),
-  })
-    .addOperation(contract.call(UPDATE_ALLOCATIONS_METHOD, nativeToScVal(allocationPayload)))
-    .setTimeout(60)
-    .build();
-
-  const simulation = await simulateTransaction({ envelopeXdr: tx.toXDR() });
-  if (!simulation.success) {
-    throw new Error(simulation.description || 'Simulation failed for allocation update');
-  }
-
-  const prepared = await server.prepareTransaction(tx);
-  const signedXdr = await options.signTransaction(prepared.toXDR());
-  const signedTx = TransactionBuilder.fromXDR(signedXdr, getNetworkPassphrase());
-  const submitted = await server.sendTransaction(signedTx);
-
-  if (submitted.status === 'ERROR') {
-    throw new Error('Allocation update transaction failed.');
-  }
-
-  return { txHash: submitted.hash };
 }
 
 export async function fetchDistributionEvents(
