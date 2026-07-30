@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { AutosaveIndicator } from '../components/AutosaveIndicator';
 import { useAutosave } from '../hooks/useAutosave';
+import ContractErrorPanel from '../components/ContractErrorPanel';
+import { parseContractError, type ContractErrorDetail } from '../utils/contractErrorParser';
 
 interface PayrollFormState {
   employeeName: string;
@@ -18,6 +20,7 @@ const initialFormState: PayrollFormState = {
 
 export default function PayrollScheduler() {
   const [formData, setFormData] = useState<PayrollFormState>(initialFormState);
+  const [contractError, setContractError] = useState<ContractErrorDetail | null>(null);
 
   const { saving, lastSaved, loadSavedData } = useAutosave<PayrollFormState>(
     'payroll-scheduler-draft',
@@ -39,6 +42,13 @@ export default function PayrollScheduler() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
+    // Simulate an error for demonstration since actual contract integration is missing here
+    try {
+      throw new Error("Contract call failed (Simulated).");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setContractError(parseContractError(undefined, message));
+    }
   };
 
   return (
@@ -54,6 +64,11 @@ export default function PayrollScheduler() {
         </div>
         <AutosaveIndicator saving={saving} lastSaved={lastSaved} />
       </div>
+
+      <ContractErrorPanel 
+        error={contractError} 
+        onClear={() => setContractError(null)} 
+      />
 
       <form
         onSubmit={handleSubmit}
