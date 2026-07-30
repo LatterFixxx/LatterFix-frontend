@@ -105,6 +105,14 @@ function App() {
           }
         />
         <Route
+          path="/reports"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Custom Report Builder Error" />}>
+              <CustomReportBuilder />
+            </ErrorBoundary>
+          }
+        />
+        <Route
           path="/settings"
           element={
             <ErrorBoundary fallback={<ErrorFallback title="Settings Error" />}>
