@@ -176,6 +176,21 @@ const AppNav: React.FC = () => {
       </NavLink>
 
       <NavLink
+        to="/reports"
+        className={({ isActive }) =>
+          `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${
+            isActive
+              ? 'text-(--accent) bg-white/5'
+              : 'text-(--muted) hover:bg-white/10 hover:text-white'
+          }`
+        }
+        onClick={() => setMobileOpen(false)}
+      >
+        <ExternalLink className="w-4 h-4" />
+        <span>Custom Reports</span>
+      </NavLink>
+
+      <NavLink
         to="/governance"
         className={({ isActive }) =>
           `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${
