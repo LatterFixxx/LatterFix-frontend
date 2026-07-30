@@ -184,3 +184,59 @@ fn test_update_recipients() {
 
     client.update_recipients(&new_shares);
 }
+
+#[test]
+fn test_get_recipients() {
+    let env = Env::default();
+    let contract_id = env.register(RevenueSplitContract, ());
+    let client = RevenueSplitContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let recipient1 = Address::generate(&env);
+    let recipient2 = Address::generate(&env);
+
+    let shares = Vec::from_array(&env, [
+        RecipientShare { destination: recipient1.clone(), basis_points: 6000 },
+        RecipientShare { destination: recipient2.clone(), basis_points: 4000 },
+    ]);
+
+    client.init(&admin, &shares);
+
+    let fetched = client.get_recipients();
+    assert_eq!(fetched, shares);
+}
+
+#[test]
+#[should_panic(expected = "Recipients entry unavailable; restore and retry")]
+fn test_get_recipients_before_init_panics() {
+    let env = Env::default();
+    let contract_id = env.register(RevenueSplitContract, ());
+    let client = RevenueSplitContractClient::new(&env, &contract_id);
+
+    client.get_recipients();
+}
+
+#[test]
+fn test_get_recipients_reflects_update_recipients() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(RevenueSplitContract, ());
+    let client = RevenueSplitContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let recipient1 = Address::generate(&env);
+    let shares = Vec::from_array(&env, [
+        RecipientShare { destination: recipient1.clone(), basis_points: 10000 },
+    ]);
+    client.init(&admin, &shares);
+
+    let recipient2 = Address::generate(&env);
+    let new_shares = Vec::from_array(&env, [
+        RecipientShare { destination: recipient1.clone(), basis_points: 5000 },
+        RecipientShare { destination: recipient2.clone(), basis_points: 5000 },
+    ]);
+    client.update_recipients(&new_shares);
+
+    assert_eq!(client.get_recipients(), new_shares);
+}

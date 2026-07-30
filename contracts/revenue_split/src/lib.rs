@@ -14,7 +14,7 @@ pub enum DataKey {
 const PERSISTENT_TTL_THRESHOLD: u32 = 20_000;
 const PERSISTENT_TTL_EXTEND_TO: u32 = 120_000;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 #[contracttype]
 pub struct RecipientShare {
     pub destination: Address,
@@ -72,6 +72,17 @@ impl RevenueSplitContract {
 
         env.storage().persistent().set(&DataKey::Recipients, &new_shares);
         Self::bump_core_ttl(&env);
+    }
+
+    /// Reads the current recipient revenue shares.
+    pub fn get_recipients(env: Env) -> Vec<RecipientShare> {
+        let shares: Vec<RecipientShare> = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Recipients)
+            .expect("Recipients entry unavailable; restore and retry");
+        Self::bump_core_ttl(&env);
+        shares
     }
 
     /// Extends TTL for critical organization configuration.

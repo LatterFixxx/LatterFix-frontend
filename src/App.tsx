@@ -11,7 +11,7 @@ import Settings from './pages/Settings';
 import Governance from './pages/Governance';
 import Profile from './pages/Profile';
 import CrossAssetPayment from './pages/CrossAssetPayment';
-import CustomReportBuilder from './pages/CustomReportBuilder';
+import RevenueSplitDashboard from './pages/RevenueSplitDashboard';
 import AppLayout from './components/AppLayout';
 import ErrorBoundary from './components/ErrorBoundary';
 import ErrorFallback from './components/ErrorFallback';
@@ -77,6 +77,14 @@ function App() {
           element={
             <ErrorBoundary fallback={<ErrorFallback title="Cross-Asset Error" />}>
               <CrossAssetPayment />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/revenue-split"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Revenue Split Error" />}>
+              <RevenueSplitDashboard />
             </ErrorBoundary>
           }
         />
