@@ -7,6 +7,7 @@ import TaskExplorer from './pages/TaskExplorer';
 import EscrowManager from './pages/EscrowManager';
 import VestingEscrowManager from './pages/VestingEscrowManager';
 import PaymentLedger from './pages/PaymentLedger';
+import PayrollScheduler from './pages/PayrollScheduler';
 import Settings from './pages/Settings';
 import Governance from './pages/Governance';
 import Profile from './pages/Profile';
@@ -17,8 +18,6 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ErrorFallback from './components/ErrorFallback';
 import Login from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
-import AdminPanel from './pages/AdminPanel';
-import Debugger from './pages/Debugger';
 import { contractService } from './services/contracts';
 
 function App() {
@@ -135,6 +134,14 @@ function App() {
           element={
             <ErrorBoundary fallback={<ErrorFallback title="Vesting Escrow Error" />}>
               <VestingEscrowManager />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/payroll"
+          element={
+            <ErrorBoundary fallback={<ErrorFallback title="Payroll Scheduler Error" />}>
+              <PayrollScheduler />
             </ErrorBoundary>
           }
         />
